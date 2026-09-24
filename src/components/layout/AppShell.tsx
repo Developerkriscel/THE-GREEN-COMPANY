@@ -34,22 +34,25 @@ export function AppShell({
   const { profile, signOut } = useAuth()
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    /* h-screen + overflow-hidden pins the shell to the viewport. Without it
+       the page is one tall column and the sidebar scrolls away with the
+       content -- the nav has to stay put while a long table moves. */
+    <div className="flex h-screen overflow-hidden bg-[#f8fafd]">
       {/* Sidebar */}
       <aside
         className={clsx(
-          'fixed inset-y-0 left-0 z-50 w-64 shrink-0 border-r border-slate-200 bg-white transition-transform lg:static lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 flex h-full w-64 shrink-0 flex-col bg-[#f8fafd] transition-transform lg:static lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
+        <div className="flex h-16 shrink-0 items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-700 font-display font-bold text-white">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-700 font-display text-sm font-bold text-white">
               R
             </span>
             <div className="leading-tight">
               <p className="font-display text-sm font-semibold">Royal Green</p>
-              <p className="text-[11px] uppercase tracking-wide text-slate-500">{area}</p>
+              <p className="text-[11px] tracking-wide text-slate-500">{area}</p>
             </div>
           </Link>
           <button className="rounded p-1 text-slate-500 lg:hidden" onClick={() => setOpen(false)}>
@@ -57,7 +60,7 @@ export function AppShell({
           </button>
         </div>
 
-        <nav className="flex flex-col gap-0.5 overflow-y-auto p-3">
+        <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-3 pb-3 [scrollbar-width:thin]">
           {nav.map((item) => (
             <NavLink
               key={item.to}
@@ -66,10 +69,10 @@ export function AppShell({
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 clsx(
-                  'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition',
+                  'flex items-center gap-3 rounded-full px-4 py-2.5 text-sm transition-colors',
                   isActive
-                    ? 'bg-brand-50 text-brand-800'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+                    ? 'bg-brand-100 font-semibold text-brand-900'
+                    : 'font-medium text-slate-700 hover:bg-slate-200/60',
                 )
               }
             >
@@ -79,8 +82,8 @@ export function AppShell({
           ))}
         </nav>
 
-        <div className="mt-auto border-t border-slate-200 p-3">
-          <div className="flex items-center gap-2.5 rounded-lg px-2 py-2">
+        <div className="shrink-0 border-t border-slate-200/70 p-3">
+          <div className="flex items-center gap-2.5 rounded-xl px-2 py-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700">
               {initials(profile?.full_name)}
             </span>
@@ -95,7 +98,7 @@ export function AppShell({
           </div>
           <button
             onClick={() => void signOut()}
-            className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100"
+            className="mt-2 flex w-full items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200/60"
           >
             <LogOut className="h-4 w-4" /> Sign out
           </button>
@@ -105,23 +108,27 @@ export function AppShell({
       {open && <div className="fixed inset-0 z-40 bg-slate-900/30 lg:hidden" onClick={() => setOpen(false)} />}
 
       {/* Main */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 sm:px-6">
-          <button className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" onClick={() => setOpen(true)}>
+      <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
+        {/* shrink-0 keeps the bar out of the scrolling area entirely, so it
+            needs no sticky positioning and never overlaps a dropdown */}
+        <header className="flex h-16 shrink-0 items-center justify-between gap-3 bg-[#f8fafd] px-4 sm:px-6">
+          <button className="rounded-full p-2.5 text-slate-600 transition-colors hover:bg-slate-200/60 lg:hidden" onClick={() => setOpen(true)}>
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex-1" />
           <NotificationBell />
           <Link
             to={`${nav[0]?.to.split('/').slice(0, 2).join('/')}/profile`}
-            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"
+            className="rounded-full p-2.5 text-slate-600 transition-colors hover:bg-slate-200/60"
             title="Profile"
           >
             <User className="h-5 w-5" />
           </Link>
         </header>
 
-        <main className="min-w-0 flex-1 p-4 sm:p-6">
+        {/* The only scrolling element on the right. Rounded top-left corner
+            over the tinted shell is the Workspace surface treatment. */}
+        <main className="min-w-0 flex-1 overflow-y-auto rounded-tl-2xl bg-white p-4 sm:p-6">
           {banner && <div className="mb-4">{banner}</div>}
           {children ?? <Outlet />}
         </main>
@@ -163,7 +170,7 @@ function NotificationBell() {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-lg p-2 text-slate-600 hover:bg-slate-100"
+        className="relative rounded-full p-2.5 text-slate-600 transition-colors hover:bg-slate-200/60"
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5" />
