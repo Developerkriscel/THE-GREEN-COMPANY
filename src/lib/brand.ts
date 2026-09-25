@@ -17,11 +17,11 @@
 
 export const BRAND = {
   /** Registered name, for letters, footers and anything legal-facing. */
-  legalName: 'Royal Green Company Pvt Ltd',
+  legalName: 'Royal Symo Green City Pvt Ltd',
   /** How the company refers to itself in running text. */
-  name: 'Royal Green Company',
+  name: 'Symocity',
   /** The short form, for a sidebar or a badge where space is tight. */
-  short: 'Royal Green Company',
+  short: 'Symocity',
   tagline: 'Real Value in a Changing Life',
 
   /** Served from public/ — no external host, so it cannot rot or expire. */
@@ -40,7 +40,7 @@ export const BRAND = {
   compliance: 'RERA Compliant · Premium Real Estate Developer',
 } as const
 
-/** `© 2026 Royal Symo Green City Pvt Ltd. All rights reserved.` */
+/** `© 2026 Royal Symo Green City Pvt Ltd. All rights reserved.` -- the registered name, from the brand sheet. */
 export function copyright(year = new Date().getFullYear()) {
   return `© ${year} ${BRAND.legalName}. All rights reserved.`
 }

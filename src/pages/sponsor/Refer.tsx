@@ -8,6 +8,7 @@ import {
 } from '@/components/ui'
 import { Notice, SkeletonRows } from '@/components/sponsor'
 import { date, num } from '@/lib/format'
+import { BRAND } from '@/lib/brand'
 
 /**
  * Module 10 — bring someone into the team without the office placing them by hand.
@@ -115,7 +116,7 @@ export function SponsorRefer() {
               {copied ? 'Copied' : 'Copy'}
             </Button>
             <a
-              href={`https://wa.me/?text=${encodeURIComponent(`Join my team at Royal Symo: ${link}`)}`}
+              href={`https://wa.me/?text=${encodeURIComponent(`Join my team at ${BRAND.name}: ${link}`)}`}
               target="_blank"
               rel="noreferrer noopener"
             >

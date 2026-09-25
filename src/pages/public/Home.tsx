@@ -7,7 +7,7 @@ const HERO_DEFAULTS = {
   title_lead: 'Build Your',
   title_accent: 'Financial Future',
   title_tail: `with ${BRAND.name}`,
-  subtitle: "India's trusted royal green network. Earn direct sponsor income, level commissions and lifetime rewards.",
+  subtitle: "India's trusted Symocity network. Earn direct sponsor income, level commissions and lifetime rewards.",
   primary_cta_label: 'Join as Sponsor',
   primary_cta_link: '/register',
   secondary_cta_label: 'View Plans',
@@ -205,7 +205,7 @@ function FeaturedProjects() {
             Built on Trust. Designed for Growth.
           </h2>
           <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
-            From premium plots to integrated townships, every RGC project is engineered for long-term value.
+            From premium plots to integrated townships, every Symocity project is engineered for long-term value.
           </p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

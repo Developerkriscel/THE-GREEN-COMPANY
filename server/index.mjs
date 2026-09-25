@@ -13,7 +13,7 @@ import { handleSelect, handleInsert, handleUpdate, handleDelete, handleRpc } fro
 import { handleFunction } from './functions.mjs'
 
 /*
- * Royal Green API gateway.
+ * Symocity API gateway.
  *
  * Speaks enough PostgREST + GoTrue + Storage for the unmodified React app to
  * run against a plain Postgres (Neon). The point of doing it this way rather
@@ -477,7 +477,7 @@ async function start() {
 
   server.listen(config.port, () => {
     console.log(`
-  Royal Green API gateway
+  Symocity API gateway
   ───────────────────────────────────────────────
   listening   http://localhost:${config.port}
   database    ${config.databaseUrl.replace(/:\/\/[^@]*@/, '://***@')}

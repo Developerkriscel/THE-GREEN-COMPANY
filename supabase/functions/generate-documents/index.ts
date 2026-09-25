@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
       return json({ error: 'Documents are generated only for confirmed bookings' }, 409)
     }
 
-    const company = 'Royal Green Developers'
+    const company = 'Symocity'
     const created: string[] = []
 
     /* ------------------------------------------------------ welcome letter */

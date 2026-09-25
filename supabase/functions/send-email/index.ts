@@ -13,7 +13,7 @@
 import { json, preflight } from '../_shared/cors.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-const MAIL_FROM = Deno.env.get('MAIL_FROM') ?? 'Royal Green <noreply@royalgreen.example>'
+const MAIL_FROM = Deno.env.get('MAIL_FROM') ?? 'Symocity <noreply@symocity.example>'
 const APP_BASE_URL = Deno.env.get('APP_BASE_URL') ?? 'http://localhost:5173'
 
 type TemplateId =
@@ -40,7 +40,7 @@ function render(template: TemplateId, d: Record<string, string | number>): Templ
   switch (template) {
     case 'account_pending':
       return {
-        subject: 'Your Royal Green registration was received',
+        subject: 'Your Symocity registration was received',
         heading: `Thanks for registering, ${d.name ?? 'there'}`,
         body: [
           'Your sales-partner account has been created and is awaiting activation by an administrator.',
@@ -49,7 +49,7 @@ function render(template: TemplateId, d: Record<string, string | number>): Templ
       }
     case 'account_activated':
       return {
-        subject: 'Your Royal Green account is active',
+        subject: 'Your Symocity account is active',
         heading: `You are all set, ${d.name ?? 'there'}`,
         body: [
           `Your account has been activated${d.user_code ? ` with member ID ${d.user_code}` : ''}.`,
@@ -154,14 +154,14 @@ function html(t: Template) {
   return `<!doctype html>
 <html><body style="margin:0;background:#f8fafc;font-family:Inter,Arial,sans-serif;color:#0f172a">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px">
-    <p style="font-size:20px;font-weight:700;color:#15803d;margin:0 0 24px">Royal Green</p>
+    <p style="font-size:20px;font-weight:700;color:#15803d;margin:0 0 24px">Symocity</p>
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:28px">
       <h1 style="font-size:18px;margin:0 0 14px">${t.heading}</h1>
       ${t.body.map((p) => `<p style="font-size:14px;line-height:1.6;margin:0 0 12px;color:#334155">${p}</p>`).join('')}
       ${cta}
     </div>
     <p style="font-size:11px;color:#94a3b8;margin:20px 0 0">
-      You are receiving this because you have an account with Royal Green Developers.
+      You are receiving this because you have an account with Symocity.
     </p>
   </div>
 </body></html>`

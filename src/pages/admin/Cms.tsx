@@ -200,7 +200,7 @@ const HERO_DEFAULTS = {
   title_lead: 'Build Your',
   title_accent: 'Financial Future',
   title_tail: `with ${BRAND.name}`,
-  subtitle: "India's trusted royal green network. Earn direct sponsor income, level commissions and lifetime rewards — all the way up to Crown Diamond.",
+  subtitle: "India's trusted Symocity network. Earn direct sponsor income, level commissions and lifetime rewards — all the way up to Crown Diamond.",
   primary_cta_label: 'Join as Sponsor',
   primary_cta_link: '/register',
   secondary_cta_label: 'Explore Plans',

@@ -124,7 +124,7 @@ async function generateDocuments({ booking_id }) {
       })
     }
 
-    const company = 'Royal Green Developers'
+    const company = config.brandName
     const stamp = Date.now()
     const created = []
 
@@ -258,7 +258,7 @@ async function generateReceipt({ emi_id }) {
     }
 
     const pdf = buildPdf([
-      { text: 'Royal Green Developers', size: 18, bold: true },
+      { text: config.brandName, size: 18, bold: true },
       { text: 'Payment Receipt', size: 13, bold: true, gap: 12 },
       { text: `Receipt number: ${e.receipt_no ?? '-'}`, size: 10 },
       { text: `Date: ${day(e.paid_on ?? e.paid_at)}`, size: 10, gap: 14 },

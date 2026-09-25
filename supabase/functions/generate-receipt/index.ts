@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     const booking = emi.booking as Record<string, any>
 
     const pdf = buildPdf([
-      { text: 'Royal Green Developers', size: 18, bold: true },
+      { text: 'Symocity', size: 18, bold: true },
       { text: 'Payment Receipt', size: 13, bold: true, gap: 12 },
       { text: `Receipt number: ${payment?.receipt_no ?? '-'}`, size: 10 },
       { text: `Date: ${day(payment?.paid_on ?? emi.paid_at)}`, size: 10, gap: 14 },

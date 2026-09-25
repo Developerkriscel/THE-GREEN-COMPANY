@@ -144,7 +144,7 @@ export function TeamPage() {
           <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">OUR TEAM</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Leadership at {BRAND.name}</h1>
           <p className="mx-auto max-w-xl text-lg text-white/60">
-            Director, Managing Director, Branch Managers and Rank Achievers powering the RGC network.
+            Director, Managing Director, Branch Managers and Rank Achievers powering the Symocity network.
           </p>
         </div>
       </section>
@@ -168,7 +168,7 @@ export function TeamPage() {
       )}
 
       {rankAchievers.length > 0 && (
-        <Section badge="RANK ACHIEVER" title="Rank Achiever" subtitle="Top performers who have climbed the RGC rank ladder.">
+        <Section badge="RANK ACHIEVER" title="Rank Achiever" subtitle="Top performers who have climbed the Symocity rank ladder.">
           <TeamGrid members={rankAchievers} />
         </Section>
       )}

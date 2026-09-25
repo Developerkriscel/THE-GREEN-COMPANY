@@ -44,7 +44,7 @@ enable_confirmations = true
 secure_password_change = true
 
 [auth.email.template.confirmation]
-subject = "Confirm your Royal Green account"
+subject = "Confirm your Symocity account"
 
 [auth.sessions]
 timebox = "168h"
