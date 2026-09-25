@@ -5,10 +5,11 @@ import { Bell, LogOut, Menu, User, X } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { ago, initials } from '@/lib/format'
+import { ago } from '@/lib/format'
 import { Badge } from '@/components/ui'
 import { RankBadge } from '@/components/status'
 import { BRAND } from '@/lib/brand'
+import { Avatar } from '@/components/Avatar'
 import type { Notification } from '@/lib/types'
 
 export interface NavItem {
@@ -96,9 +97,7 @@ export function AppShell({
 
         <div className="shrink-0 border-t border-slate-800 bg-[#081220] p-3">
           <div className="flex items-center gap-3 rounded-xl px-2 py-1.5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ea580c] text-sm font-bold text-white shadow">
-              {profile?.full_name ? profile.full_name[0].toUpperCase() : initials(profile?.email)}
-            </span>
+            <Avatar path={profile?.avatar_path} name={profile?.full_name || profile?.email} size={36} tone="brand" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-white">{profile?.full_name || 'Member'}</p>
               <p className="truncate text-xs font-mono text-slate-400">{profile?.user_code ?? profile?.email}</p>

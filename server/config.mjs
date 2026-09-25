@@ -67,6 +67,24 @@ export const config = {
 
   corsOrigin: get('APP_BASE_URL', 'http://localhost:5173'),
 
+  /**
+   * Set NODE_ENV=production on the live server. It turns a missing mail
+   * setup from "print to the console" into a hard error, because in
+   * production nobody is reading the console.
+   */
+  isProduction: get('NODE_ENV', '') === 'production',
+
+  // Outgoing mail (sign-up codes, password reset). Any SMTP provider; see
+  // server/mailer.mjs for Gmail and Brevo settings, both free.
+  smtpHost: get('SMTP_HOST', ''),
+  smtpPort: get('SMTP_PORT', '465'),
+  smtpUser: get('SMTP_USER', ''),
+  smtpPass: get('SMTP_PASS', ''),
+  mailFrom: get('MAIL_FROM', ''),
+
+  /** The company name mail is signed with. Keep in step with src/lib/brand.ts. */
+  brandName: get('BRAND_NAME', 'Royal Green Company'),
+
   // Schemas the REST layer will expose. `public` only, deliberately: exposing
   // `auth` or `storage` over HTTP would hand out the user table.
   exposedSchema: 'public',

@@ -5,6 +5,7 @@ import { homeRouteFor } from '../../context/AuthContext'
 import type { AppRole } from '../../lib/types'
 import { AuthLayout } from './AuthLayout'
 import { BRAND } from '@/lib/brand'
+import { VerifyEmailCode } from '@/components/VerifyEmailCode'
 
 type Tab = 'login' | 'signup'
 
@@ -18,6 +19,9 @@ export function CustomerLogin() {
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Set when the password was right but the email was never confirmed; the
+  // form is swapped for the code step instead of reporting a wrong password.
+  const [unconfirmed, setUnconfirmed] = useState<{ email: string; codeSent: boolean } | null>(null)
 
   // Signup state
   const [signupName, setSignupName] = useState('')
@@ -83,6 +87,13 @@ export function CustomerLogin() {
         password,
       })
       if (signInErr) {
+        // Right password, unconfirmed address: send a fresh code and ask for
+        // it, rather than telling a real member their password is wrong.
+        if ((signInErr as { code?: string }).code === 'email_not_confirmed') {
+          const { error: resendErr } = await supabase.auth.resend({ type: 'signup', email: email as string })
+          setUnconfirmed({ email: email as string, codeSent: !resendErr })
+          return
+        }
         // eslint-disable-next-line no-console
         console.error('[login] password sign-in failed', signInErr)
         const msg = String(signInErr.message ?? '')
@@ -125,6 +136,25 @@ export function CustomerLogin() {
     } finally {
       setSignupLoading(false)
     }
+  }
+
+  if (unconfirmed) {
+    return (
+      <AuthLayout title="Confirm your email" subtitle="Your account needs one more step before you can sign in.">
+        <VerifyEmailCode
+          email={unconfirmed.email}
+          sentOnMount={unconfirmed.codeSent}
+          onVerified={() => navigate('/sponsor', { replace: true })}
+        />
+        <button
+          type="button"
+          onClick={() => { setUnconfirmed(null); setPassword('') }}
+          className="mt-4 w-full text-center text-sm text-slate-500 hover:text-slate-800"
+        >
+          ← Back to sign in
+        </button>
+      </AuthLayout>
+    )
   }
 
   return (

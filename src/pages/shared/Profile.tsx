@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { KeyRound, ShieldCheck } from 'lucide-react'
+import { Camera, KeyRound, ShieldCheck, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { useMyKyc } from '@/lib/queries'
@@ -9,6 +9,8 @@ import {
 } from '@/components/ui'
 import { KycBadge, RankBadge } from '@/components/status'
 import { date, pct } from '@/lib/format'
+import { Avatar } from '@/components/Avatar'
+import { useRemoveAvatar, useUploadAvatar } from '@/lib/avatar'
 
 /** Internal role names are not member-facing language. */
 const ROLE_LABEL: Record<string, string> = {
@@ -62,6 +64,13 @@ export function ProfilePage() {
   return (
     <>
       <PageHeader title="My profile" description="Your details, your ID and your password." />
+
+      <ProfilePhoto
+        memberId={profile.id}
+        path={profile.avatar_path}
+        name={profile.full_name}
+        onChanged={refreshProfile}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -197,5 +206,81 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
       <span className="text-xs uppercase tracking-wide text-slate-500">{label}</span>
       <span className="text-sm font-medium text-slate-900">{value}</span>
     </div>
+  )
+}
+
+/* ------------------------------------------------------------------ photo */
+
+/**
+ * The member's photo. It appears on their ID card and to the office, so it
+ * is asked for plainly: a clear face, not a logo.
+ */
+function ProfilePhoto({
+  memberId, path, name, onChanged,
+}: {
+  memberId: string
+  path: string | null | undefined
+  name: string | null | undefined
+  onChanged: () => Promise<void>
+}) {
+  const { push } = useToast()
+  const fileRef = useRef<HTMLInputElement>(null)
+  const upload = useUploadAvatar(memberId, path)
+  const remove = useRemoveAvatar(memberId, path)
+
+  function pick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    // Clear the input, so choosing the same file again still fires a change.
+    e.target.value = ''
+    if (!file) return
+    if (file.size > 15 * 1024 * 1024) {
+      push('error', 'That photo is very large. Please choose one under 15 MB.')
+      return
+    }
+    upload.mutate(file, {
+      onSuccess: async () => { push('success', 'Photo updated.'); await onChanged() },
+      onError: (err) => push('error', (err as Error).message),
+    })
+  }
+
+  return (
+    <Card className="mb-6">
+      <CardBody>
+        <div className="flex flex-wrap items-center gap-5">
+          <Avatar path={path} name={name} size={88} />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-slate-900">Profile photo</p>
+            <p className="mt-0.5 text-sm text-slate-500">
+              Shown on your ID card and to the office. Use a clear photo of your face.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={pick}
+              />
+              <Button size="sm" loading={upload.isPending} onClick={() => fileRef.current?.click()}>
+                <Camera className="h-4 w-4" /> {path ? 'Change photo' : 'Upload photo'}
+              </Button>
+              {path && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  loading={remove.isPending}
+                  onClick={() => remove.mutate(undefined, {
+                    onSuccess: async () => { push('success', 'Photo removed.'); await onChanged() },
+                    onError: (err) => push('error', (err as Error).message),
+                  })}
+                >
+                  <Trash2 className="h-4 w-4" /> Remove
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </CardBody>
+    </Card>
   )
 }

@@ -8,6 +8,7 @@ import * as db from './db.mjs'
 import { verifyJwt, signJwt } from './jwt.mjs'
 import * as auth from './auth.mjs'
 import * as storage from './storage.mjs'
+import { extractFilePart } from './multipart.mjs'
 import { handleSelect, handleInsert, handleUpdate, handleDelete, handleRpc } from './rest.mjs'
 import { handleFunction } from './functions.mjs'
 
@@ -277,6 +278,13 @@ async function route(req, res) {
       await auth.recover((await readJson(req)) ?? {})
       return send(res, 200, {})
     }
+    // Sign-up confirmation: the six-digit code, and asking for a new one.
+    if (action === 'verify' && req.method === 'POST') {
+      return send(res, 200, await auth.verifyOtp((await readJson(req)) ?? {}))
+    }
+    if (action === 'resend' && req.method === 'POST') {
+      return send(res, 200, await auth.resend((await readJson(req)) ?? {}))
+    }
     throw Object.assign(new Error(`No auth route for ${req.method} ${url.pathname}`), { status: 404 })
   }
 
@@ -323,17 +331,31 @@ async function route(req, res) {
     const bucket = rest[1]
     const objectPath = rest.slice(2).join('/')
     if (req.method === 'POST' || req.method === 'PUT') {
-      const body = await readBody(req)
+      let body = await readBody(req)
+      let contentType = req.headers['content-type'] ?? 'application/octet-stream'
+      // supabase-js posts a Blob or File as FormData; store the file inside,
+      // with the file's own type, not the envelope.
+      if (/^multipart\/form-data/i.test(contentType)) {
+        const part = extractFilePart(body, contentType)
+        if (!part) throw Object.assign(new Error('No file in the upload'), { status: 400 })
+        body = part.body
+        contentType = part.contentType
+      }
       const result = await storage.upload({
         role,
         claims,
         bucket,
         objectPath,
         body,
-        contentType: req.headers['content-type'] ?? 'application/octet-stream',
+        contentType,
         upsert: req.headers['x-upsert'] === 'true' || req.method === 'PUT',
       })
       return send(res, 200, result)
+    }
+    // supabase-js remove(): DELETE /object/<bucket> with { prefixes: [...] }
+    if (req.method === 'DELETE' && !objectPath) {
+      const { prefixes } = (await readJson(req)) ?? {}
+      return send(res, 200, await storage.remove({ role, claims, bucket, paths: prefixes }))
     }
 
     throw Object.assign(new Error('Unsupported storage operation'), { status: 405 })
@@ -462,7 +484,7 @@ async function start() {
   cors origin ${config.corsOrigin}
 
   REST        /rest/v1/<table>
-  auth        /auth/v1/token | signup | user | logout | recover
+  auth        /auth/v1/token | signup | verify | resend | user | logout | recover
   storage     /storage/v1/object/...
   functions   /functions/v1/<name>
 

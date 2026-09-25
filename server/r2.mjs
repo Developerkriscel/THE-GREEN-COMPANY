@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
+  DeleteObjectCommand,
 } from '@aws-sdk/client-s3'
 import { config } from './config.mjs'
 
@@ -34,6 +35,10 @@ export async function r2Get(key) {
     body: Buffer.concat(chunks),
     contentType: resp.ContentType ?? 'application/octet-stream',
   }
+}
+
+export async function r2Delete(key) {
+  await s3.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key }))
 }
 
 export async function r2Exists(key) {

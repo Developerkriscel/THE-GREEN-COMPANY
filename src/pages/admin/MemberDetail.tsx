@@ -22,6 +22,7 @@ import {
 } from '@/lib/sponsor'
 import { rewardReference, useAwardReward, useIssuedRewards, useMyRewardArea } from '@/lib/sponsor-crm'
 import { RewardArt } from '@/components/RewardArt'
+import { Avatar } from '@/components/Avatar'
 import { ProgressBar, RequirementRow, WithdrawalBadge } from '@/components/sponsor'
 import { WELCOME_DEFAULTS } from '@/lib/welcome-letter'
 import { date, money, num, pct } from '@/lib/format'
@@ -78,6 +79,9 @@ export function AdminMemberDetail() {
         <ArrowLeft className="h-4 w-4" /> Back to members
       </Link>
 
+      <div className="mb-3">
+        <Avatar path={member.avatar_path} name={member.full_name} size={64} rounded="xl" className="ring-2 ring-white shadow" />
+      </div>
       <PageHeader
         title={member.full_name || '—'}
         description={`${member.member_code} · ${member.rank?.name ?? '—'} · joined ${date(member.created_at)} · next payout cycle ${cycle}`}

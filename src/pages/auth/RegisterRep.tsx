@@ -1,10 +1,12 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { CheckCircle2, Info, UserCheck } from 'lucide-react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Info, UserCheck } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { AuthLayout } from '@/pages/auth/AuthLayout'
 import { Button, Checkbox, ErrorState, Field, Input } from '@/components/ui'
+import { VerifyEmailCode } from '@/components/VerifyEmailCode'
+import { BRAND } from '@/lib/brand'
 
 /**
  * Open self-registration for network members.
@@ -23,8 +25,10 @@ export function RegisterRep() {
   const [params] = useSearchParams()
   const ref = (params.get('ref') ?? '').trim().toUpperCase()
 
+  const navigate = useNavigate()
   const [busy, setBusy] = useState(false)
-  const [done, setDone] = useState(false)
+  // The address the code went to; set once sign-up succeeds.
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [sponsor, setSponsor] = useState<{ member_code: string; full_name: string } | null>(null)
   const [sponsorChecked, setSponsorChecked] = useState(!ref)
@@ -61,14 +65,15 @@ export function RegisterRep() {
     setError(null)
     setBusy(true)
     try {
+      const email = String(form.get('email')).trim()
       await signUpRep({
-        email: String(form.get('email')),
+        email,
         password,
         fullName: String(form.get('full_name')),
         phone: String(form.get('phone') ?? ''),
         ref: sponsor?.member_code,
       })
-      setDone(true)
+      setPendingEmail(email)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed')
     } finally {
@@ -76,28 +81,20 @@ export function RegisterRep() {
     }
   }
 
-  if (done) {
+  if (pendingEmail) {
     return (
-      <AuthLayout title="Registration received" subtitle="One more step before you can sign in.">
-        <div className="rounded-lg border border-brand-200 bg-brand-50 p-4">
-          <CheckCircle2 className="h-6 w-6 text-brand-700" />
-          <p className="mt-2 text-sm font-medium text-brand-900">Check your email</p>
-          <p className="mt-1 text-sm text-brand-800">
-            Confirm your email address, then wait for the office to activate your account. You will be
-            notified as soon as it is approved.
-            {sponsor && (
-              <>
-                {' '}
-                You will join <strong>{sponsor.full_name}</strong>’s team.
-              </>
-            )}
+      <AuthLayout title="Check your email" subtitle="One step to confirm it is really you.">
+        <VerifyEmailCode
+          email={pendingEmail}
+          // Verified means signed in. The account is still pending office
+          // approval, so /sponsor shows the "awaiting approval" screen.
+          onVerified={() => navigate('/sponsor', { replace: true })}
+        />
+        {sponsor && (
+          <p className="mt-4 text-center text-sm text-slate-500">
+            You will join <strong>{sponsor.full_name}</strong>’s team.
           </p>
-        </div>
-        <Link to="/sponsor-login" className="mt-6 block">
-          <Button variant="outline" className="w-full">
-            Back to sign in
-          </Button>
-        </Link>
+        )}
       </AuthLayout>
     )
   }
@@ -105,7 +102,7 @@ export function RegisterRep() {
   return (
     <AuthLayout
       title="Join the network"
-      subtitle="Register as a Royal Symo member and start building your own team."
+      subtitle={`Register as a ${BRAND.short} member and start building your own team.`}
       footer={
         <>
           Already registered?{' '}

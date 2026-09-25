@@ -13,6 +13,7 @@
  * Creates test users prefixed `gwtest-` and removes them at the end.
  */
 
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -142,7 +143,115 @@ async function main() {
   const repA = await signUp(`${TAG}-a@test.local`, 'supersecret123', { full_name: 'GW Rep A' })
   const repB = await signUp(`${TAG}-b@test.local`, 'supersecret123', { full_name: 'GW Rep B' })
   const adm = await signUp(`${TAG}-admin@test.local`, 'supersecret123', { full_name: 'GW Admin' })
-  check('sign-up returns a session', Boolean(repA.data?.access_token), repA.data)
+
+  // --- email confirmation ------------------------------------------------
+  // Sign-up used to auto-confirm, so any address -- somebody else's -- could
+  // be registered and signed in. It now withholds the session until the
+  // six-digit code mailed to the address comes back.
+  check('sign-up withholds the session until the email is confirmed',
+    repA.status === 200 && !repA.data?.access_token && Boolean(repA.data?.id), repA.data)
+
+  const early = await signIn(`${TAG}-a@test.local`, 'supersecret123')
+  check('an unconfirmed address cannot sign in',
+    early.status === 400 && early.data?.code === 'email_not_confirmed', early.data)
+
+  const earlyWrong = await signIn(`${TAG}-a@test.local`, 'not-the-password')
+  check('a wrong password still says wrong password, not unconfirmed',
+    earlyWrong.data?.code === 'invalid_credentials', earlyWrong.data)
+
+  const { rows: otpRows } = await db.query(
+    `select o.id, o.user_id, o.code_hash from auth.email_otps o
+       join auth.users u on u.id = o.user_id
+      where u.email = $1 and not o.used order by o.created_at desc limit 1`,
+    [`${TAG}-a@test.local`],
+  )
+  check('a code is issued at sign-up', otpRows.length === 1, otpRows)
+  check('the code is stored hashed, never in the clear',
+    otpRows[0] && /^[0-9a-f]{64}$/.test(otpRows[0].code_hash), otpRows[0]?.code_hash)
+
+  // The real code only exists in the mail. Plant a known one the same way the
+  // gateway would -- sha256(user:code:secret) -- to drive /verify end to end.
+  const KNOWN = '246810'
+  const planted = createHash('sha256')
+    .update(`${otpRows[0].user_id}:${KNOWN}:${env.API_JWT_SECRET}`)
+    .digest('hex')
+  await db.query(`update auth.email_otps set code_hash = $1 where id = $2`, [planted, otpRows[0].id])
+
+  const wrongCode = await api('/auth/v1/verify', {
+    method: 'POST', body: { type: 'signup', email: `${TAG}-a@test.local`, token: '000000' },
+  })
+  check('a wrong code is refused', wrongCode.status === 403, wrongCode.data)
+
+  const verified = await api('/auth/v1/verify', {
+    method: 'POST', body: { type: 'signup', email: `${TAG}-a@test.local`, token: KNOWN },
+  })
+  check('the right code confirms the address and signs the member in',
+    verified.status === 200 && Boolean(verified.data?.access_token), verified.data)
+
+  const reused = await api('/auth/v1/verify', {
+    method: 'POST', body: { type: 'signup', email: `${TAG}-a@test.local`, token: KNOWN },
+  })
+  check('a code works only once', reused.status >= 400, reused.data)
+
+  // Five wrong guesses burn the code, so it cannot be brute-forced in time.
+  // Stamped a second after B's sign-up code so it is unambiguously the
+  // newest: now() is the transaction's start time and two rows made moments
+  // apart can otherwise sort either way.
+  await db.query(
+    `insert into auth.email_otps (user_id, code_hash, expires_at, created_at)
+     select u.id, $2, now() + interval '10 minutes',
+            coalesce((select max(created_at) from auth.email_otps where user_id = u.id), now()) + interval '1 second'
+       from auth.users u where u.email = $1`,
+    [`${TAG}-b@test.local`, createHash('sha256').update('unguessable').digest('hex')],
+  )
+  for (let i = 0; i < 5; i++) {
+    await api('/auth/v1/verify', {
+      method: 'POST', body: { type: 'signup', email: `${TAG}-b@test.local`, token: String(111110 + i) },
+    })
+  }
+  const { rows: burned } = await db.query(
+    `select o.used, o.attempts from auth.email_otps o
+       join auth.users u on u.id = o.user_id
+      where u.email = $1 order by o.created_at desc limit 1`,
+    [`${TAG}-b@test.local`],
+  )
+  check('five wrong guesses burn the code', burned[0]?.used === true && burned[0]?.attempts === 5, burned[0])
+
+  // B still holds the code issued at sign-up, older and never used. Once the
+  // newest is burned, that older one must NOT become the target instead.
+  const { rows: stillLive } = await db.query(
+    `select count(*)::int n from auth.email_otps o join auth.users u on u.id = o.user_id
+      where u.email = $1 and not o.used and o.expires_at > now()`,
+    [`${TAG}-b@test.local`],
+  )
+  // Give that older code a value we know. With the old query ("newest code
+  // that is not used") this exact code would now be accepted.
+  const OLDER = '135790'
+  await db.query(
+    `update auth.email_otps o set code_hash = $2
+       from auth.users u
+      where u.id = o.user_id and u.email = $1 and not o.used`,
+    [`${TAG}-b@test.local`, createHash('sha256').update(
+      `${(await db.query(`select id from auth.users where email = $1`, [`${TAG}-b@test.local`])).rows[0].id}:${OLDER}:${env.API_JWT_SECRET}`,
+    ).digest('hex')],
+  )
+  const fallback = await api('/auth/v1/verify', {
+    method: 'POST', body: { type: 'signup', email: `${TAG}-b@test.local`, token: OLDER },
+  })
+  check('a burned code never falls back to an older live one',
+    stillLive[0].n >= 1 && fallback.status === 403, { olderLiveCodes: stillLive[0].n, status: fallback.status })
+
+  const unknownResend = await api('/auth/v1/resend', {
+    method: 'POST', body: { type: 'signup', email: `${TAG}-nobody@test.local` },
+  })
+  check('resend answers the same for an unknown address (no enumeration)',
+    unknownResend.status === 200, unknownResend.data)
+
+  // The other two accounts are confirmed directly; the flow is proven above.
+  await db.query(
+    `update auth.users set email_confirmed_at = now() where email in ($1, $2)`,
+    [`${TAG}-b@test.local`, `${TAG}-admin@test.local`],
+  )
 
   const { rows: created } = await db.query(
     `select id, role, status from public.profiles where email like $1 order by email`,
@@ -156,8 +265,8 @@ async function main() {
   )
 
   // A pending rep must read nothing — status is ANDed into every staff policy.
-  const pendingRead = await api('/rest/v1/ranks?select=name', { token: repA.data.access_token })
-  const pendingLeads = await api('/rest/v1/leads?select=*', { token: repA.data.access_token })
+  const pendingRead = await api('/rest/v1/ranks?select=name', { token: verified.data.access_token })
+  const pendingLeads = await api('/rest/v1/leads?select=*', { token: verified.data.access_token })
   check('a pending rep sees no leads', pendingLeads.data?.length === 0, pendingLeads.data)
 
   // Activate out-of-band, exactly as the README documents for the first admin.
@@ -407,8 +516,95 @@ async function main() {
   const bDocs = await api('/rest/v1/documents?select=type', { token: B })
   check('…but not to an unrelated rep', bDocs.data?.length === 0, bDocs.data)
 
+  // ------------------------------------------------------ profile photos
+  // supabase-js posts a Blob as FormData, so these go up exactly that way:
+  // a cacheControl field and the file appended under an empty name.
+  section('Profile photos (storage)')
+  const bId = bSession.data.user.id
+  // Smallest valid JPEG header + filler; the bytes only need to round-trip.
+  const jpeg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(2000, 7), Buffer.from([0xff, 0xd9])])
+
+  const putPhoto = (token, objectPath, bytes, type = 'image/jpeg') => {
+    const form = new FormData()
+    form.append('cacheControl', '3600')
+    form.append('', new Blob([bytes], { type }))
+    return fetch(`${BASE}/storage/v1/object/avatars/${objectPath}`, {
+      method: 'POST',
+      headers: { apikey: ANON, Authorization: `Bearer ${token}`, 'x-upsert': 'false' },
+      body: form,
+    }).then(async (r) => ({ status: r.status, data: await r.json().catch(() => null) }))
+  }
+
+  const own = await putPhoto(A, `${aId}/photo.jpg`, jpeg)
+  check('a member can upload a photo into their own folder', own.status === 200, own.data)
+
+  const { rows: stored } = await db.query(
+    `select metadata from storage.objects where bucket_id = 'avatars' and name = $1`, [`${aId}/photo.jpg`],
+  )
+  check('the file is recorded with its own type, not multipart/form-data',
+    stored[0]?.metadata?.mimetype === 'image/jpeg' && stored[0]?.metadata?.size === jpeg.length, stored[0])
+
+  const signed = await api(`/storage/v1/object/sign/avatars/${aId}/photo.jpg`, {
+    token: A, method: 'POST', body: { expiresIn: 60 },
+  })
+  const fetched = signed.data?.signedURL
+    ? Buffer.from(await (await fetch(`${BASE}/storage/v1${signed.data.signedURL}`)).arrayBuffer())
+    : Buffer.alloc(0)
+  check('the bytes read back are exactly the file uploaded (no multipart envelope)',
+    fetched.equals(jpeg), { got: fetched.length, want: jpeg.length, head: fetched.subarray(0, 4).toString('hex') })
+
+  const intoB = await putPhoto(A, `${bId}/photo.jpg`, jpeg)
+  check('a member cannot upload into another member\'s folder', intoB.status >= 400, intoB)
+
+  const bSigns = await api(`/storage/v1/object/sign/avatars/${aId}/photo.jpg`, {
+    token: B, method: 'POST', body: { expiresIn: 60 },
+  })
+  check('another member cannot get a link to someone\'s photo', bSigns.status === 404, bSigns.data)
+
+  const admSigns = await api(`/storage/v1/object/sign/avatars/${aId}/photo.jpg`, {
+    token: ADMIN, method: 'POST', body: { expiresIn: 60 },
+  })
+  check('the office can see a member\'s photo', admSigns.status === 200, admSigns.data)
+
+  const big = await putPhoto(A, `${aId}/big.jpg`, Buffer.alloc(2 * 1024 * 1024 + 10, 1))
+  check('a photo over the 2 MB bucket limit is refused (413)', big.status === 413, big)
+
+  const html = await putPhoto(A, `${aId}/page.jpg`, Buffer.from('<script>alert(1)</script>'), 'text/html')
+  check('an HTML file posing as a photo is refused (415)', html.status === 415, html)
+
+  const pdf = await putPhoto(A, `${aId}/doc.jpg`, Buffer.from('%PDF-1.4'), 'application/pdf')
+  check('a type the bucket does not allow is refused (415)', pdf.status === 415, pdf)
+
+  const pointB = await api(`/rest/v1/profiles?id=eq.${aId}`, {
+    token: A, method: 'PATCH', body: { avatar_path: `${bId}/photo.jpg` },
+  })
+  check('avatar_path cannot point at another member\'s file', pointB.status >= 400, pointB.data)
+
+  const pointOwn = await api(`/rest/v1/profiles?id=eq.${aId}`, {
+    token: A, method: 'PATCH', body: { avatar_path: `${aId}/photo.jpg` },
+  })
+  check('avatar_path can point at the member\'s own upload', pointOwn.status < 300, pointOwn.data)
+
+  const bRemoves = await api('/storage/v1/object/avatars', {
+    token: B, method: 'DELETE', body: { prefixes: [`${aId}/photo.jpg`] },
+  })
+  const { rowCount: stillThere } = await db.query(
+    `select 1 from storage.objects where bucket_id = 'avatars' and name = $1`, [`${aId}/photo.jpg`],
+  )
+  check('another member cannot delete someone\'s photo',
+    stillThere === 1 && Array.isArray(bRemoves.data) && bRemoves.data.length === 0, bRemoves.data)
+
+  const aRemoves = await api('/storage/v1/object/avatars', {
+    token: A, method: 'DELETE', body: { prefixes: [`${aId}/photo.jpg`] },
+  })
+  const { rowCount: gone } = await db.query(
+    `select 1 from storage.objects where bucket_id = 'avatars' and name = $1`, [`${aId}/photo.jpg`],
+  )
+  check('a member can delete their own photo', aRemoves.status === 200 && gone === 0, aRemoves.data)
+
   // ------------------------------------------------------------- cleanup
   console.log(`\n${c.bold('Cleanup')}`)
+  await db.query(`delete from storage.objects where bucket_id = 'avatars' and name like $1`, [`${aId}/%`])
   await db.query(`delete from public.sale_confirmations where booking_id = $1`, [bookingId])
   await db.query(`delete from public.bookings where id = $1`, [bookingId])
   await db.query(`delete from public.plots where project_id = $1`, [projectId])

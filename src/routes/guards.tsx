@@ -51,9 +51,9 @@ function PendingApproval() {
       title="Your account is awaiting approval"
       body={
         <>
-          Your registration was received{profile?.user_code ? ` (ID ${profile.user_code})` : ''}. A sales
-          administrator reviews new accounts before activation — you will get an email as soon as it is
-          approved.
+          Your registration was received{profile?.user_code ? ` (ID ${profile.user_code})` : ''}. The office reviews
+          every new account before activation. Sign in again once it is approved and your
+          panel will open.
         </>
       }
       onSignOut={signOut}
