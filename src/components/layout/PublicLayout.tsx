@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
+import { BRAND, copyright } from '@/lib/brand'
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -42,8 +43,8 @@ export function PublicLayout() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
               <img
-                src="https://dvocohgawbllsboocytf.supabase.co/storage/v1/object/sign/cms-gallery/logo-1786708679018.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xNjJjYWYwMi1jYWU0LTQyNmEtOWViNi02NzNjNzNjMzdjOWIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMtZ2FsbGVyeS9sb2dvLTE3ODY3MDg2NzkwMTguanBlZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODY3MDg2ODAsImV4cCI6MjEwMjA2ODY4MH0.jWCBVK2lD6Cvupx_kd-JBBDksbz8FdWfAm08J7dfPxw"
-                alt="Royal Green Company"
+                src="/brand-mark-512.png"
+                alt={BRAND.name}
                 className="h-10 w-auto rounded-lg object-contain"
               />
             </Link>
@@ -125,8 +126,8 @@ export function PublicLayout() {
             <div className="lg:col-span-1">
               <Link to="/" className="flex items-center gap-2.5 mb-4">
                 <img
-                  src="https://dvocohgawbllsboocytf.supabase.co/storage/v1/object/sign/cms-gallery/logo-1786708679018.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xNjJjYWYwMi1jYWU0LTQyNmEtOWViNi02NzNjNzNjMzdjOWIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMtZ2FsbGVyeS9sb2dvLTE3ODY3MDg2NzkwMTguanBlZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODY3MDg2ODAsImV4cCI6MjEwMjA2ODY4MH0.jWCBVK2lD6Cvupx_kd-JBBDksbz8FdWfAm08J7dfPxw"
-                  alt="Royal Green Company"
+                  src="/brand-mark-512.png"
+                  alt={BRAND.name}
                   className="h-12 w-auto rounded-lg object-contain"
                 />
               </Link>
@@ -186,11 +187,11 @@ export function PublicLayout() {
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-0.5 flex-shrink-0 text-[oklch(62%_.19_43)]">📞</span>
-                  +91 9211809636
+                  +91 {BRAND.phone}
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-0.5 flex-shrink-0 text-[oklch(62%_.19_43)]">✉️</span>
-                  support@royalgreencompany.com
+                  {BRAND.email}
                 </li>
               </ul>
             </div>
@@ -200,7 +201,7 @@ export function PublicLayout() {
         {/* Bottom bar */}
         <div className="border-t border-white/10">
           <div className="mx-auto max-w-screen-xl px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-white/30">© {new Date().getFullYear()} Royal Green Company. All rights reserved.</p>
+            <p className="text-xs text-white/30">{copyright()}</p>
             <div className="flex gap-5 text-xs text-white/30">
               <a href="#" className="hover:text-white/60">Privacy Policy</a>
               <a href="#" className="hover:text-white/60">Terms of Service</a>

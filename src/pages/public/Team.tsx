@@ -1,4 +1,5 @@
 import { useCmsContent } from '@/lib/queries'
+import { BRAND } from '@/lib/brand'
 
 const SB = 'https://dvocohgawbllsboocytf.supabase.co/storage/v1/object/sign/cms-gallery'
 
@@ -141,7 +142,7 @@ export function TeamPage() {
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
           <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">OUR TEAM</span>
-          <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Leadership at Royal Green Company</h1>
+          <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Leadership at {BRAND.name}</h1>
           <p className="mx-auto max-w-xl text-lg text-white/60">
             Director, Managing Director, Branch Managers and Rank Achievers powering the RGC network.
           </p>
@@ -149,7 +150,7 @@ export function TeamPage() {
       </section>
 
       {directors.length > 0 && (
-        <Section badge="DIRECTOR" title="Director" subtitle="The visionary leadership steering Royal Green Company.">
+        <Section badge="DIRECTOR" title="Director" subtitle={`The visionary leadership steering ${BRAND.name}.`}>
           <TeamGrid members={directors} />
         </Section>
       )}

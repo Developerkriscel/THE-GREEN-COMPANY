@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { BRAND, copyright } from '@/lib/brand'
 
 interface AuthLayoutProps {
   children: React.ReactNode
@@ -22,8 +23,8 @@ export function AuthLayout({ children, title, subtitle, badge, footer }: AuthLay
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex flex-col items-center gap-3">
             <img
-              src="https://royalgreencompany.com/__l5e/assets-v1/25c77391-55d9-4cc2-bff9-bc4c3b0a89be/rg-logo.jpeg"
-              alt="Royal Green Company"
+              src="/brand-mark-512.png"
+              alt={BRAND.name}
               className="h-16 w-auto rounded-xl object-contain shadow-elegant"
             />
           </Link>
@@ -48,7 +49,7 @@ export function AuthLayout({ children, title, subtitle, badge, footer }: AuthLay
         </div>
 
         <p className="mt-6 text-center text-xs text-white/30">
-          © {new Date().getFullYear()} Royal Green Company. All rights reserved.
+          {copyright()}
         </p>
       </div>
     </div>

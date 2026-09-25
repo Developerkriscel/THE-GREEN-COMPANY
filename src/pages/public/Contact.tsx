@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { useProjects, useSiteSetting } from '@/lib/queries'
 import { Button, Card, CardBody, ErrorState, Field, Input, Select, Textarea } from '@/components/ui'
 import { CheckCircle2 } from 'lucide-react'
+import { BRAND } from '@/lib/brand'
 
 const BRANCHES = [
   'ILD / Gurgaon',
@@ -13,10 +14,10 @@ const BRANCHES = [
 ]
 
 const CONTACT_DEFAULTS = {
-  hero_title: 'Talk to Royal Green Company',
+  hero_title: `Talk to ${BRAND.name}`,
   hero_subtitle: 'Talk to a sales partner. No obligation — we never share your details.',
   phone: '+91 9211809636',
-  email: 'support@royalgreencompany.com',
+  email: BRAND.email,
   address: 'ILD Trade Centre Mall, Sector-47, Gurugram, Haryana, India',
   whatsapp: '9211809636',
   branches: '',
@@ -60,7 +61,7 @@ export function ContactPage() {
             {/* Left: info */}
             <div>
               <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Reach Us</span>
-              <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)]">Royal Green Company</h2>
+              <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)]">{BRAND.name}</h2>
               <p className="mt-4 text-gray-500 leading-relaxed">
                 We operate from multiple locations across Delhi-NCR. Reach us by phone, WhatsApp, or visit our head office.
               </p>

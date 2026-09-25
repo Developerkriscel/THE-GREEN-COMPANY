@@ -1,9 +1,9 @@
-import { Gift } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useCmsContent } from '@/lib/queries'
 import { useMySales, useRankLadder, confirmedArea, rewardTiers } from '@/lib/sponsor'
 import { rewardReference, useIssuedRewards, useMyRewardArea } from '@/lib/sponsor-crm'
 import { Badge, Card, CardHeader, EmptyState, PageHeader } from '@/components/ui'
+import { RewardArt } from '@/components/RewardArt'
 import { ProgressBar, SkeletonRows } from '@/components/sponsor'
 import { date, num } from '@/lib/format'
 
@@ -147,9 +147,7 @@ export function SponsorRewards() {
                   {img ? (
                     <img src={img} alt={t.title} className="h-28 w-full object-cover" loading="lazy" />
                   ) : (
-                    <div className="flex h-28 w-full items-center justify-center bg-slate-100">
-                      <Gift className="h-8 w-8 text-slate-300" />
-                    </div>
+                    <RewardArt title={t.title} />
                   )}
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2">

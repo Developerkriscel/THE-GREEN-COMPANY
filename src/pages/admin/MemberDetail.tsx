@@ -21,6 +21,7 @@ import {
   type LedgerRow, type WithdrawalRow,
 } from '@/lib/sponsor'
 import { rewardReference, useAwardReward, useIssuedRewards, useMyRewardArea } from '@/lib/sponsor-crm'
+import { RewardArt } from '@/components/RewardArt'
 import { ProgressBar, RequirementRow, WithdrawalBadge } from '@/components/sponsor'
 import { WELCOME_DEFAULTS } from '@/lib/welcome-letter'
 import { date, money, num, pct } from '@/lib/format'
@@ -738,7 +739,9 @@ function RewardsTab({ member }: { member: Profile }) {
           const img = imageFor(t.title)
           return (
             <Card key={`${t.seniority}-${t.title}`} className={`overflow-hidden ${next?.seniority === t.seniority ? 'ring-2 ring-brand-500' : ''}`}>
-              {img && <img src={img} alt={t.title} className="h-28 w-full object-cover" loading="lazy" />}
+              {img
+                ? <img src={img} alt={t.title} className="h-24 w-full object-cover" loading="lazy" />
+                : <RewardArt title={t.title} className="h-24" />}
               <div className="p-4">
                 <p className="text-sm font-bold text-slate-800">{t.title}</p>
                 <p className="mt-1 text-xs text-slate-500">{num(t.targetSqyd)} sq yd</p>

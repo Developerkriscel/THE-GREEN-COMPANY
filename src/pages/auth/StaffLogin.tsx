@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { AuthLayout } from './AuthLayout'
+import { BRAND } from '@/lib/brand'
 
 export function StaffLogin() {
   const navigate = useNavigate()
@@ -30,7 +31,7 @@ export function StaffLogin() {
     <AuthLayout
       badge="Admin Console"
       title="Administrator Sign-in"
-      subtitle="Access the Royal Green management portal"
+      subtitle={`Access the ${BRAND.short} management portal`}
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
@@ -49,7 +50,7 @@ export function StaffLogin() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="admin@royalgreencompany.com"
+            placeholder={`admin@${BRAND.website}`}
             className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-[oklch(62%_.19_43)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[oklch(62%_.19_43)]/20 transition-all"
           />
         </div>

@@ -1,5 +1,6 @@
 import type { Profile } from '@/lib/types'
 import { date } from '@/lib/format'
+import { BRAND } from '@/lib/brand'
 
 export interface WelcomeLetter {
   brand_title: string
@@ -15,18 +16,18 @@ export interface WelcomeLetter {
 }
 
 export const WELCOME_DEFAULTS: WelcomeLetter = {
-  brand_title: 'Royal Green Company',
-  subtitle: 'Real Value in a Changing Life',
-  ref_prefix: 'WL/',
-  heading: 'Welcome to the Royal Green Company',
+  brand_title: BRAND.name,
+  subtitle: BRAND.tagline.toUpperCase(),
+  ref_prefix: 'WL//',
+  heading: `Welcome to the ${BRAND.name}`,
   salutation: 'Dear {{name}},',
   paragraphs: [
-    'On behalf of the entire team at Royal Green Company, we extend a warm welcome to you as our valued {{rank}}. Your decision to join our growing family is a step toward financial freedom, recognition, and a rewarding journey in the real-estate industry.',
+    `On behalf of the entire team at ${BRAND.name}, we extend a warm welcome to you as our valued {{rank}}. Your decision to join our growing family is a step toward financial freedom, recognition, and a rewarding journey in the real-estate industry.`,
     'Your membership has been successfully activated. Please find your registration details below — preserve this letter for your records. {{joined}}',
-    'As a Royal Green Company partner, you are now entitled to direct sponsor income, level-based commissions, rank rewards, and exclusive access to our premium plot inventory.',
+    `As a ${BRAND.name} partner, you are now entitled to direct sponsor income, level-based commissions, rank rewards, and exclusive access to our premium plot inventory.`,
     'We encourage you to complete your KYC at the earliest, share your referral link, and engage with your upline to fast-track your first rank achievement. Our support team is available to assist you at every step of your journey.',
     'Once again, welcome aboard. We look forward to celebrating your milestones with you.',
-    'Visit Website: https://royalgreencompany.com/',
+    `Visit Website: ${BRAND.websiteUrl}/`,
   ],
   closing: 'Warm regards,',
   signatory: 'Managing Director',

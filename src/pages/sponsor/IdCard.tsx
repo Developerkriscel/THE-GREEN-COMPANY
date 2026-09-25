@@ -7,6 +7,7 @@ import { useMySponsor, useSponsorProfile } from '@/lib/sponsor'
 import { Badge, Button, Card, PageHeader } from '@/components/ui'
 import { Notice } from '@/components/sponsor'
 import { date } from '@/lib/format'
+import { BRAND } from '@/lib/brand'
 
 /**
  * The member's identity card — the thing a field agent is actually asked for
@@ -65,7 +66,7 @@ export function SponsorIdCard() {
         <Card className="w-full max-w-[420px] overflow-hidden print:border-black print:shadow-none">
           <div className="bg-brand-700 px-5 py-4 text-white">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-80">
-              Royal Symo Green City
+              {BRAND.name}
             </p>
             <p className="text-lg font-bold leading-tight">Member Identity Card</p>
           </div>
@@ -106,7 +107,7 @@ export function SponsorIdCard() {
               {verified ? 'KYC verified' : 'KYC pending'}
             </Badge>
             <p className="text-[10px] text-slate-400">
-              Valid while the membership is active · www.symocity.com
+              Valid while the membership is active · www.{BRAND.website}
             </p>
           </div>
         </Card>

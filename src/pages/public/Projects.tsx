@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { useProjects } from '@/lib/queries'
 import { EmptyState, ErrorState, Input, Select, Spinner } from '@/components/ui'
+import { BRAND } from '@/lib/brand'
 
 export function ProjectsPage() {
   const { data = [], isLoading, error } = useProjects({ publishedOnly: true })
@@ -35,7 +36,7 @@ export function ProjectsPage() {
           <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">Our Developments</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Built on Trust. Designed for Growth.</h1>
           <p className="mx-auto max-w-2xl text-lg text-white/60">
-            From premium plots to integrated townships, every Royal Green Company project is engineered for long-term value.
+            From premium plots to integrated townships, every {BRAND.name} project is engineered for long-term value.
           </p>
         </div>
       </section>

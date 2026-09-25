@@ -11,6 +11,7 @@ import {
   Textarea, useToast,
 } from '@/components/ui'
 import { ago, dateTime, initials, titleCase } from '@/lib/format'
+import { BRAND } from '@/lib/brand'
 
 /**
  * Threaded inbox. Thread visibility is decided by RLS: a rep sees only threads
@@ -120,7 +121,7 @@ export function MessagesPage() {
     <>
       <PageHeader
         title={staffView ? 'Inbox' : 'Support'}
-        description={staffView ? 'Website enquiries, customer support and internal notes.' : 'Your conversations with the Royal Green team.'}
+        description={staffView ? 'Website enquiries, customer support and internal notes.' : `Your conversations with the ${BRAND.short} team.`}
         action={
           staffView ? null : (
             <Button size="sm" onClick={() => setComposing(true)}>

@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import { useProjects, useSiteSetting, useCmsContent, useBanners } from '@/lib/queries'
+import { BRAND } from '@/lib/brand'
 
 const HERO_DEFAULTS = {
   badge: 'Mission 90 Days — Registrations Open',
   title_lead: 'Build Your',
   title_accent: 'Financial Future',
-  title_tail: 'with Royal Green Company',
+  title_tail: `with ${BRAND.name}`,
   subtitle: "India's trusted royal green network. Earn direct sponsor income, level commissions and lifetime rewards.",
   primary_cta_label: 'Join as Sponsor',
   primary_cta_link: '/register',
@@ -379,7 +380,7 @@ export function Home() {
       <section className="py-20 bg-white">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Why Royal Green Company</span>
+            <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Why {BRAND.name}</span>
             <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)] sm:text-4xl">
               A plan built for serious earners
             </h2>

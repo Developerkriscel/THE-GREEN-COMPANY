@@ -14,6 +14,7 @@ import {
 import { ReferralQueue } from '@/pages/admin/ReferralQueue'
 import { rankTone, statusTone } from '@/lib/network'
 import type { Profile } from '@/lib/types'
+import { BRAND } from '@/lib/brand'
 
 export function AdminMembers() {
   const navigate = useNavigate()
@@ -53,7 +54,7 @@ export function AdminMembers() {
     <div>
       <PageHeader
         title="Members"
-        description="Manage every sponsor in the Royal Green Company network."
+        description={`Manage every sponsor in the ${BRAND.name} network.`}
         action={
           <div className="flex flex-wrap gap-2">
             <Button

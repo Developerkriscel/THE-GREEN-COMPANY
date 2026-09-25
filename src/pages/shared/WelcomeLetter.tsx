@@ -3,6 +3,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useMemberById, useSiteSetting } from '@/lib/queries'
 import { Button, PageHeader, Spinner } from '@/components/ui'
 import { resolveWelcomeLetter, WelcomeLetterView, type WelcomeLetter } from '@/lib/welcome-letter'
+import { BRAND } from '@/lib/brand'
 
 /**
  * The member-facing welcome letter. Uses the member's per-member override if an
@@ -23,7 +24,7 @@ export function WelcomeLetterPage() {
     <div>
       <PageHeader
         title="Welcome Letter"
-        description="Your official welcome letter from Royal Green Company."
+        description={`Your official welcome letter from ${BRAND.name}.`}
         action={<Button variant="outline" onClick={() => window.print()}><Printer className="h-4 w-4" /> Print</Button>}
       />
       <WelcomeLetterView letter={letter} member={member} />

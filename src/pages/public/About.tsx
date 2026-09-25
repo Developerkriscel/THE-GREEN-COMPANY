@@ -1,15 +1,16 @@
+import { BRAND } from '@/lib/brand'
 const SB = 'https://dvocohgawbllsboocytf.supabase.co/storage/v1/object/sign/cms-gallery'
 const LOGO_NEW = `${SB}/logo-1786708679018.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xNjJjYWYwMi1jYWU0LTQyNmEtOWViNi02NzNjNzNjMzdjOWIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMtZ2FsbGVyeS9sb2dvLTE3ODY3MDg2NzkwMTguanBlZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODY3MDg2ODAsImV4cCI6MjEwMjA2ODY4MH0.jWCBVK2lD6Cvupx_kd-JBBDksbz8FdWfAm08J7dfPxw`
 
 export function AboutPage() {
-  const LOGO = LOGO_NEW
+  const LOGO = BRAND.markSquare
 
   const DIRECTORS = [
     {
       name: 'Mr. Amitesh Pandey',
       title: 'Director',
       img: `${SB}/1783281809391-10ofwp.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xNjJjYWYwMi1jYWU0LTQyNmEtOWViNi02NzNjNzNjMzdjOWIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMtZ2FsbGVyeS8xNzgzMjgxODA5MzkxLTEwb2Z3cC5qcGciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzMjgxODExLCJleHAiOjIwOTg2NDE4MTF9.-9sDYA62vlZ0CaSf0Ey4S0l7WqzPNEUfVSUhRs6VNak`,
-      bio: 'A visionary leader driving Royal Green Company\'s growth with deep industry expertise and a passion for creating real value for every stakeholder.',
+      bio: `A visionary leader driving ${BRAND.name}'s growth with deep industry expertise and a passion for creating real value for every stakeholder.`,
     },
     {
       name: 'Mr. Vikash Singh',
@@ -64,7 +65,7 @@ export function AboutPage() {
           <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">About Us</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Real Value in a Changing Life</h1>
           <p className="mx-auto max-w-2xl text-lg text-white/60">
-            Royal Green Company began its journey in the real estate industry in 2010 with a clear vision of creating long-term value for customers and business partners.
+            {BRAND.name} began its journey in the real estate industry in 2010 with a clear vision of creating long-term value for customers and business partners.
           </p>
         </div>
       </section>
@@ -91,7 +92,7 @@ export function AboutPage() {
               <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Our Journey</span>
               <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)]">Trusted Since 2010</h2>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                With years of experience in the real estate sector, Royal Green Company has earned the confidence of thousands of customers and partners. Our commitment is to deliver genuine investment opportunities, professional guidance, and long-term wealth creation through ethical business practices.
+                With years of experience in the real estate sector, {BRAND.name} has earned the confidence of thousands of customers and partners. Our commitment is to deliver genuine investment opportunities, professional guidance, and long-term wealth creation through ethical business practices.
               </p>
               <div className="mt-8">
                 <p className="font-bold text-[oklch(14%_.05_260)] mb-3">Our Vision</p>
@@ -114,7 +115,7 @@ export function AboutPage() {
               </div>
             </div>
             <div className="flex justify-center">
-              <img src={LOGO} alt="Royal Green Company" className="w-64 h-auto rounded-2xl shadow-elegant" />
+              <img src={LOGO} alt={BRAND.name} className="w-64 h-auto rounded-2xl shadow-elegant" />
             </div>
           </div>
         </div>
@@ -126,7 +127,7 @@ export function AboutPage() {
           <div className="text-center mb-14">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Leadership</span>
             <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)]">Meet Our Directors</h2>
-            <p className="mt-3 text-gray-500">Guiding Royal Green Company with vision, integrity, and a commitment to excellence.</p>
+            <p className="mt-3 text-gray-500">Guiding {BRAND.name} with vision, integrity, and a commitment to excellence.</p>
           </div>
           <div className="grid sm:grid-cols-3 gap-8">
             {DIRECTORS.map(d => (
@@ -173,7 +174,7 @@ export function AboutPage() {
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="text-center mb-14">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Why Choose Us</span>
-            <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)]">Why Choose Royal Green Company?</h2>
+            <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)]">Why Choose {BRAND.name}?</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {WHY.map(w => (
@@ -256,7 +257,7 @@ export function AboutPage() {
         style={{ background: 'linear-gradient(135deg, oklch(62% .19 43) 0%, oklch(54% .19 40) 100%)' }}>
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8 text-center">
           <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-white/70">Join Us</span>
-          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">Join the Royal Green Family</h2>
+          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">Join the {BRAND.short} Family</h2>
           <p className="mt-4 mx-auto max-w-2xl text-white/70 leading-relaxed">
             Become part of a growing entrepreneur community and start your 90-Day Success Training Program today. Every associate receives complete guidance, structured training, and continuous support.
           </p>

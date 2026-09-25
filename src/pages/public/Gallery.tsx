@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { BRAND } from '@/lib/brand'
 
 interface GalleryPhoto {
   id: string
@@ -80,7 +81,7 @@ export function GalleryPage() {
             className="mt-6 inline-block rounded-xl px-8 py-3.5 text-sm font-bold text-white shadow-lg hover:-translate-y-0.5 transition-all"
             style={{ background: 'linear-gradient(135deg, oklch(68% .18 48), oklch(54% .19 40))' }}
           >
-            Join Royal Green
+            Join {BRAND.short}
           </a>
         </div>
       </section>

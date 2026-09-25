@@ -133,7 +133,7 @@ const adminNav: NavItem[] = [
 ]
 
 // Kept reachable by URL (booking flow, inventory, back-office) but off the
-// primary sidebar so it mirrors the production Royal Green console.
+// primary sidebar so it mirrors the production console.
 const adminSecondaryNav: NavItem[] = [
   { to: '/admin/projects', label: 'Projects', icon: <Building2 className={ico} /> },
   { to: '/admin/plots', label: 'Plot inventory', icon: <Map className={ico} /> },
@@ -254,14 +254,20 @@ export function App() {
           {/* Keyed so switching between the two remounts and picks up the tab. */}
           <Route path="income/direct" element={<SponsorIncome key="direct" initialTab="Direct" />} />
           <Route path="income/level" element={<SponsorIncome key="level" initialTab="Level" />} />
+          <Route path="direct-income" element={<SponsorIncome key="direct-alias" initialTab="Direct" />} />
+          <Route path="level-income" element={<SponsorIncome key="level-alias" initialTab="Level" />} />
           <Route path="leads" element={<SponsorLeads />} />
           <Route path="payments" element={<SponsorPayments />} />
+          <Route path="crm" element={<SponsorPayments />} />
           <Route path="withdrawals" element={<SponsorWithdrawals />} />
           <Route path="team" element={<SponsorTeam />} />
           <Route path="tree" element={<SponsorTree />} />
+          <Route path="genealogy" element={<SponsorTree />} />
           <Route path="rank" element={<SponsorRank />} />
           <Route path="rewards" element={<SponsorRewards />} />
+          <Route path="reward" element={<SponsorRewards />} />
           <Route path="sales" element={<SponsorSales />} />
+          <Route path="activation" element={<SponsorSales />} />
           <Route path="verified-sales" element={<SponsorVerifiedSales />} />
           <Route path="refer" element={<SponsorRefer />} />
           <Route path="bank" element={<SponsorBankDetails />} />

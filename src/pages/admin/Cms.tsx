@@ -13,6 +13,7 @@ import { CmsContentTab } from '@/pages/admin/CmsContentTab'
 import { DEFAULT_TEAM, DEFAULT_ACHIEVERS, DEFAULT_EVENTS, DEFAULT_NEWS, DEFAULT_REWARDS, DEFAULT_PLAN_RANKS, DEFAULT_PLAN_LEVELS, TEAM_CATEGORIES } from '@/lib/site-content'
 import { WELCOME_DEFAULTS, resolveWelcomeLetter, WelcomeLetterView, type WelcomeLetter } from '@/lib/welcome-letter'
 import { dateTime, num } from '@/lib/format'
+import { BRAND } from '@/lib/brand'
 
 interface CmsPageRow { id: string; slug: string; title: string; body: string; published: boolean; updated_at: string }
 interface GalleryPhoto { id: string; url: string; caption: string | null; sort_order: number; is_active: boolean; created_at: string }
@@ -198,7 +199,7 @@ const HERO_DEFAULTS = {
   badge: 'Mission 90 Days Training',
   title_lead: 'Build Your',
   title_accent: 'Financial Future',
-  title_tail: 'with Royal Green Company',
+  title_tail: `with ${BRAND.name}`,
   subtitle: "India's trusted royal green network. Earn direct sponsor income, level commissions and lifetime rewards — all the way up to Crown Diamond.",
   primary_cta_label: 'Join as Sponsor',
   primary_cta_link: '/register',
@@ -750,7 +751,7 @@ function ContactTab() {
           </div>
           <Field label="Head office address"><Textarea name="address" rows={2} defaultValue={v.address ?? ''} /></Field>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Contact page heading"><Input name="hero_title" defaultValue={v.hero_title ?? ''} placeholder="Talk to Royal Green Company" /></Field>
+            <Field label="Contact page heading"><Input name="hero_title" defaultValue={v.hero_title ?? ''} placeholder={`Talk to ${BRAND.name}`} /></Field>
             <Field label="Contact page subtitle"><Input name="hero_subtitle" defaultValue={v.hero_subtitle ?? ''} placeholder="Talk to a sales partner…" /></Field>
           </div>
           <Field label="Branches" hint="One branch per line — shown in the 'Our Branches' grid.">

@@ -1,4 +1,5 @@
 import { useCmsContent } from '@/lib/queries'
+import { BRAND } from '@/lib/brand'
 
 const SB = 'https://dvocohgawbllsboocytf.supabase.co/storage/v1/object/sign/cms-gallery'
 
@@ -41,7 +42,7 @@ export function NewsPage() {
           <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">Latest Updates</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">News</h1>
           <p className="mx-auto max-w-xl text-lg text-white/60">
-            Announcements and updates from Royal Green Company.
+            Announcements and updates from {BRAND.name}.
           </p>
         </div>
       </section>
@@ -71,7 +72,7 @@ export function NewsPage() {
       <section className="py-12 bg-gray-50 text-center">
         <div className="mx-auto max-w-md px-6">
           <h2 className="text-xl font-extrabold text-[oklch(14%_.05_260)]">Stay in the Loop</h2>
-          <p className="mt-2 text-sm text-gray-500">Follow us on WhatsApp for the latest Royal Green updates.</p>
+          <p className="mt-2 text-sm text-gray-500">Follow us on WhatsApp for the latest {BRAND.short} updates.</p>
           <a href="https://wa.me/919211809636" target="_blank" rel="noopener noreferrer"
             className="mt-5 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg hover:-translate-y-0.5 transition-all"
             style={{ background: 'linear-gradient(135deg, #25d366, #128c7e)' }}>

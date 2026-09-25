@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { ago, initials } from '@/lib/format'
 import { Badge } from '@/components/ui'
 import { RankBadge } from '@/components/status'
+import { BRAND } from '@/lib/brand'
 import type { Notification } from '@/lib/types'
 
 export interface NavItem {
@@ -34,33 +35,44 @@ export function AppShell({
   const { profile, signOut } = useAuth()
 
   return (
-    /* h-screen + overflow-hidden pins the shell to the viewport. Without it
-       the page is one tall column and the sidebar scrolls away with the
-       content -- the nav has to stay put while a long table moves. */
-    <div className="flex h-screen overflow-hidden bg-[#f8fafd]">
+    /* Shell matching production portal styling: Dark Navy sidebar, warm canvas, sticky topbar */
+    <div className="flex h-screen overflow-hidden bg-[#fbf8f4]">
       {/* Sidebar */}
       <aside
         className={clsx(
-          'fixed inset-y-0 left-0 z-50 flex h-full w-64 shrink-0 flex-col bg-[#f8fafd] transition-transform lg:static lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 flex h-full w-64 shrink-0 flex-col bg-[#0b192c] text-white border-r border-slate-800 transition-transform lg:static lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="flex h-16 shrink-0 items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-700 font-display text-sm font-bold text-white">
-              R
-            </span>
+        <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-slate-800/80">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#ea580c] text-white font-bold shadow">
+              <img
+                src={BRAND.markSquare}
+                alt={BRAND.name}
+                className="h-7 w-7 rounded object-cover"
+                onError={(e) => {
+                  ;(e.target as HTMLElement).style.display = 'none'
+                }}
+              />
+            </div>
             <div className="leading-tight">
-              <p className="font-display text-sm font-semibold">Royal Green</p>
-              <p className="text-[11px] tracking-wide text-slate-500">{area}</p>
+              <p className="text-xs font-bold tracking-wider text-white uppercase">{BRAND.name}</p>
+              <p className="text-[10px] font-semibold tracking-widest text-slate-400 uppercase">
+                {area === 'Administration' ? 'ADMIN CONSOLE' : 'SPONSOR PANEL'}
+              </p>
             </div>
           </Link>
-          <button className="rounded p-1 text-slate-500 lg:hidden" onClick={() => setOpen(false)}>
+          <button className="rounded p-1 text-slate-400 hover:text-white lg:hidden" onClick={() => setOpen(false)}>
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-3 pb-3 [scrollbar-width:thin]">
+        <div className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          Navigation
+        </div>
+
+        <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pb-3 [scrollbar-width:thin]">
           {nav.map((item) => (
             <NavLink
               key={item.to}
@@ -69,66 +81,76 @@ export function AppShell({
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 clsx(
-                  'flex items-center gap-3 rounded-full px-4 py-2.5 text-sm transition-colors',
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-brand-100 font-semibold text-brand-900'
-                    : 'font-medium text-slate-700 hover:bg-slate-200/60',
+                    ? 'bg-[#152e4d] text-white font-semibold shadow-sm'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white',
                 )
               }
             >
-              {item.icon}
-              {item.label}
+              <span className="shrink-0">{item.icon}</span>
+              <span className="truncate">{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
-        <div className="shrink-0 border-t border-slate-200/70 p-3">
-          <div className="flex items-center gap-2.5 rounded-xl px-2 py-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700">
-              {initials(profile?.full_name)}
+        <div className="shrink-0 border-t border-slate-800 bg-[#081220] p-3">
+          <div className="flex items-center gap-3 rounded-xl px-2 py-1.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ea580c] text-sm font-bold text-white shadow">
+              {profile?.full_name ? profile.full_name[0].toUpperCase() : initials(profile?.email)}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-slate-900">{profile?.full_name || '—'}</p>
-              <p className="truncate text-xs text-slate-500">{profile?.user_code ?? profile?.email}</p>
+              <p className="truncate text-sm font-semibold text-white">{profile?.full_name || 'Member'}</p>
+              <p className="truncate text-xs font-mono text-slate-400">{profile?.user_code ?? profile?.email}</p>
             </div>
           </div>
           <div className="mt-1 flex flex-wrap gap-1 px-2">
             <Badge tone="blue">{profile?.role ?? '—'}</Badge>
             {profile?.rank?.name && <RankBadge name={profile.rank.name} />}
           </div>
-          <button
-            onClick={() => void signOut()}
-            className="mt-2 flex w-full items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200/60"
-          >
-            <LogOut className="h-4 w-4" /> Sign out
-          </button>
         </div>
       </aside>
 
-      {open && <div className="fixed inset-0 z-40 bg-slate-900/30 lg:hidden" onClick={() => setOpen(false)} />}
+      {open && <div className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden" onClick={() => setOpen(false)} />}
 
       {/* Main */}
-      <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
-        {/* shrink-0 keeps the bar out of the scrolling area entirely, so it
-            needs no sticky positioning and never overlaps a dropdown */}
-        <header className="flex h-16 shrink-0 items-center justify-between gap-3 bg-[#f8fafd] px-4 sm:px-6">
-          <button className="rounded-full p-2.5 text-slate-600 transition-colors hover:bg-slate-200/60 lg:hidden" onClick={() => setOpen(true)}>
-            <Menu className="h-5 w-5" />
-          </button>
-          <div className="flex-1" />
-          <NotificationBell />
-          <Link
-            to={`${nav[0]?.to.split('/').slice(0, 2).join('/')}/profile`}
-            className="rounded-full p-2.5 text-slate-600 transition-colors hover:bg-slate-200/60"
-            title="Profile"
-          >
-            <User className="h-5 w-5" />
-          </Link>
+      <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden bg-[#fbf8f4]">
+        <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur sm:px-6">
+          <div className="flex items-center gap-3">
+            <button
+              className="rounded p-1.5 text-slate-600 hover:bg-slate-100"
+              onClick={() => setOpen((prev) => !prev)}
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <span>{area === 'Administration' ? 'Admin panel' : 'Sponsor panel'}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <Link
+              to={`${nav[0]?.to.split('/').slice(0, 2).join('/')}/profile`}
+              className="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100"
+              title="Profile"
+            >
+              <User className="h-5 w-5" />
+            </Link>
+            <span className="hidden text-sm font-medium text-slate-700 sm:inline">
+              Hi, {profile?.full_name || 'User'}
+            </span>
+            <button
+              onClick={() => void signOut()}
+              className="ml-2 flex items-center gap-1.5 text-sm font-medium text-slate-700 transition-colors hover:text-red-600"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </button>
+          </div>
         </header>
 
-        {/* The only scrolling element on the right. Rounded top-left corner
-            over the tinted shell is the Workspace surface treatment. */}
-        <main className="min-w-0 flex-1 overflow-y-auto rounded-tl-2xl bg-white p-4 sm:p-6">
+        {/* The main scroll area */}
+        <main className="min-w-0 flex-1 overflow-y-auto bg-[#fbf8f4] p-4 sm:p-6">
           {banner && <div className="mb-4">{banner}</div>}
           {children ?? <Outlet />}
         </main>

@@ -9,6 +9,7 @@ import { Badge, Card, CardHeader, PageHeader, Spinner, StatTile, Table, Td, Th }
 import { useMembers, useNetworkTotals, useWithdrawalQueue } from '@/lib/queries'
 import { rankTone, statusTone } from '@/lib/network'
 import { date, moneyShort, num } from '@/lib/format'
+import { BRAND } from '@/lib/brand'
 
 async function count(table: string, build?: (q: any) => any) {
   let q = supabase.from(table).select('*', { count: 'exact', head: true })
@@ -103,7 +104,7 @@ export function AdminDashboard() {
 
   return (
     <>
-      <PageHeader title="Admin dashboard" description="Your Royal Green network at a glance." />
+      <PageHeader title="Admin dashboard" description={`Your ${BRAND.short} network at a glance.`} />
 
       {/* Network */}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

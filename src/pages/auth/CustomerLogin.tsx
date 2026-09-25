@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { homeRouteFor } from '../../context/AuthContext'
 import type { AppRole } from '../../lib/types'
 import { AuthLayout } from './AuthLayout'
+import { BRAND } from '@/lib/brand'
 
 type Tab = 'login' | 'signup'
 
@@ -129,7 +130,7 @@ export function CustomerLogin() {
   return (
     <AuthLayout
       title="Sponsor Sign-in"
-      subtitle="Welcome back to Royal Green Network"
+      subtitle={`Welcome back to ${BRAND.name}`}
     >
       {/* Tabs */}
       <div className="flex rounded-lg bg-gray-100 p-1 mb-7">
