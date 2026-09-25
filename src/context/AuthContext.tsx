@@ -4,9 +4,11 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { AppRole, Profile } from '@/lib/types'
@@ -66,6 +68,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile((data as unknown as Profile) ?? null)
   }, [])
 
+  // Everything fetched is cached by query key, and most keys do not include
+  // the member (['members'], ['profile'], ...). When the account in this tab
+  // changes -- sign-out, or someone else signing in -- the previous person's
+  // cached screens must not be shown to the next one, even for a moment.
+  const queryClient = useQueryClient()
+  const cachedFor = useRef<string | null | undefined>(undefined)
+  const forgetOtherUsersData = useCallback((userId: string | null) => {
+    if (cachedFor.current !== undefined && cachedFor.current !== userId) queryClient.clear()
+    cachedFor.current = userId
+  }, [queryClient])
+
   useEffect(() => {
     let alive = true
 
@@ -85,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
+      forgetOtherUsersData(data.session?.user?.id ?? null)
       setSession(data.session)
       if (data.session?.user) await loadProfile(data.session.user.id)
       if (alive) setLoading(false)
@@ -92,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: sub } = supabase.auth.onAuthStateChange(async (_event, next) => {
       if (!alive) return
+      forgetOtherUsersData(next?.user?.id ?? null)
       setSession(next)
       if (next?.user) {
         await loadProfile(next.user.id)
@@ -105,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       alive = false
       sub.subscription.unsubscribe()
     }
-  }, [loadProfile])
+  }, [loadProfile, forgetOtherUsersData])
 
   const signInStaff = useCallback(async (email: string, password: string) => {
     // Clear a stale session first: its expired token would otherwise be sent
@@ -172,7 +187,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
     setProfile(null)
     setSession(null)
-  }, [])
+    forgetOtherUsersData(null)
+  }, [forgetOtherUsersData])
 
   const refreshProfile = useCallback(async () => {
     if (session?.user) await loadProfile(session.user.id)
