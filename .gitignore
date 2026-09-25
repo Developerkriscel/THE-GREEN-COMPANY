@@ -18,3 +18,5 @@ reports/
 
 # local gateway file storage - generated member PDFs, real personal data
 server/.storage/
+dist-live/
+.release/
