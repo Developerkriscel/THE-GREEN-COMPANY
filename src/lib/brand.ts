@@ -22,16 +22,16 @@ export const BRAND = {
   name: 'Symocity',
   /** The short form, for a sidebar or a badge where space is tight. */
   short: 'Symocity',
-  tagline: 'Real Value in a Changing Life',
+  tagline: 'You Together Make Millionaire',
 
   /** Served from public/ — no external host, so it cannot rot or expire. */
   mark: '/brand-mark.jpg',
   markSquare: '/brand-mark-512.png',
   guidelines: '/brand-guidelines.jpg',
 
-  website: 'royalgreencompany.com',
-  websiteUrl: 'https://royalgreencompany.com',
-  email: 'rgc@gmail.com',
+  website: 'symocity.com',
+  websiteUrl: 'https://symocity.com',
+  email: 'symocitydevelopers@gmail.com',
   phone: '9211809636',
   phoneHref: 'tel:+919211809636',
 

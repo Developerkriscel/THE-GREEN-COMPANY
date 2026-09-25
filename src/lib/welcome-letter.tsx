@@ -32,7 +32,7 @@ export const WELCOME_DEFAULTS: WelcomeLetter = {
   closing: 'Warm regards,',
   signatory: 'Managing Director',
   company_line: '',
-  footer_slogan: 'Real Value in a Changing Life',
+  footer_slogan: BRAND.tagline,
 }
 
 /** Merge a partial stored letter over the defaults. */

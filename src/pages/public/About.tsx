@@ -63,7 +63,7 @@ export function AboutPage() {
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
           <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">About Us</span>
-          <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Real Value in a Changing Life</h1>
+          <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">{BRAND.tagline}</h1>
           <p className="mx-auto max-w-2xl text-lg text-white/60">
             {BRAND.name} began its journey in the real estate industry in 2010 with a clear vision of creating long-term value for customers and business partners.
           </p>
