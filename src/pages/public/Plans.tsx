@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { useCmsContent } from '@/lib/queries'
+import { useCmsContent, useRanks } from '@/lib/queries'
+import { planRows } from '@/lib/plan'
 
 export const RANKS = [
-  // The Symo City plan deck (symocity.com.pptx, slides 5-10) is the authority
-  // for every figure here. `direct` carries the SPONSOR slab from slide 6 and
-  // `pct` the own-sale slab from slide 5 -- the two are different rates and
-  // the table headers say so.
+  // Fallback only, for when the ranks cannot be loaded. The live table is
+  // built from the ranks the income engine pays on (planRows), which the
+  // office edits in Admin → Business Settings → Rank plan.
+  // `direct` is the SPONSOR slab (deck slide 6), `pct` the own-sale slab
+  // (slide 5).
   { rank: 'Channel Partner',    joining: 'Free',      direct: '—',  pct: '5%',  features: '₹3,000 training fee · Induction', elite: false },
   { rank: 'Team Coordinator',   joining: 'Free',      direct: '2%', pct: '7%',  features: '₹3,000 training fee · Juicer at 100 sq yd', elite: false },
   { rank: 'Manager',            joining: 'Free',      direct: '2%', pct: '9%',  features: '₹3,000 training fee · Mixer grinder at 100 sq yd', elite: false },
@@ -42,8 +44,9 @@ export const LEVELS = [
 
 export function PlansPage() {
   const [sqyds, setSqyds] = useState(100)
-  const { data: rankRows = [] } = useCmsContent<{ rank: string; joining: string; direct: string; pct: string; features: string; elite: boolean }>('plan_ranks', { activeOnly: true })
+  const { data: rankData = [] } = useRanks()
   const { data: levelRows = [] } = useCmsContent<{ level: number; rate: number; tag: string }>('plan_levels', { activeOnly: true })
+  const rankRows = planRows(rankData)
   const ranks = rankRows.length ? rankRows : RANKS
   const levels = levelRows.length ? levelRows : LEVELS
 
@@ -60,7 +63,7 @@ export function PlansPage() {
           <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">Direct Sponsor Plan</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Ranks · One Vision</h1>
           <p className="mx-auto max-w-xl text-lg text-white/60">
-            From Channel Partner to Crown. The higher the rank, the higher your own sale percentage, your sponsor percentage and your monthly salary.
+            From {ranks[0]?.rank} to {ranks[ranks.length - 1]?.rank}. The higher the rank, the higher your own sale percentage, your sponsor percentage and your monthly salary.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {['Direct Sponsor Income', '12-Level Team Payout', 'Elite Rank Rewards', 'Bi-Monthly Payout Cycle'].map(f => (
@@ -206,7 +209,9 @@ export function PlansPage() {
         style={{ background: 'linear-gradient(135deg, oklch(62% .19 43) 0%, oklch(54% .19 40) 100%)' }}>
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-extrabold text-white">Ready to Start Earning?</h2>
-          <p className="mt-3 text-white/70">Join as a Channel Partner for just ₹11,000 and begin your journey today.</p>
+          <p className="mt-3 text-white/70">
+            Join as a {ranks[0]?.rank} — {ranks[0]?.joining === 'Free' ? 'free to join' : `joining ${ranks[0]?.joining}`} — and begin your journey today.
+          </p>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
             <a href="/register" className="rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-[oklch(54%_.19_40)] shadow-lg hover:-translate-y-0.5 transition-all">
               Register Now — Free

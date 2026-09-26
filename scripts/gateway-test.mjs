@@ -516,6 +516,60 @@ async function main() {
   const bDocs = await api('/rest/v1/documents?select=type', { token: B })
   check('…but not to an unrelated rep', bDocs.data?.length === 0, bDocs.data)
 
+  // --------------------------------------------------- business settings
+  section('Business settings')
+  const anonBrand = await api('/rest/v1/site_settings?key=eq.public.brand&select=value')
+  check('the public site can read the company details',
+    anonBrand.status === 200 && Boolean(anonBrand.data?.[0]?.value?.name), anonBrand.data)
+
+  const anonWrite = await api('/rest/v1/site_settings?key=eq.public.brand', {
+    method: 'PATCH', body: { value: { name: 'Hijacked' } },
+  })
+  const { rows: brandNow } = await db.query(`select value->>'name' n from site_settings where key = 'public.brand'`)
+  check('…but cannot change them', brandNow[0]?.n !== 'Hijacked', { status: anonWrite.status, name: brandNow[0]?.n })
+
+  const memberRates = await api('/rest/v1/site_settings?key=eq.sponsor.rates&select=value', { token: A })
+  check('a member can read the payout deductions (TDS, admin charge)',
+    memberRates.data?.[0]?.value?.tds_pct !== undefined, memberRates.data)
+
+  const memberRatesWrite = await api('/rest/v1/site_settings?key=eq.sponsor.rates', {
+    token: A, method: 'PATCH', body: { value: { tds_pct: '0', admin_pct: '0' } },
+  })
+  const { rows: ratesNow } = await db.query(`select value->>'tds_pct' t from site_settings where key = 'sponsor.rates'`)
+  check('…but cannot change them', ratesNow[0]?.t !== '0' || memberRatesWrite.status >= 400, { status: memberRatesWrite.status, tds: ratesNow[0]?.t })
+
+  const memberRankWrite = await api('/rest/v1/ranks?seniority=eq.1', {
+    token: A, method: 'PATCH', body: { own_sale_rate: 99 },
+  })
+  const { rows: entryRate } = await db.query(`select own_sale_rate from ranks where seniority = 1`)
+  check('a member cannot change a rank\'s percentages',
+    Number(entryRate[0]?.own_sale_rate) !== 99, { status: memberRankWrite.status, rate: entryRate[0]?.own_sale_rate })
+
+  // A throwaway rank far above the real ladder, so nothing real is at risk.
+  const TEST_LEVEL = 900 + Math.floor(Math.random() * 90)
+  const newRank = await api('/rest/v1/ranks', {
+    token: ADMIN, method: 'POST', headers: { Prefer: 'return=representation' },
+    body: { name: `${TAG}-rank`, seniority: TEST_LEVEL, own_sale_rate: 1, active: false },
+  })
+  const testRankId = newRank.data?.[0]?.id
+  check('the office can add a rank', newRank.status === 201 && Boolean(testRankId), newRank.data)
+
+  const dupLevel = await api('/rest/v1/ranks', {
+    token: ADMIN, method: 'POST', body: { name: `${TAG}-dup`, seniority: TEST_LEVEL, own_sale_rate: 1, active: false },
+  })
+  check('two ranks cannot share a level', dupLevel.status >= 400, dupLevel.data)
+
+  const held = await api(`/rest/v1/profiles?id=eq.${aId}`, { token: ADMIN, method: 'PATCH', body: { rank_id: testRankId } })
+  check('the office can move a member onto the rank', held.status < 300, held.data)
+  const delHeld = await api(`/rest/v1/ranks?id=eq.${testRankId}`, { token: ADMIN, method: 'DELETE' })
+  const { rowCount: stillRank } = await db.query(`select 1 from ranks where id = $1`, [testRankId])
+  check('a rank a member holds cannot be deleted', delHeld.status >= 400 && stillRank === 1, delHeld.data)
+
+  await api(`/rest/v1/profiles?id=eq.${aId}`, { token: ADMIN, method: 'PATCH', body: { rank_id: null } })
+  const delFree = await api(`/rest/v1/ranks?id=eq.${testRankId}`, { token: ADMIN, method: 'DELETE' })
+  const { rowCount: goneRank } = await db.query(`select 1 from ranks where id = $1`, [testRankId])
+  check('an unused rank can be deleted', delFree.status < 300 && goneRank === 0, delFree.data)
+
   // ------------------------------------------------------ profile photos
   // supabase-js posts a Blob as FormData, so these go up exactly that way:
   // a cacheControl field and the file appended under an empty name.
@@ -611,6 +665,7 @@ async function main() {
   await db.query(`delete from public.projects where id = $1`, [projectId])
   await db.query(`delete from public.leads where name like $1`, [`${TAG}%`])
   await db.query(`delete from auth.users where email like $1`, [`${TAG}%`])
+  await db.query(`delete from ranks where name like $1`, [`${TAG}%`])
   console.log(`  ${c.dim('test data removed')}`)
 
   await db.end()
@@ -631,6 +686,7 @@ main().catch(async (err) => {
   console.error(err.stack?.split('\n').slice(1, 4).join('\n'))
   try {
     await db.query(`delete from auth.users where email like $1`, [`${TAG}%`])
+    await db.query(`delete from ranks where name like $1`, [`${TAG}%`])
     await db.end()
   } catch {}
   process.exit(1)

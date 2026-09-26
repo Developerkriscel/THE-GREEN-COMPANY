@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom'
-import { useProjects, useSiteSetting, useCmsContent, useBanners } from '@/lib/queries'
+import { useProjects, useSiteSetting, useCmsContent, useBanners, useRanks } from '@/lib/queries'
 import { BRAND } from '@/lib/brand'
+import { planRows } from '@/lib/plan'
 
 const HERO_DEFAULTS = {
   badge: 'Mission 90 Days — Registrations Open',
   title_lead: 'Build Your',
   title_accent: 'Financial Future',
   title_tail: `with ${BRAND.name}`,
-  subtitle: "India's trusted Symocity network. Earn direct sponsor income, level commissions and lifetime rewards.",
+  subtitle: `India's trusted ${BRAND.name} network. Earn direct sponsor income, level commissions and lifetime rewards.`,
   primary_cta_label: 'Join as Sponsor',
   primary_cta_link: '/register',
   secondary_cta_label: 'View Plans',
@@ -139,23 +140,6 @@ const WHY_ITEMS = [
   },
 ]
 
-const RANKS = [
-  // Figures from the Symo City plan deck (slides 5, 6 and 9); the full table
-  // lives on /plans. `direct` is the own-sale slab, which is what a member
-  // earns on a booking they close themselves.
-  { rank: 'Channel Partner',    investment: 'Free',      direct: '5%' },
-  { rank: 'Team Coordinator',   investment: 'Free',      direct: '7%' },
-  { rank: 'Manager',            investment: 'Free',      direct: '9%' },
-  { rank: 'Deputy Manager',     investment: 'Free',      direct: '11%' },
-  { rank: 'AGM',                investment: '₹5,100',    direct: '13%' },
-  { rank: 'DGM',                investment: '₹11,000',   direct: '14%' },
-  { rank: 'GM',                 investment: '₹21,000',   direct: '15%' },
-  { rank: 'Vice President',     investment: '₹1,00,000', direct: '16%' },
-  { rank: 'Core Manager',       investment: '₹2,00,000', direct: '17%' },
-  { rank: 'Sales Country Head', investment: '₹3,00,000', direct: '18%' },
-  { rank: 'Diamond',            investment: '₹4,00,000', direct: '19%' },
-  { rank: 'Crown',              investment: '₹5,00,000', direct: '20%' },
-]
 
 /** Exported so ProjectsPage can reuse it. */
 export function ProjectCard({ project }: { project: Record<string, any> }) {
@@ -268,6 +252,9 @@ function PromoBanners() {
 }
 
 export function Home() {
+  const { data: rankData = [] } = useRanks()
+  const ranks = planRows(rankData)
+  const freeCount = ranks.filter((r) => r.joining === 'Free').length
   const { data: heroCfg } = useSiteSetting('home.hero')
   const hero = { ...HERO_DEFAULTS, ...(heroCfg ?? {}) }
   const { data: achieverRows = [] } = useCmsContent<{ name: string; rank: string; photo_url: string }>('achievers', { activeOnly: true })
@@ -542,7 +529,9 @@ export function Home() {
               Ranks & Sponsor Income
             </h2>
             <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
-              12 career milestones. The first four ranks join free; your own sale percentage rises from 5% to 20%.
+              {ranks.length} career milestones.{' '}
+              {freeCount > 0 && `${freeCount === 1 ? `${ranks[0]?.rank} joins` : `The first ${freeCount} ranks join`} free; `}
+              {ranks.length > 1 && `your own sale percentage rises from ${ranks[0]?.pct} to ${ranks[ranks.length - 1]?.pct}.`}
             </p>
           </div>
 
@@ -557,19 +546,19 @@ export function Home() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {RANKS.slice(0, 7).map((r, i) => (
+                {ranks.slice(0, 7).map((r, i) => (
                   <tr key={r.rank} className="hover:bg-[oklch(62%_.19_43)]/5 transition-colors">
                     <td className="py-3.5 pl-6 pr-4 text-gray-400 font-medium">{String(i + 1).padStart(2, '0')}</td>
                     <td className="py-3.5 px-4 font-semibold text-[oklch(14%_.05_260)]">
                       {r.rank}
-                      {i < 4 && (
+                      {r.joining === 'Free' && (
                         <span className="ml-2 inline-flex items-center rounded-full bg-[oklch(62%_.19_43)]/10 px-2 py-0.5 text-xs font-semibold text-[oklch(54%_.19_40)]">
                           Entry
                         </span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-right text-gray-600">{r.investment}</td>
-                    <td className="py-3.5 pl-4 pr-6 text-right font-bold text-[oklch(54%_.19_40)]">{r.direct}</td>
+                    <td className="py-3.5 px-4 text-right text-gray-600">{r.joining}</td>
+                    <td className="py-3.5 pl-4 pr-6 text-right font-bold text-[oklch(54%_.19_40)]">{r.pct}</td>
                   </tr>
                 ))}
               </tbody>
@@ -581,7 +570,7 @@ export function Home() {
               to="/plans"
               className="inline-flex items-center gap-2 text-sm font-semibold text-[oklch(54%_.19_40)] hover:text-[oklch(62%_.19_43)] transition-colors"
             >
-              See all 12 ranks
+              See all {ranks.length} ranks
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>

@@ -28,6 +28,8 @@ export interface Rank {
   joining_fee?: number
   /** One-off training fee at joining; waived from AGM up (plan deck slide 9). */
   training_fee?: number
+  /** Free-text training perk shown on the plan ("Free · 3 tickets + 20%"). */
+  training_note?: string | null
   req_direct?: number
   req_team?: number
   req_legs?: number

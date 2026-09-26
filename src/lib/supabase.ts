@@ -16,6 +16,20 @@ function resolveSupabaseUrl(): string {
 }
 
 const url = resolveSupabaseUrl()
+
+/** The API origin, for turning a stored `/storage/v1/...` path into a URL. */
+export const API_BASE = url.replace(/\/$/, '')
+
+/**
+ * A file path saved in the database is kept relative (`/storage/v1/...`), so
+ * the same row works on the live site and on a developer's machine -- both
+ * read one database. Absolute URLs pass through unchanged.
+ */
+export function assetUrl(pathOrUrl: string | null | undefined): string | null {
+  if (!pathOrUrl) return null
+  return /^https?:\/\//.test(pathOrUrl) ? pathOrUrl : `${API_BASE}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`
+}
+
 const anonKey = envAnonKey || FALLBACK_ANON_KEY
 
 export const isSupabaseConfigured = Boolean(url && anonKey)

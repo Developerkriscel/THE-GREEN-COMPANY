@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { config } from './config.mjs'
+import { brandName } from './brand.mjs'
 import { withOwner } from './db.mjs'
 import { hashPassword } from './jwt.mjs'
 
@@ -124,7 +125,7 @@ async function generateDocuments({ booking_id }) {
       })
     }
 
-    const company = config.brandName
+    const company = await brandName()
     const stamp = Date.now()
     const created = []
 
@@ -258,7 +259,7 @@ async function generateReceipt({ emi_id }) {
     }
 
     const pdf = buildPdf([
-      { text: config.brandName, size: 18, bold: true },
+      { text: await brandName(), size: 18, bold: true },
       { text: 'Payment Receipt', size: 13, bold: true, gap: 12 },
       { text: `Receipt number: ${e.receipt_no ?? '-'}`, size: 10 },
       { text: `Date: ${day(e.paid_on ?? e.paid_at)}`, size: 10, gap: 14 },

@@ -72,7 +72,7 @@ import { AdminPaymentsCrm } from '@/pages/admin/PaymentsCrm'
 import { AdminPayouts } from '@/pages/admin/Payouts'
 import { AdminCommissions } from '@/pages/admin/Commissions'
 import { AdminKyc } from '@/pages/admin/Kyc'
-import { AdminRanks } from '@/pages/admin/Ranks'
+import { AdminBusinessSettings } from '@/pages/admin/BusinessSettings'
 import { AdminStaff } from '@/pages/admin/Staff'
 import { AdminMembers } from '@/pages/admin/Members'
 import { AdminMemberDetail } from '@/pages/admin/MemberDetail'
@@ -119,6 +119,7 @@ const ico = 'h-4 w-4'
 const adminNav: NavItem[] = [
   { to: '/admin', label: 'Dashboard', icon: <Gauge className={ico} />, end: true },
   { to: '/admin/cms', label: 'Website CMS', icon: <LayoutGrid className={ico} /> },
+  { to: '/admin/settings', label: 'Business Settings', icon: <Settings className={ico} /> },
   { to: '/admin/members', label: 'Members', icon: <Users className={ico} /> },
   { to: '/admin/tree', label: 'Member Tree', icon: <Network className={ico} /> },
   { to: '/admin/genealogy', label: 'Genealogy', icon: <GitBranch className={ico} /> },
@@ -140,7 +141,6 @@ const adminSecondaryNav: NavItem[] = [
   { to: '/admin/bookings', label: 'Bookings', icon: <ClipboardCheck className={ico} /> },
   { to: '/admin/emis', label: 'EMI schedule', icon: <CalendarClock className={ico} /> },
   { to: '/admin/commissions', label: 'Commissions', icon: <Banknote className={ico} /> },
-  { to: '/admin/ranks', label: 'Ranks', icon: <Trophy className={ico} /> },
   { to: '/admin/staff', label: 'Staff', icon: <Users className={ico} /> },
   { to: '/admin/reports', label: 'Reports', icon: <FileText className={ico} /> },
   { to: '/admin/audit', label: 'Audit log', icon: <ScrollText className={ico} /> },
@@ -237,7 +237,9 @@ export function App() {
           <Route path="bookings/:id" element={<BookingDetail />} />
           <Route path="emis" element={<AdminEmis />} />
           <Route path="commissions" element={<AdminCommissions />} />
-          <Route path="ranks" element={<AdminRanks />} />
+          <Route path="settings" element={<AdminBusinessSettings />} />
+          {/* The old ranks page only knew the own-sale rate; the full plan is edited in Business Settings. */}
+          <Route path="ranks" element={<Navigate to="/admin/settings" replace />} />
           <Route path="staff" element={<AdminStaff />} />
           <Route path="reports" element={<AdminReports />} />
           <Route path="audit" element={<AdminAudit />} />

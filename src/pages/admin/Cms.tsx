@@ -1,5 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { Image, Pencil, Plus, Star, Trash2, Upload } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useProjects, type Banner } from '@/lib/queries'
@@ -10,7 +11,7 @@ import {
 import { IconBtn, AdminProjects } from '@/pages/admin/Projects'
 import { AdminPlots } from '@/pages/admin/Plots'
 import { CmsContentTab } from '@/pages/admin/CmsContentTab'
-import { DEFAULT_TEAM, DEFAULT_ACHIEVERS, DEFAULT_EVENTS, DEFAULT_NEWS, DEFAULT_REWARDS, DEFAULT_PLAN_RANKS, DEFAULT_PLAN_LEVELS, TEAM_CATEGORIES } from '@/lib/site-content'
+import { DEFAULT_TEAM, DEFAULT_ACHIEVERS, DEFAULT_EVENTS, DEFAULT_NEWS, DEFAULT_REWARDS, DEFAULT_PLAN_LEVELS, TEAM_CATEGORIES } from '@/lib/site-content'
 import { WELCOME_DEFAULTS, resolveWelcomeLetter, WelcomeLetterView, type WelcomeLetter } from '@/lib/welcome-letter'
 import { dateTime, num } from '@/lib/format'
 import { BRAND } from '@/lib/brand'
@@ -119,22 +120,15 @@ export function AdminCms() {
       )}
       {tab === 'plans' && (
         <div className="space-y-6">
-          <CmsContentTab
-            table="plan_ranks"
-            title="Rank & income rows"
-            subtitle="The Rank & Income table on the public Plans page."
-            titleField="rank"
-            subtitleField="joining"
-            defaults={DEFAULT_PLAN_RANKS}
-            fields={[
-              { name: 'rank', label: 'Rank', required: true },
-              { name: 'joining', label: 'Joining (₹)' },
-              { name: 'direct', label: 'Direct income' },
-              { name: 'pct', label: 'Sale %' },
-              { name: 'features', label: 'Features', type: 'textarea' },
-              { name: 'elite', label: 'Elite rank', type: 'select', options: [{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }] },
-            ]}
-          />
+          <Card>
+            <CardBody className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-slate-600">
+                The <strong>Rank &amp; Income table</strong> on the Plans and Home pages is built from the rank plan the
+                income engine pays on — edit ranks, percentages, salaries, fees and rewards in Business Settings.
+              </p>
+              <Link to="/admin/settings" className="text-sm font-medium text-brand-700 hover:underline">Open Business Settings → Rank plan</Link>
+            </CardBody>
+          </Card>
           <CmsContentTab
             table="plan_levels"
             title="Level payout rows"

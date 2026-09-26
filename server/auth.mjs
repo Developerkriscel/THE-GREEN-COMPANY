@@ -3,6 +3,7 @@ import { withOwner } from './db.mjs'
 import { config } from './config.mjs'
 import { hashPassword, newToken, signJwt, verifyPassword, verifyJwt } from './jwt.mjs'
 import { recoveryMail, sendMail, signupCodeMail } from './mailer.mjs'
+import { brandName } from './brand.mjs'
 
 /*
  * A GoTrue-shaped auth service, covering what @supabase/supabase-js calls.
@@ -154,7 +155,7 @@ async function issueSignupCode(client, user) {
   // Sent inside the transaction on purpose: if the mail cannot go out, the
   // sign-up rolls back and the address is free to try again, rather than
   // leaving an account nobody can ever confirm.
-  await sendMail({ to: user.email, ...signupCodeMail({ code, minutes: OTP_MINUTES }) })
+  await sendMail({ to: user.email, ...signupCodeMail({ code, minutes: OTP_MINUTES, brand: await brandName() }) })
 }
 
 export async function signup({ email, password, data }) {
@@ -412,6 +413,6 @@ export async function recover({ email }) {
         { sub: rows[0].id, role: 'authenticated', email },
         { expiresIn: 3600 },
       )}&type=recovery`
-    await sendMail({ to: String(email).trim(), ...recoveryMail({ link }) })
+    await sendMail({ to: String(email).trim(), ...recoveryMail({ link, brand: await brandName() }) })
   })
 }
