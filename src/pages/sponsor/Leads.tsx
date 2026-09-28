@@ -1,5 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { AlertTriangle, CalendarClock, Phone, Plus, Target, UserPlus } from 'lucide-react'
+import { AlertTriangle, CalendarClock, Phone, Plus, Target, Upload, UserPlus } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useProjects } from '@/lib/queries'
 import {
@@ -13,6 +14,7 @@ import {
 } from '@/components/ui'
 import { Notice, SkeletonRows, SkeletonTiles } from '@/components/sponsor'
 import { date, money } from '@/lib/format'
+import { LeadImport } from '@/components/LeadImport'
 
 /**
  * Lead follow-up — the member's own prospects, and the one thing the panel
@@ -60,6 +62,8 @@ export function SponsorLeads() {
   const [filter, setFilter] = useState<'all' | 'due' | LeadStatus>('all')
   const [editing, setEditing] = useState<LeadRow | null>(null)
   const [adding, setAdding] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const qc = useQueryClient()
   const [detail, setDetail] = useState<LeadRow | null>(null)
 
   const buckets = useMemo(() => leadBuckets(leads), [leads])
@@ -82,9 +86,14 @@ export function SponsorLeads() {
         title="Lead follow-up"
         description="Your prospects, and who to call next. Only you and the office can see these."
         action={
-          <Button onClick={() => setAdding(true)}>
-            <Plus className="h-4 w-4" /> Add lead
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => setImporting(true)}>
+              <Upload className="h-4 w-4" /> Import leads
+            </Button>
+            <Button onClick={() => setAdding(true)}>
+              <Plus className="h-4 w-4" /> Add lead
+            </Button>
+          </div>
         }
       />
 
@@ -232,6 +241,16 @@ export function SponsorLeads() {
       />
 
       <LeadDetail lead={detail} onClose={() => setDetail(null)} />
+
+      {importing && me && (
+        <LeadImport
+          ownerId={me}
+          existingMobiles={leads.map((l) => l.mobile)}
+          projects={projects}
+          onClose={() => setImporting(false)}
+          onImported={() => void qc.invalidateQueries({ queryKey: ['sponsor-leads', me] })}
+        />
+      )}
     </>
   )
 }

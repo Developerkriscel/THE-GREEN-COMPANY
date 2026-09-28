@@ -130,7 +130,7 @@ export const LEAD_LABELS: Record<LeadStatus, string> = {
 /** Statuses the member may no longer edit — leads_update_owner blocks them. */
 export const LEAD_CLOSED: LeadStatus[] = ['converted', 'lost']
 
-export const LEAD_SOURCES = ['website', 'referral', 'walk_in', 'call', 'social', 'other']
+export const LEAD_SOURCES = ['website', 'referral', 'walk_in', 'call', 'social', 'import', 'other']
 
 export interface LeadRow {
   id: string

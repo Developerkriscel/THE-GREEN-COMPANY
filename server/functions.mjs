@@ -416,8 +416,52 @@ async function setMemberPassword(body, ctx) {
   })
 }
 
+/**
+ * A Google Sheet, as CSV, for the lead importer. The browser cannot read a
+ * sheet from Google itself (no CORS), so the gateway fetches the sheet's own
+ * CSV export. Only a docs.google.com spreadsheet link is accepted — the URL
+ * is rebuilt from the sheet id, never fetched as given — so this cannot be
+ * pointed at any other address. The sheet must be shared "anyone with the
+ * link can view".
+ */
+async function fetchSheet(body, ctx) {
+  if (!ctx?.claims?.sub) throw Object.assign(new Error('Sign in to import a sheet'), { status: 401 })
+  let u
+  try { u = new URL(String(body.url ?? '').trim()) } catch {
+    throw Object.assign(new Error('That is not a link. Paste the Google Sheet address.'), { status: 400 })
+  }
+  const m = /^\/spreadsheets\/d\/([A-Za-z0-9_-]{20,})/.exec(u.pathname)
+  if (u.protocol !== 'https:' || u.hostname !== 'docs.google.com' || !m) {
+    throw Object.assign(new Error('Only Google Sheets links (docs.google.com/spreadsheets/…) can be imported.'), { status: 400 })
+  }
+  const gid = /(?:[#&?]gid=)(\d+)/.exec(u.href)?.[1]
+  const exportUrl = `https://docs.google.com/spreadsheets/d/${m[1]}/export?format=csv${gid ? `&gid=${gid}` : ''}`
+
+  const ac = new AbortController()
+  const timer = setTimeout(() => ac.abort(), 15_000)
+  let res
+  try {
+    res = await fetch(exportUrl, { redirect: 'follow', signal: ac.signal })
+  } catch {
+    throw Object.assign(new Error('Google did not answer. Try again in a moment.'), { status: 502 })
+  } finally {
+    clearTimeout(timer)
+  }
+  const type = res.headers.get('content-type') ?? ''
+  if (!res.ok || !/text\/csv|text\/plain|application\/octet-stream/.test(type)) {
+    throw Object.assign(
+      new Error('Could not read that sheet. In Google Sheets choose Share → "Anyone with the link" (Viewer), then try again.'),
+      { status: 400 },
+    )
+  }
+  const text = await res.text()
+  if (text.length > 5 * 1024 * 1024) throw Object.assign(new Error('That sheet is too large (5 MB limit).'), { status: 413 })
+  return { csv: text }
+}
+
 const FUNCTIONS = {
   'generate-documents': generateDocuments,
+  'fetch-sheet': fetchSheet,
   'generate-receipt': generateReceipt,
   'flag-overdue-emis': flagOverdueEmis,
   'send-email': sendEmail,

@@ -570,6 +570,34 @@ async function main() {
   const { rowCount: goneRank } = await db.query(`select 1 from ranks where id = $1`, [testRankId])
   check('an unused rank can be deleted', delFree.status < 300 && goneRank === 0, delFree.data)
 
+  // ------------------------------------------------------ lead import
+  section('Lead import')
+  const anonSheet = await api('/functions/v1/fetch-sheet', {
+    method: 'POST', body: { url: 'https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit' },
+  })
+  check('the sheet fetch needs a signed-in member', anonSheet.status === 401, anonSheet.data)
+
+  const otherHost = await api('/functions/v1/fetch-sheet', {
+    token: A, method: 'POST', body: { url: 'http://169.254.169.254/spreadsheets/d/abcdefghijklmnopqrstuvwxyz/' },
+  })
+  check('the sheet fetch refuses anything but a docs.google.com sheet', otherHost.status === 400, otherHost.data)
+
+  const bulk = await api('/rest/v1/leads', {
+    token: A, method: 'POST', headers: { Prefer: 'return=representation' },
+    body: [
+      { name: `${TAG} bulk 1`, mobile: '9000000001', source: 'import', owner_id: aId },
+      { name: `${TAG} bulk 2`, mobile: '9000000002', source: 'import', owner_id: aId },
+    ],
+  })
+  check('a member can import several leads in one request', bulk.status === 201 && bulk.data?.length === 2, bulk.data)
+
+  const foreign = await api('/rest/v1/leads', {
+    token: A, method: 'POST',
+    body: [{ name: `${TAG} bulk foreign`, mobile: '9000000003', source: 'import', owner_id: bSession.data.user.id }],
+  })
+  const { rowCount: foreignRows } = await db.query(`select 1 from leads where name = $1`, [`${TAG} bulk foreign`])
+  check('…but cannot import leads into another member\'s list', foreign.status >= 400 && foreignRows === 0, foreign.data)
+
   // ------------------------------------------------------ profile photos
   // supabase-js posts a Blob as FormData, so these go up exactly that way:
   // a cacheControl field and the file appended under an empty name.

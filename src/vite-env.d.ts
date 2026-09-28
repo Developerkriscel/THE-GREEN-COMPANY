@@ -8,3 +8,8 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+// mammoth ships a prebuilt browser bundle without its own type declaration.
+declare module 'mammoth/mammoth.browser' {
+  export function extractRawText(input: { arrayBuffer: ArrayBuffer }): Promise<{ value: string; messages: unknown[] }>
+}
