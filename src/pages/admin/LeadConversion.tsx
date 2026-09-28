@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Download, Phone, Search, Upload } from 'lucide-react'
+import { Download, Phone, Search, Upload, Users, X } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Badge, Button, Card, EmptyState, ErrorState, Input, PageHeader, Select, Spinner, Table, Td, Th, type Tone } from '@/components/ui'
 import { useLeads, useMembers, useProjects } from '@/lib/queries'
 import { LeadImport } from '@/components/LeadImport'
+import { AssignLeads } from '@/components/AssignLeads'
 import { date, downloadCsv, money } from '@/lib/format'
 import type { LeadStatus } from '@/lib/types'
 
@@ -29,6 +30,8 @@ export function AdminLeadConversion() {
   const [status, setStatus] = useState('')
   const [owner, setOwner] = useState('')
   const [importing, setImporting] = useState(false)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [assigning, setAssigning] = useState(false)
   const qc = useQueryClient()
   const { data: members = [] } = useMembers()
   const { data: projects = [] } = useProjects()
@@ -64,6 +67,16 @@ export function AdminLeadConversion() {
       return true
     })
   }, [leads, search, status, owner])
+
+  // Converted leads belong to a sale and are not reassigned.
+  const selectable = filtered.filter((l) => l.status !== 'converted')
+  const allChosen = selectable.length > 0 && selectable.every((l) => selected.has(l.id))
+  const toggleOne = (id: string) => setSelected((prev) => {
+    const next = new Set(prev)
+    next.has(id) ? next.delete(id) : next.add(id)
+    return next
+  })
+  const toggleAll = () => setSelected(allChosen ? new Set() : new Set(selectable.map((l) => l.id)))
 
   return (
     <div>
@@ -143,12 +156,32 @@ export function AdminLeadConversion() {
           <Table>
             <thead>
               <tr>
+                <Th className="w-10">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all leads shown"
+                    checked={allChosen}
+                    onChange={toggleAll}
+                    className="h-4 w-4 rounded border-slate-300 text-brand-gold-dark focus:ring-brand-gold"
+                  />
+                </Th>
                 <Th>Lead</Th><Th>Sponsor</Th><Th>Project</Th><Th>Budget</Th><Th>Status</Th><Th>Last Update</Th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((l) => (
-                <tr key={l.id} className="hover:bg-slate-50">
+                <tr key={l.id} className={selected.has(l.id) ? 'bg-brand-gold/[0.07]' : 'hover:bg-slate-50'}>
+                  <Td className="w-10">
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${l.name}`}
+                      checked={selected.has(l.id)}
+                      disabled={l.status === 'converted'}
+                      title={l.status === 'converted' ? 'Converted leads stay with their sponsor' : undefined}
+                      onChange={() => toggleOne(l.id)}
+                      className="h-4 w-4 rounded border-slate-300 text-brand-gold-dark focus:ring-brand-gold disabled:opacity-30"
+                    />
+                  </Td>
                   <Td>
                     <Link to={`/admin/leads/${l.id}`} className="font-medium text-slate-900 hover:text-brand-700">{l.name}</Link>
                     <p className="text-xs text-slate-400">{l.mobile}</p>
@@ -164,6 +197,38 @@ export function AdminLeadConversion() {
           </Table>
         )}
       </Card>
+      {/* The action bar for the selected leads */}
+      {selected.size > 0 && (
+        <div className="sticky bottom-20 z-30 mt-4 lg:bottom-4">
+          <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-3 rounded-2xl bg-brand-darker px-4 py-3 text-white shadow-2xl ring-1 ring-brand-gold/40">
+            <p className="text-sm">
+              <span className="font-bold text-brand-gold-light">{selected.size}</span> lead{selected.size === 1 ? '' : 's'} selected
+            </p>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setSelected(new Set())} className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm text-white/70 hover:bg-white/10 hover:text-white">
+                <X className="h-4 w-4" /> Clear
+              </button>
+              <Button onClick={() => setAssigning(true)}>
+                <Users className="h-4 w-4" /> Assign to members
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {assigning && (
+        <AssignLeads
+          leadIds={[...selected]}
+          members={assignable}
+          onClose={() => setAssigning(false)}
+          onDone={() => {
+            setAssigning(false)
+            setSelected(new Set())
+            void qc.invalidateQueries({ queryKey: ['leads'] })
+          }}
+        />
+      )}
+
       {importing && (
         <LeadImport
           ownerId={null}

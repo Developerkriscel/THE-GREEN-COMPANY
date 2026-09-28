@@ -610,6 +610,27 @@ async function main() {
   check('…and the member sees only the leads assigned to them',
     bSeesImport.data?.length === 1 && bSeesImport.data[0].name === `${TAG} office to B`, bSeesImport.data)
 
+  // The office shares leads out: only an admin may, only to active
+  // sponsors, and converted leads stay where they are.
+  const poolLead = officeImport.data?.find((l) => l.name === `${TAG} office pool`)
+  const memberAssign = await api('/rest/v1/rpc/assign_leads', {
+    token: A, method: 'POST', body: { p_lead_ids: [poolLead?.id], p_member_ids: [aId] },
+  })
+  check('a member cannot assign leads', memberAssign.status >= 400, memberAssign.data)
+
+  const toAdmin = await api('/rest/v1/rpc/assign_leads', {
+    token: ADMIN, method: 'POST', body: { p_lead_ids: [poolLead?.id], p_member_ids: [admSession.data.user.id] },
+  })
+  check('leads can only go to active sponsors', toAdmin.status >= 400, toAdmin.data)
+
+  const shared = await api('/rest/v1/rpc/assign_leads', {
+    token: ADMIN, method: 'POST', body: { p_lead_ids: [poolLead?.id], p_member_ids: [aId] },
+  })
+  const { rows: movedLead } = await db.query(`select owner_id from leads where id = $1`, [poolLead?.id])
+  const { rows: aNote } = await db.query(`select title from notifications where user_id = $1 and type = 'lead_assigned'`, [aId])
+  check('the office can assign a pool lead to a sponsor, who is notified once',
+    shared.data?.assigned === 1 && movedLead[0]?.owner_id === aId && aNote.length === 1, { shared: shared.data, aNote })
+
   // ------------------------------------------------------ profile photos
   // supabase-js posts a Blob as FormData, so these go up exactly that way:
   // a cacheControl field and the file appended under an empty name.
