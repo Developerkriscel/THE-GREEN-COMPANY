@@ -147,7 +147,7 @@ export function ProjectCard({ project }: { project: Record<string, any> }) {
   return (
     <Link
       to={`/projects/${project.slug}`}
-      className="group flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant hover:border-brand-primary/30 transition-all duration-300 overflow-hidden"
+      className="card-luxe group flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden"
     >
       {project.hero_image ? (
         <div className="h-40 overflow-hidden">
@@ -189,6 +189,7 @@ function FeaturedProjects() {
           <h2 className="mt-3 text-3xl font-extrabold text-brand-darker sm:text-4xl">
             Built on Trust. Designed for Growth.
           </h2>
+          <div className="gold-rule" aria-hidden><i /></div>
           <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
             From premium plots to integrated townships, every Symocity project is engineered for long-term value.
           </p>
@@ -228,7 +229,7 @@ function PromoBanners() {
               style={{
                 background: b.image_url
                   ? `linear-gradient(120deg, rgb(var(--c-dark) / .82), rgb(var(--c-dark) / .45)), url(${b.image_url}) center/cover`
-                  : 'linear-gradient(135deg, rgb(var(--c-primary)), rgb(var(--c-primary-dark)))',
+                  : 'radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .18), transparent 45%), linear-gradient(135deg, rgb(var(--c-dark)), rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)))',
               }}
             >
               <h3 className="text-2xl font-extrabold">{b.title}</h3>
@@ -288,7 +289,7 @@ export function Home() {
         <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8 py-28 w-full">
           <div className="max-w-2xl">
             {/* Mission badge */}
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-primary-glow/40 bg-brand-primary/15 px-4 py-1.5 backdrop-blur-sm">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-gold/40 bg-brand-darker/40 px-4 py-1.5 backdrop-blur-sm">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-primary-glow opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-primary" />
@@ -301,8 +302,7 @@ export function Home() {
             <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl animate-fade-up">
               {hero.title_lead}{' '}
               <span
-                className="bg-clip-text text-transparent"
-                style={{ backgroundImage: 'linear-gradient(to right, rgb(var(--c-gold)), rgb(var(--c-primary-glow)))' }}
+                className="text-gold-metal"
               >
                 {hero.title_accent}
               </span>{' '}
@@ -315,8 +315,7 @@ export function Home() {
             <div className="mt-8 flex flex-wrap gap-3 animate-fade-up" style={{ animationDelay: '.2s' }}>
               <Link
                 to={hero.primary_cta_link}
-                className="inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold text-white shadow-elegant hover:opacity-90 transition-all"
-                style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}
+                className="btn-gold rounded-xl px-8 py-3.5 text-sm"
               >
                 {hero.primary_cta_label}
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -332,12 +331,20 @@ export function Home() {
             </div>
 
             <div className="mt-10 flex flex-wrap gap-5 animate-fade-up" style={{ animationDelay: '.3s' }}>
-              {[{ icon: '✅', text: 'Verified Plan' }, { icon: '🏆', text: '12 Rank Levels' }, { icon: '👥', text: '25,000+ Partners' }].map((b) => (
-                <div key={b.text} className="flex items-center gap-2 text-sm text-white/70">
-                  <span>{b.icon}</span>{b.text}
+              {['Verified Plan', `${ranks.length} Rank Levels`, '25,000+ Partners'].map((t) => (
+                <div key={t} className="flex items-center gap-2 text-sm font-medium text-white/80">
+                  <span className="h-2 w-2 rotate-45 bg-brand-gold" aria-hidden />{t}
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* The coin, floating, on wide screens */}
+        <div className="pointer-events-none absolute right-[5%] top-1/2 hidden -translate-y-1/2 lg:block" aria-hidden>
+          <div className="relative">
+            <div className="absolute inset-6 rounded-full bg-brand-gold/30 blur-3xl" />
+            <img src={BRAND.markSquare} alt="" className="coin-float relative w-[300px] xl:w-[360px] drop-shadow-2xl" />
           </div>
         </div>
 
@@ -355,7 +362,7 @@ export function Home() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8">
             {STATS.map((s) => (
               <div key={s.label} className="text-center">
-                <p className="text-3xl lg:text-4xl font-extrabold text-brand-primary-glow">{s.value}</p>
+                <p className="text-3xl lg:text-4xl font-extrabold text-gold-metal">{s.value}</p>
                 <p className="mt-1 text-xs font-bold tracking-widest uppercase text-white/40">{s.label}</p>
               </div>
             ))}
@@ -374,6 +381,7 @@ export function Home() {
             <h2 className="mt-3 text-3xl font-extrabold text-brand-darker sm:text-4xl">
               A plan built for serious earners
             </h2>
+            <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
               Six income streams, transparent ranks and rewards that match real effort.
             </p>
@@ -383,11 +391,10 @@ export function Home() {
             {WHY_ITEMS.map((item) => (
               <div
                 key={item.title}
-                className="group rounded-2xl border border-gray-100 p-6 hover:border-brand-primary/30 hover:shadow-elegant transition-all duration-300"
+                className="card-luxe group rounded-2xl border border-gray-100 p-6"
                 style={{ background: 'linear-gradient(oklch(1 0 0) 0%, oklch(0.985 0.02 60) 100%)' }}
               >
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl text-white transition-all"
-                  style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}>
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl text-brand-darker transition-all bg-gold-metal shadow-elegant">
                   {item.icon}
                 </div>
                 <h3 className="text-base font-bold text-brand-darker mb-2">{item.title}</h3>
@@ -401,7 +408,7 @@ export function Home() {
       {/* ══════════════════════ TOP ACHIEVER ══════════════════════ */}
       <section
         className="py-24 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
+        style={{ background: 'radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .2), transparent 45%), linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
@@ -415,6 +422,7 @@ export function Home() {
                 Real leaders.<br />
                 <span className="text-brand-primary-glow">Real rewards.</span>
               </h2>
+              <div className="gold-rule" aria-hidden><i /></div>
               <p className="mt-4 text-white/60 leading-relaxed max-w-md">
                 Celebrating the champions who turned Mission 90 Days into a lifetime achievement.
               </p>
@@ -453,8 +461,7 @@ export function Home() {
               <div className="mt-6">
                 <Link
                   to="/register"
-                  className="inline-flex items-center gap-2 rounded-xl px-7 py-3 text-sm font-bold text-white shadow-elegant hover:opacity-90 transition-all"
-                  style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}
+                  className="btn-gold rounded-xl px-7 py-3 text-sm"
                 >
                   Chase the Crown
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -479,8 +486,7 @@ export function Home() {
                   />
                 </div>
                 {/* Name badge */}
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-6 py-2 text-xs font-bold uppercase tracking-widest text-white shadow-elegant"
-                  style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}>
+                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-6 py-2 text-xs font-bold uppercase tracking-widest text-brand-darker shadow-elegant bg-gold-metal">
                   {topAchiever.rank}
                 </div>
               </div>
@@ -531,6 +537,7 @@ export function Home() {
             <h2 className="mt-3 text-3xl font-extrabold text-brand-darker sm:text-4xl">
               Ranks & Sponsor Income
             </h2>
+            <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
               {ranks.length} career milestones.{' '}
               {freeCount > 0 && `${freeCount === 1 ? `${ranks[0]?.rank} joins` : `The first ${freeCount} ranks join`} free; `}
@@ -541,7 +548,7 @@ export function Home() {
           <div className="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-brand-darker text-white">
+                <tr className="bg-brand-darker text-brand-gold-light">
                   <th className="py-4 pl-6 pr-4 text-left text-xs font-bold uppercase tracking-wider">#</th>
                   <th className="py-4 px-4 text-left text-xs font-bold uppercase tracking-wider">Rank</th>
                   <th className="py-4 px-4 text-right text-xs font-bold uppercase tracking-wider">Joining</th>
@@ -588,6 +595,7 @@ export function Home() {
           <div className="text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Exclusive Benefits</span>
             <h2 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">From smartphone to a house fund</h2>
+            <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 mx-auto max-w-xl text-base text-white/50">
               Beyond commissions — unlock experiences and assets that celebrate your success.
             </p>
@@ -603,7 +611,7 @@ export function Home() {
                     className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span className="absolute top-3 left-3 rounded-full bg-brand-primary/90 px-3 py-1 text-xs font-bold text-white uppercase tracking-wider">
+                  <span className="absolute top-3 left-3 rounded-full bg-gold-metal px-3 py-1 text-xs font-bold text-brand-darker uppercase tracking-wider shadow">
                     {r.tag}
                   </span>
                 </div>
@@ -645,8 +653,7 @@ export function Home() {
       <section className="bg-white py-20">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div
-            className="rounded-3xl px-8 py-14 text-center shadow-elegant"
-            style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary)) 0%, rgb(var(--c-primary-dark)) 100%)' }}
+            className="bg-leaf-deep rounded-3xl px-8 py-14 text-center shadow-elegant ring-1 ring-brand-gold/30"
           >
             <h2 className="text-3xl font-extrabold text-white sm:text-4xl">Start your Mission 90 Days Training</h2>
             <p className="mt-4 mx-auto max-w-lg text-lg text-white/70">
@@ -655,7 +662,7 @@ export function Home() {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
                 to="/register"
-                className="rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-brand-primary-dark shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                className="btn-gold rounded-xl px-8 py-3.5 text-sm"
               >
                 Join Now
               </Link>

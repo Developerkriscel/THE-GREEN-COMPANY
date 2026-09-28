@@ -30,7 +30,7 @@ export function GalleryPage() {
       {/* Hero */}
       <section
         className="py-20 text-white text-center relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
+        style={{ background: 'radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .2), transparent 45%), linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)) 100%)' }}
       >
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.03]"
@@ -78,8 +78,7 @@ export function GalleryPage() {
           <p className="mt-3 text-gray-500">Join thousands of partners creating success across India.</p>
           <a
             href="/register"
-            className="mt-6 inline-block rounded-xl px-8 py-3.5 text-sm font-bold text-white shadow-lg hover:-translate-y-0.5 transition-all"
-            style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)), rgb(var(--c-primary-dark)))' }}
+            className="btn-gold mt-6 rounded-xl px-8 py-3.5 text-sm"
           >
             Join {BRAND.short}
           </a>

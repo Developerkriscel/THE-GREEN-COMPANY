@@ -4,11 +4,14 @@
 
 :root {
   color-scheme: light;
-  /* Brand palette, sampled from the logo. The one place to change the site's colours. */
-  --c-primary: 217 113 50;
-  --c-primary-dark: 176 99 45;
-  --c-primary-light: 232 132 58;
+  /* Brand palette, sampled from the logo. The one place to change the site's colours.
+     Gold (the coin) leads; the green and orange leaves are the accents. */
+  --c-primary: 184 134 43;       /* coin gold, mid */
+  --c-primary-dark: 140 104 38;  /* coin gold, deep: gold text on light backgrounds */
+  --c-primary-light: 234 188 102;
   --c-primary-glow: 234 188 102;
+  --c-orange: 217 113 50;        /* orange leaf */
+  --c-orange-dark: 176 99 45;
   --c-darker: 20 31 10;
   --c-dark: 31 46 16;
   --c-dark-2: 40 57 26;
@@ -18,6 +21,7 @@
   --c-gold: 234 188 102;
   --c-gold-light: 249 212 132;
   --c-gold-dark: 175 129 55;
+  --c-gold-deep: 140 104 38;
   --c-muted: 94 79 64;
   --c-leaf: 90 114 18;
   --c-leaf-dark: 59 89 15;
@@ -68,4 +72,97 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+
+/* ------------------------------------------------------------------ brand
+   Finishes taken from the logo: the coin's metallic gold and the leaves'
+   deep green. Buttons are gold with dark ink, as on the coin. */
+@layer components {
+  .bg-gold-metal {
+    background-image: linear-gradient(135deg,
+      rgb(var(--c-gold-light)) 0%, rgb(var(--c-gold)) 32%,
+      rgb(var(--c-gold-dark)) 68%, rgb(var(--c-gold-light)) 100%);
+  }
+  .bg-leaf-deep {
+    background-image:
+      radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .18), transparent 45%),
+      linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)) 100%);
+  }
+  .text-gold-metal {
+    background-image: linear-gradient(180deg,
+      rgb(var(--c-gold-light)) 0%, rgb(var(--c-gold)) 50%, rgb(var(--c-gold-dark)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .btn-gold {
+    @apply relative isolate inline-flex items-center justify-center gap-2 overflow-hidden font-bold transition;
+    color: rgb(var(--c-darker));
+    background-image: linear-gradient(135deg,
+      rgb(var(--c-gold-light)) 0%, rgb(var(--c-gold)) 38%,
+      rgb(var(--c-gold-dark)) 75%, rgb(var(--c-gold)) 100%);
+    box-shadow:
+      0 8px 22px -10px rgb(var(--c-gold-dark) / .9),
+      inset 0 1px 0 rgb(255 255 255 / .55),
+      inset 0 -1px 0 rgb(0 0 0 / .15);
+  }
+  /* A band of light that sweeps across on hover, like a turning coin. */
+  .btn-gold::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / .55) 48%, transparent 66%);
+    transform: translateX(-120%);
+    transition: transform .7s ease;
+  }
+  .btn-gold:hover:not(:disabled)::after { transform: translateX(120%); }
+  .btn-gold:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow:
+      0 14px 28px -12px rgb(var(--c-gold-dark) / .95),
+      inset 0 1px 0 rgb(255 255 255 / .6),
+      inset 0 -1px 0 rgb(0 0 0 / .15);
+  }
+  .btn-gold:focus-visible { outline: 2px solid rgb(var(--c-gold-dark)); outline-offset: 2px; }
+  .btn-gold:disabled { opacity: .6; cursor: not-allowed; }
+
+  /* Cards that lift with a gold edge. */
+  .card-luxe { @apply transition duration-300; }
+  .card-luxe:hover {
+    transform: translateY(-4px);
+    border-color: rgb(var(--c-gold) / .6);
+    box-shadow: 0 22px 44px -22px rgb(var(--c-gold-dark) / .55);
+  }
+
+  /* The thin gold line the brand sheet uses under headings: —— ◆ —— */
+  .gold-rule {
+    @apply mx-auto my-3 flex items-center justify-center gap-2;
+  }
+  .gold-rule::before, .gold-rule::after {
+    content: '';
+    height: 1px;
+    width: 56px;
+    background: linear-gradient(90deg, transparent, rgb(var(--c-gold)));
+  }
+  .gold-rule::after { background: linear-gradient(90deg, rgb(var(--c-gold)), transparent); }
+  .gold-rule > i { width: 7px; height: 7px; transform: rotate(45deg); background: rgb(var(--c-gold)); }
+
+  .gold-hairline { background: linear-gradient(90deg, transparent, rgb(var(--c-gold) / .8), transparent); height: 1px; }
+}
+
+/* Sections rise into view as the page scrolls (added by PublicLayout). */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.reveal-in { opacity: 1; transform: none; }
+@keyframes coin-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+.coin-float { animation: coin-float 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .coin-float { animation: none; }
+  .btn-gold::after { display: none; }
 }

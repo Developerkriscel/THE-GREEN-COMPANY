@@ -28,7 +28,7 @@ const DEEP = C('darker')
 const LEAF = C('leaf-dark')
 const GOLD = C('gold')
 const GOLD_LIGHT = C('gold-light')
-const ORANGE = C('primary')
+const ORANGE = C('orange')
 /** The QR and barcode libraries need a literal colour: the palette's darkest green. */
 const INK = '#141f0a'
 

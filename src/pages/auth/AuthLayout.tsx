@@ -14,7 +14,7 @@ export function AuthLayout({ children, title, subtitle, badge, footer }: AuthLay
     <div
       className="min-h-screen flex items-center justify-center px-4 py-12 font-sans"
       style={{
-        background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)',
+        background: 'radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .2), transparent 45%), linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)) 100%)',
       }}
     >
       {/* Card */}

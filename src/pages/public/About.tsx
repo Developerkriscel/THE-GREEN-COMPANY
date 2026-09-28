@@ -56,7 +56,7 @@ export function AboutPage() {
       {/* Hero */}
       <section
         className="py-20 text-white text-center relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
+        style={{ background: 'radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .2), transparent 45%), linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
@@ -126,6 +126,7 @@ export function AboutPage() {
           <div className="text-center mb-14">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Leadership</span>
             <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">Meet Our Directors</h2>
+            <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 text-gray-500">Guiding {BRAND.name} with vision, integrity, and a commitment to excellence.</p>
           </div>
           <div className="grid sm:grid-cols-3 gap-8">
@@ -151,13 +152,13 @@ export function AboutPage() {
           <div className="text-center mb-14">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Our Core Values</span>
             <h2 className="mt-3 text-3xl font-extrabold text-white">What We Stand For</h2>
+            <div className="gold-rule" aria-hidden><i /></div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {VALUES.map(v => (
               <div key={v} className="rounded-xl border border-white/10 bg-white/5 p-5 text-center hover:bg-white/10 hover:border-brand-primary-glow/30 transition-all">
-                <div className="mb-3 mx-auto h-10 w-10 rounded-full flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)), rgb(var(--c-primary-dark)))' }}>
-                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="mb-3 mx-auto h-10 w-10 rounded-full flex items-center justify-center bg-gold-metal shadow-elegant">
+                  <svg className="h-5 w-5 text-brand-darker" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -174,13 +175,13 @@ export function AboutPage() {
           <div className="text-center mb-14">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Why Choose Us</span>
             <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">Why Choose {BRAND.name}?</h2>
+            <div className="gold-rule" aria-hidden><i /></div>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {WHY.map(w => (
               <div key={w} className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-4 hover:border-brand-primary/30 hover:shadow-elegant transition-all">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)), rgb(var(--c-primary-dark)))' }}>
-                  <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <div className="flex-shrink-0 h-8 w-8 rounded-lg flex items-center justify-center bg-gold-metal shadow-elegant">
+                  <svg className="h-4 w-4 text-brand-darker" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -252,8 +253,7 @@ export function AboutPage() {
       </section>
 
       {/* Closing CTA */}
-      <section className="py-20"
-        style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary)) 0%, rgb(var(--c-primary-dark)) 100%)' }}>
+      <section className="bg-leaf-deep py-20">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8 text-center">
           <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-white/70">Join Us</span>
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl">Join the {BRAND.short} Family</h2>
@@ -261,7 +261,7 @@ export function AboutPage() {
             Become part of a growing entrepreneur community and start your 90-Day Success Training Program today. Every associate receives complete guidance, structured training, and continuous support.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <a href="/register" className="rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-brand-primary-dark shadow-lg hover:-translate-y-0.5 transition-all">
+            <a href="/register" className="btn-gold rounded-xl px-8 py-3.5 text-sm">
               Join Today — Free
             </a>
             <a href="/plans" className="rounded-xl border border-white/40 px-8 py-3.5 text-sm font-bold text-white hover:bg-white/10 transition-all">

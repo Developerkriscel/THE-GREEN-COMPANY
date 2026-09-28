@@ -55,7 +55,7 @@ export function PlansPage() {
       {/* Hero */}
       <section
         className="py-20 text-white text-center relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
+        style={{ background: 'radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .2), transparent 45%), linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
@@ -84,11 +84,12 @@ export function PlansPage() {
           <div className="text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Sponsor Plan</span>
             <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">Rank & Income Table</h2>
+            <div className="gold-rule" aria-hidden><i /></div>
           </div>
           <div className="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-brand-darker text-white">
+                <tr className="bg-brand-darker text-brand-gold-light">
                   <th className="py-4 pl-5 pr-3 text-left text-xs font-bold uppercase tracking-wider">#</th>
                   <th className="py-4 px-3 text-left text-xs font-bold uppercase tracking-wider">Rank</th>
                   <th className="py-4 px-3 text-right text-xs font-bold uppercase tracking-wider">Joining (₹)</th>
@@ -123,6 +124,7 @@ export function PlansPage() {
           <div className="text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Level Payout</span>
             <h2 className="mt-3 text-3xl font-extrabold text-white">Level-wise Payout (₹ / SQYDS)</h2>
+            <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 text-white/50 max-w-xl mx-auto">
               Earn a fixed rate per SQYDS sold across every level of your team — up to 17 levels deep.
             </p>
@@ -148,6 +150,7 @@ export function PlansPage() {
             <div className="text-center mb-10">
               <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Estimator</span>
               <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">Quick Income Estimator</h2>
+              <div className="gold-rule" aria-hidden><i /></div>
               <p className="mt-3 text-gray-500">See how much you can earn at any level for a single sale.</p>
             </div>
             <div className="rounded-2xl border border-gray-100 shadow-sm p-8 bg-gray-50">
@@ -170,10 +173,9 @@ export function PlansPage() {
                   </div>
                 ))}
               </div>
-              <div className="mt-5 rounded-xl p-4 text-center"
-                style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)), rgb(var(--c-primary-dark)))' }}>
-                <p className="text-xs font-bold uppercase tracking-wider text-white/70 mb-1">Level 1 Estimated Payout</p>
-                <p className="text-3xl font-extrabold text-white">₹{(300 * sqyds).toLocaleString('en-IN')}</p>
+              <div className="mt-5 rounded-xl p-4 text-center bg-gold-metal shadow-elegant">
+                <p className="text-xs font-bold uppercase tracking-wider text-brand-darker/70 mb-1">Level 1 Estimated Payout</p>
+                <p className="text-3xl font-extrabold text-brand-darker">₹{(300 * sqyds).toLocaleString('en-IN')}</p>
                 <p className="text-white/60 text-sm">₹300 × {sqyds} SQYDS</p>
               </div>
             </div>
@@ -187,11 +189,12 @@ export function PlansPage() {
           <div className="text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Payment Cycle</span>
             <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">When You Get Paid</h2>
+            <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 text-gray-500">Payouts run on two fixed dates each month based on the day you joined.</p>
           </div>
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
             {[
-              { label: 'IF YOU JOIN Day 1 – 15', payout: '30th of month', color: 'rgb(var(--c-primary))' },
+              { label: 'IF YOU JOIN Day 1 – 15', payout: '30th of month', color: 'rgb(var(--c-primary-dark))' },
               { label: 'IF YOU JOIN Day 16 – 30', payout: '15th of next month', color: 'rgb(var(--c-dark))' },
             ].map(p => (
               <div key={p.label} className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm hover:shadow-elegant transition-all">
@@ -205,15 +208,14 @@ export function PlansPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16"
-        style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary)) 0%, rgb(var(--c-primary-dark)) 100%)' }}>
+      <section className="bg-leaf-deep py-16">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-extrabold text-white">Ready to Start Earning?</h2>
           <p className="mt-3 text-white/70">
             Join as a {ranks[0]?.rank} — {ranks[0]?.joining === 'Free' ? 'free to join' : `joining ${ranks[0]?.joining}`} — and begin your journey today.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
-            <a href="/register" className="rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-brand-primary-dark shadow-lg hover:-translate-y-0.5 transition-all">
+            <a href="/register" className="btn-gold rounded-xl px-8 py-3.5 text-sm">
               Register Now — Free
             </a>
             <a href="/sponsor-login" className="rounded-xl border border-white/40 px-8 py-3.5 text-sm font-bold text-white hover:bg-white/10 transition-all">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Mail, MapPin, Phone } from 'lucide-react'
 import { BRAND, copyright } from '@/lib/brand'
 
 const NAV_LINKS = [
@@ -28,6 +29,25 @@ export function PublicLayout() {
 
   useEffect(() => { setMenuOpen(false) }, [pathname])
 
+  // Sections below the first rise into view as the visitor scrolls.
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add('reveal-in'); io.unobserve(e.target) }
+      }),
+      { rootMargin: '0px 0px -8% 0px', threshold: 0.06 },
+    )
+    const t = window.setTimeout(() => {
+      document.querySelectorAll('main > section:not(:first-child), main > * > section:not(:first-child)').forEach((el) => {
+        if (el.getBoundingClientRect().top < window.innerHeight) return // already on screen: leave it be
+        el.classList.add('reveal')
+        io.observe(el)
+      })
+    }, 60)
+    return () => { window.clearTimeout(t); io.disconnect() }
+  }, [pathname])
+
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       {/* ── Navbar ── */}
@@ -38,6 +58,7 @@ export function PublicLayout() {
             : 'bg-brand-darker'
         }`}
       >
+        <div className="gold-hairline absolute inset-x-0 bottom-0" aria-hidden />
         <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
@@ -76,7 +97,7 @@ export function PublicLayout() {
               </Link>
               <Link
                 to="/register"
-                className="px-4 py-1.5 text-sm font-bold rounded-md bg-brand-primary hover:bg-brand-primary-dark text-white shadow-elegant transition-colors"
+                className="btn-gold px-4 py-1.5 text-sm rounded-md"
               >
                 Join Now
               </Link>
@@ -109,7 +130,7 @@ export function PublicLayout() {
             ))}
             <div className="mt-4 flex gap-2">
               <Link to="/sponsor-login" className="flex-1 py-2 text-center text-sm font-semibold text-white border border-white/20 rounded-md">Login</Link>
-              <Link to="/register" className="flex-1 py-2 text-center text-sm font-bold rounded-md bg-brand-primary text-white">Join Now</Link>
+              <Link to="/register" className="btn-gold flex-1 py-2 text-center text-sm rounded-md">Join Now</Link>
             </div>
           </div>
         )}
@@ -120,6 +141,7 @@ export function PublicLayout() {
 
       {/* ── Footer ── */}
       <footer className="bg-brand-darker text-white">
+        <div className="gold-hairline" aria-hidden />
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             {/* Brand */}
@@ -182,15 +204,15 @@ export function PublicLayout() {
               <h4 className="text-sm font-bold uppercase tracking-widest text-brand-primary mb-5">Contact Us</h4>
               <ul className="space-y-3 text-sm text-white/50">
                 <li className="flex gap-2">
-                  <span className="mt-0.5 flex-shrink-0 text-brand-primary">📍</span>
+                  <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-gold" aria-hidden />
                   {BRAND.address}
                 </li>
                 <li className="flex gap-2">
-                  <span className="mt-0.5 flex-shrink-0 text-brand-primary">📞</span>
+                  <Phone className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-gold" aria-hidden />
                   +91 {BRAND.phone}
                 </li>
                 <li className="flex gap-2">
-                  <span className="mt-0.5 flex-shrink-0 text-brand-primary">✉️</span>
+                  <Mail className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-gold" aria-hidden />
                   {BRAND.email}
                 </li>
               </ul>

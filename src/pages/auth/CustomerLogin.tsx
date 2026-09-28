@@ -245,8 +245,7 @@ export function CustomerLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg py-3 text-sm font-bold text-white shadow-elegant disabled:opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-            style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}
+            className="btn-gold w-full rounded-lg py-3 text-sm"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -335,8 +334,7 @@ export function CustomerLogin() {
             <button
               type="submit"
               disabled={signupLoading}
-              className="w-full rounded-lg py-3 text-sm font-bold text-white shadow-elegant disabled:opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-              style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}
+              className="btn-gold w-full rounded-lg py-3 text-sm"
             >
               {signupLoading ? (
                 <span className="flex items-center justify-center gap-2">

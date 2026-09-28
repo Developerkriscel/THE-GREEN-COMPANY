@@ -82,7 +82,7 @@ export function AppShell({
                 clsx(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-brand-sidebar-active text-white font-semibold shadow-sm'
+                    ? 'bg-brand-sidebar-active text-brand-gold-light font-semibold shadow-sm ring-1 ring-brand-gold/25'
                     : 'text-white/75 hover:bg-white/10 hover:text-white',
                 )
               }

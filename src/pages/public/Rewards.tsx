@@ -24,7 +24,7 @@ export function RewardsPage() {
       {/* Hero */}
       <section
         className="py-20 text-white text-center relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
+        style={{ background: 'radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .2), transparent 45%), linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
@@ -52,7 +52,7 @@ export function RewardsPage() {
                       Level {r.level}
                     </span>
                     {r.trending && (
-                      <span className="rounded-full bg-brand-primary px-3 py-1 text-xs font-bold text-white">
+                      <span className="rounded-full bg-gold-metal px-3 py-1 text-xs font-bold text-brand-darker shadow">
                         🔥 Trending
                       </span>
                     )}
@@ -85,12 +85,11 @@ export function RewardsPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16"
-        style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary)) 0%, rgb(var(--c-primary-dark)) 100%)' }}>
+      <section className="bg-leaf-deep py-16">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-extrabold text-white">Start Unlocking Rewards Today</h2>
           <p className="mt-3 text-white/70">Every joining brings you closer to your next reward milestone.</p>
-          <a href="/register" className="mt-6 inline-block rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-brand-primary-dark shadow-lg hover:-translate-y-0.5 transition-all">
+          <a href="/register" className="btn-gold mt-6 rounded-xl px-8 py-3.5 text-sm">
             Join Now — Free
           </a>
         </div>
