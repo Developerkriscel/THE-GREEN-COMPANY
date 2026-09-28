@@ -53,19 +53,22 @@ function junitCounts(file) {
   return { tests: Number(m[1]), failures: Number(m[2]) }
 }
 
-run('1/6  Type check', 'npx', ['tsc', '--noEmit'])
-run('2/6  Unit tests (Vitest)', 'npx', ['vitest', 'run'], { CI_JUNIT: '1' })
-run('3/6  Integration — server-side rules', 'node', ['scripts/test-sponsor-rules.mjs'], {
+run('1/7  Type check', 'npx', ['tsc', '--noEmit'])
+run('2/7  Unit tests (Vitest)', 'npx', ['vitest', 'run'], { CI_JUNIT: '1' })
+run('3/7  Integration — server-side rules', 'node', ['scripts/test-sponsor-rules.mjs'], {
   JUNIT: path.join(REPORTS, 'rules-junit.xml'),
 })
-run('4/6  Connectivity — module cross-checks', 'node', ['scripts/test-module-connectivity.mjs'], {
+run('4/7  Connectivity — module cross-checks', 'node', ['scripts/test-module-connectivity.mjs'], {
   JUNIT: path.join(REPORTS, 'connectivity-junit.xml'),
 })
-run('5/6  Gateway — REST/auth surface', 'node', ['scripts/gateway-test.mjs'], {
+run('5/7  Gateway — REST/auth surface', 'node', ['scripts/gateway-test.mjs'], {
   JUNIT: path.join(REPORTS, 'gateway-junit.xml'),
 })
-run('6/6  Customer panel — office to buyer, end to end', 'node', ['scripts/test-customer-panel.mjs'], {
+run('6/7  Customer panel — office to buyer, end to end', 'node', ['scripts/test-customer-panel.mjs'], {
   JUNIT: path.join(REPORTS, 'customer-junit.xml'),
+})
+run('7/7  Payments CRM — sale, schedule, receipts, verification', 'node', ['scripts/test-payments-crm.mjs'], {
+  JUNIT: path.join(REPORTS, 'payments-crm-junit.xml'),
 })
 
 console.log(`\n${'='.repeat(64)}`)
@@ -80,6 +83,7 @@ for (const [file, name] of [
   ['connectivity-junit.xml', 'connectivity'],
   ['gateway-junit.xml', 'gateway'],
   ['customer-junit.xml', 'customer'],
+  ['payments-crm-junit.xml', 'payments-crm'],
 ]) {
   const c = junitCounts(file)
   if (c) console.log(`  reports/${file.padEnd(24)} ${c.tests} tests, ${c.failures} failures`)

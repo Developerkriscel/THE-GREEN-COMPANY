@@ -304,8 +304,9 @@ export function leadBuckets(leads: LeadRow[], ref = new Date()): LeadBuckets {
  * app.owns_booking already grants a rep read access to the emis and payments
  * of their own bookings, so no new policy was needed — only a screen.
  *
- * Writing is deliberately absent: payments_write_admin means only the office
- * may record a receipt. The member chases; the office confirms.
+ * The member uploads the receipt for an item (emis_update_rep, see
+ * lib/plot-sale.ts); only the office turns it into money — verifying writes
+ * the payment. The member chases; the office confirms.
  * ===================================================================== */
 
 export interface EmiRow {
@@ -317,6 +318,13 @@ export interface EmiRow {
   status: string
   paid_at: string | null
   reference: string | null
+  kind?: string | null
+  label?: string | null
+  slip_path?: string | null
+  slip_uploaded_at?: string | null
+  slip_mode?: string | null
+  slip_paid_on?: string | null
+  reject_reason?: string | null
 }
 
 export interface PaymentRow {
@@ -339,7 +347,7 @@ export function useMyEmis(bookingIds: string[]) {
       unwrap<EmiRow[]>(
         await supabase
           .from('emis')
-          .select('id, booking_id, seq, due_date, amount, status, paid_at, reference')
+          .select('id, booking_id, seq, due_date, amount, status, paid_at, reference, kind, label, slip_path, slip_uploaded_at, slip_mode, slip_paid_on, reject_reason')
           .in('booking_id', bookingIds)
           .order('due_date', { ascending: true }),
       ),

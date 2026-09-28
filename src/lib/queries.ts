@@ -1131,6 +1131,11 @@ export interface CollectionQueueRow {
   rep_code: string | null
   project_name: string | null
   plot_number: string | null
+  /** Unpaid items past their due date, summed. */
+  overdue_amount: number
+  /** Receipts waiting for the office. */
+  awaiting: number
+  customer_id: string | null
 }
 
 /**

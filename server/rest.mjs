@@ -412,6 +412,22 @@ export async function handleDelete(client, { table, query, headers }) {
   return { rows: wantsRows ? rows : [], rowCount }
 }
 
+/** fn -> names of its json/jsonb arguments (across overloads). Cached per process. */
+const jsonArgCache = new Map()
+async function jsonArgNames(client, fn) {
+  if (jsonArgCache.has(fn)) return jsonArgCache.get(fn)
+  const { rows } = await client.query(
+    `select a.name
+       from pg_proc p
+       cross join lateral unnest(p.proargnames, p.proargtypes::regtype[]::text[]) as a(name, type)
+      where p.proname = $1 and p.pronamespace = 'public'::regnamespace and a.type in ('json', 'jsonb')`,
+    [fn],
+  )
+  const names = new Set(rows.map((r) => r.name))
+  jsonArgCache.set(fn, names)
+  return names
+}
+
 export async function handleRpc(client, { fn, body }) {
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(fn)) {
     const err = new Error(`Invalid function name: ${fn}`)
@@ -423,8 +439,14 @@ export async function handleRpc(client, { fn, body }) {
   const names = Object.keys(args)
   const params = new Params()
 
+  // node-pg sends a JS array as a Postgres ARRAY literal, which is right for
+  // a uuid[] argument and wrong for a json/jsonb one ('{"{\"label\"…}"}' is
+  // not JSON). PostgREST knows the argument types; so must we.
+  const jsonArgs = await jsonArgNames(client, fn)
+  const bind = (n) => (jsonArgs.has(n) && args[n] !== null && typeof args[n] === 'object' ? JSON.stringify(args[n]) : args[n])
+
   // Named arguments, so argument order in the SQL definition does not matter.
-  const argSql = names.map((n) => `${ident(n)} => ${params.add(args[n])}`).join(', ')
+  const argSql = names.map((n) => `${ident(n)} => ${params.add(bind(n))}`).join(', ')
   const sql = `select * from ${ident(fn)}(${argSql})`
 
   const { rows, fields } = await client.query(sql, params.values)

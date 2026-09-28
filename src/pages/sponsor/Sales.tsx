@@ -2,17 +2,18 @@ import { useMemo, useState } from 'react'
 import { BadgeCheck, Clock, IndianRupee, Plus } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import {
-  useMyLedger, useMySales, useSponsorProfile, isCounted, type SaleRow,
+  useMyLedger, useMySales, useSponsorProfile, isCounted,
 } from '@/lib/sponsor'
 import {
-  salesSummary, saleStage, useAvailablePlots, useSubmitPlotSale,
+  salesSummary, saleStage,
   type SaleStage,
 } from '@/lib/sponsor-crm'
 import {
-  Badge, Button, Card, CardHeader, EmptyState, Field, Input, Modal, PageHeader,
-  RecordCard, Responsive, Select, StatTile, Table, Td, Th,
+  Badge, Button, Card, CardHeader, EmptyState, PageHeader,
+  RecordCard, Responsive, StatTile, Table, Td, Th,
 } from '@/components/ui'
 import { Area, Notice, SkeletonRows, SkeletonTiles } from '@/components/sponsor'
+import { NewPlotSale } from '@/components/NewPlotSale'
 import { date, money, moneyShort, num } from '@/lib/format'
 
 /**
@@ -203,159 +204,8 @@ export function SponsorSales() {
         )}
       </Card>
 
-      {adding && <AddSale onClose={() => setAdding(false)} memberId={me} />}
+      {adding && <NewPlotSale onClose={() => setAdding(false)} />}
     </>
-  )
-}
-
-/* ------------------------------------------------------------- add sale */
-
-function AddSale({ memberId, onClose }: { memberId: string | undefined; onClose: () => void }) {
-  const { data: plots = [], isLoading } = useAvailablePlots()
-  const submit = useSubmitPlotSale(memberId)
-
-  const [projectId, setProjectId] = useState('')
-  const [plotId, setPlotId] = useState('')
-  const [customerName, setCustomerName] = useState('')
-  const [customerPhone, setCustomerPhone] = useState('')
-  const [saleValue, setSaleValue] = useState('')
-  const [token, setToken] = useState('')
-  const [agreed, setAgreed] = useState(false)
-
-  // Distinct projects, from the plots actually on sale — a project with
-  // nothing available should not be offered.
-  const projects = useMemo(() => {
-    const seen = new Map<string, string>()
-    for (const p of plots) seen.set(p.project_id, p.project_name)
-    return [...seen].map(([id, name]) => ({ id, name }))
-  }, [plots])
-
-  const inProject = plots.filter((p) => p.project_id === projectId)
-  const plot = plots.find((p) => p.id === plotId)
-
-  const digits = customerPhone.replace(/\D/g, '')
-  const nameOk = customerName.trim().length >= 2
-  const phoneOk = digits.length === 0 || digits.length >= 10
-  const value = Number(saleValue || plot?.price || 0)
-  const canSave = Boolean(plotId) && nameOk && phoneOk && value > 0 && agreed && !submit.isPending
-
-  const pick = (id: string) => {
-    setPlotId(id)
-    // Seed the price from the plot so the common case is one less thing to
-    // type, while leaving it editable for a negotiated figure.
-    const p = plots.find((x) => x.id === id)
-    if (p?.price) setSaleValue(String(p.price))
-  }
-
-  return (
-    <Modal
-      open
-      onClose={onClose}
-      title="Add a sale"
-      size="lg"
-      footer={
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button type="submit" form="sale-form" disabled={!canSave}>
-            {submit.isPending ? 'Submitting…' : 'Submit for verification'}
-          </Button>
-        </div>
-      }
-    >
-      <form
-        id="sale-form"
-        className="space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault()
-          if (!canSave) return
-          submit.mutate(
-            {
-              plotId,
-              customerName: customerName.trim(),
-              customerPhone: customerPhone.trim() || undefined,
-              saleValue: value,
-              tokenAmount: Number(token || 0),
-            },
-            { onSuccess: onClose },
-          )
-        }}
-      >
-        {submit.error && (
-          <Notice tone="error" title="Could not submit this sale.">{submit.error.message}</Notice>
-        )}
-
-        {!isLoading && plots.length === 0 && (
-          <Notice tone="warn" title="No plots are available right now.">
-            Every plot is booked or sold. Contact the office before filing a sale.
-          </Notice>
-        )}
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Project" required>
-            <Select
-              value={projectId}
-              onChange={(e) => { setProjectId(e.target.value); setPlotId(''); setSaleValue('') }}
-            >
-              <option value="">{isLoading ? 'Loading…' : 'Select a project'}</option>
-              {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </Select>
-          </Field>
-
-          <Field label="Plot" required hint={projectId ? `${inProject.length} available` : 'Pick a project first'}>
-            <Select value={plotId} onChange={(e) => pick(e.target.value)} disabled={!projectId}>
-              <option value="">Select a plot</option>
-              {inProject.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.number}{p.size ? ` — ${p.size} ${p.size_unit}` : ''}
-                </option>
-              ))}
-            </Select>
-          </Field>
-
-          <Field label="Customer name" required hint={customerName && !nameOk ? 'At least two characters.' : undefined}>
-            <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Buyer's full name" />
-          </Field>
-
-          <Field label="Customer mobile" hint={customerPhone && !phoneOk ? 'Needs at least 10 digits.' : 'Optional, but the office will need it.'}>
-            <Input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} inputMode="tel" />
-          </Field>
-
-          <Field label="Sale value (₹)" required hint={plot?.price ? `Listed at ${money(plot.price)}` : undefined}>
-            <Input type="number" min={1} value={saleValue} onChange={(e) => setSaleValue(e.target.value)} />
-          </Field>
-
-          <Field label="Token received (₹)" hint="Leave 0 if nothing has been paid yet.">
-            <Input type="number" min={0} value={token} onChange={(e) => setToken(e.target.value)} placeholder="0" />
-          </Field>
-        </div>
-
-        {plot && (
-          <div className="rounded-lg bg-slate-50 p-3 text-sm">
-            <p className="text-slate-700">
-              <span className="font-medium">{plot.project_name}</span> · Plot {plot.number}
-              {plot.size ? ` · ${plot.size} ${plot.size_unit}` : ''}
-            </p>
-            <p className="mt-1 text-xs text-slate-500">
-              Direct income is credited at your rank percentage when the office verifies this sale.
-              The area counts toward your reward tier once half the value has been collected.
-            </p>
-          </div>
-        )}
-
-        <label className="flex items-start gap-2 text-sm text-slate-700">
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-slate-300"
-          />
-          <span>
-            I confirm this sale is genuine, on a company project, and that all payments will be made
-            against an official company receipt.
-          </span>
-        </label>
-      </form>
-    </Modal>
   )
 }
 

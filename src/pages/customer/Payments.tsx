@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Clock, Upload } from 'lucide-react'
-import { useUploadEmiSlip, type CustomerEmi } from '@/lib/customers'
-import { Badge, Button, Card, CardBody, CardHeader, EmptyState, Field, Input, Modal, PageHeader, Table, Td, Th, useToast } from '@/components/ui'
+import { type CustomerEmi } from '@/lib/customers'
+import { itemLabel, PAY_MODES, useUploadReceipt } from '@/lib/plot-sale'
+import { Badge, Button, Card, CardBody, CardHeader, EmptyState, Field, Input, Modal, PageHeader, Select, Table, Td, Th, useToast } from '@/components/ui'
 import { ProgressBar, SkeletonRows } from '@/components/sponsor'
 import { date, money } from '@/lib/format'
 import { BRAND } from '@/lib/brand'
@@ -43,17 +44,16 @@ export function CustomerPayments() {
                   ))}
                 </div>
                 <ProgressBar percent={pct} />
-                {Number(b.token_amount) > 0 && <p className="text-xs text-slate-500">Includes the booking amount of {money(b.token_amount)}.</p>}
               </CardBody>
               {emis.length === 0 ? (
                 <p className="border-t border-brand-gold/15 px-5 py-6 text-center text-sm text-slate-500">The instalment schedule will appear here once the office sets it up.</p>
               ) : (
                 <Table>
-                  <thead><tr><Th>#</Th><Th>Due date</Th><Th className="text-right">Amount</Th><Th>Status</Th><Th /></tr></thead>
+                  <thead><tr><Th>Payment</Th><Th>Due date</Th><Th className="text-right">Amount</Th><Th>Status</Th><Th /></tr></thead>
                   <tbody>
                     {emis.map((e) => (
                       <tr key={e.id}>
-                        <Td className="text-slate-400">{e.seq}</Td>
+                        <Td className="font-medium text-brand-darker">{itemLabel(e)}</Td>
                         <Td>{date(e.due_date)}</Td>
                         <Td className="text-right font-semibold text-brand-darker">{money(e.amount)}</Td>
                         <Td>
@@ -100,19 +100,21 @@ export function CustomerPayments() {
 }
 
 function SlipUpload({ emi, onClose }: { emi: CustomerEmi; onClose: () => void }) {
-  const upload = useUploadEmiSlip()
+  const upload = useUploadReceipt()
+  const [mode, setMode] = useState('bank_transfer')
+  const [paidOn, setPaidOn] = useState(new Date().toISOString().slice(0, 10))
   const fileRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
   const [ref, setRef] = useState('')
   const { push } = useToast()
   return (
     <Modal
-      open onClose={onClose} title={`Upload payment slip — instalment ${emi.seq}`}
+      open onClose={onClose} title={`Upload payment slip — ${itemLabel(emi)}`}
       footer={
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
           <Button loading={upload.isPending} disabled={!file}
-            onClick={() => file && upload.mutate({ emi, file, reference: ref }, {
+            onClick={() => file && upload.mutate({ item: emi, file, reference: ref, mode, paidOn }, {
               onSuccess: () => { push('success', 'Slip uploaded. The office will confirm it shortly.'); onClose() },
               onError: (e) => push('error', (e as Error).message),
             })}>Upload</Button>
@@ -126,6 +128,14 @@ function SlipUpload({ emi, onClose }: { emi: CustomerEmi; onClose: () => void })
           <Upload className="mb-2 h-5 w-5 text-brand-gold-dark" />
           {file ? <span className="font-semibold text-brand-darker">{file.name}</span> : 'Choose the slip (PDF, JPG or PNG, up to 5 MB)'}
         </button>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Paid by">
+            <Select value={mode} onChange={(e) => setMode(e.target.value)}>
+              {PAY_MODES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </Select>
+          </Field>
+          <Field label="Paid on"><Input type="date" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} /></Field>
+        </div>
         <Field label="Transaction / UTR number (optional)"><Input value={ref} onChange={(e) => setRef(e.target.value)} placeholder="e.g. UTR 1234567890" /></Field>
       </div>
     </Modal>

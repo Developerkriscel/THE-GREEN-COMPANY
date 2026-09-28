@@ -81,6 +81,8 @@ export interface CustomerEmi {
   slip_uploaded_at: string | null
   paid_at: string | null
   reject_reason: string | null
+  kind: string | null
+  label: string | null
 }
 
 export interface CustomerPayment {
@@ -368,8 +370,8 @@ export function useBookingEmis(bookingIds: string[]) {
     queryFn: async () =>
       unwrap<CustomerEmi[]>(
         await supabase.from('emis')
-          .select('id, booking_id, seq, due_date, amount, status, slip_path, slip_uploaded_at, paid_at, reject_reason')
-          .in('booking_id', bookingIds).order('seq'),
+          .select('id, booking_id, seq, due_date, amount, status, slip_path, slip_uploaded_at, paid_at, reject_reason, kind, label')
+          .in('booking_id', bookingIds).order('due_date').order('seq'),
       ),
   })
 }
@@ -436,29 +438,6 @@ export function useDeleteCustomerDoc() {
       await supabase.storage.from(docBucket(d.type)).remove([d.storage_path]).catch(() => {})
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['customer-docs'] }),
-  })
-}
-
-/** The customer uploads a payment slip for an instalment; the office verifies it in Payments CRM. */
-export function useUploadEmiSlip() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (v: { emi: CustomerEmi; file: File; reference?: string }) => {
-      if (v.file.size > 5 * 1024 * 1024) throw new Error('That file is over 5 MB.')
-      if (!/^(application\/pdf|image\/(png|jpeg))$/.test(v.file.type)) throw new Error('Upload a PDF, JPG or PNG.')
-      const ext = v.file.type === 'application/pdf' ? 'pdf' : v.file.type === 'image/png' ? 'png' : 'jpg'
-      const path = `${v.emi.booking_id}/emi-${v.emi.seq}-${Date.now()}.${ext}`
-      const { error: upErr } = await supabase.storage.from('emi-slips').upload(path, v.file, { contentType: v.file.type })
-      if (upErr) throw new Error(upErr.message)
-      const { error } = await supabase.from('emis').update({
-        slip_path: path,
-        slip_uploaded_at: new Date().toISOString(),
-        status: 'awaiting_verification',
-        reference: v.reference?.trim() || null,
-      }).eq('id', v.emi.id)
-      if (error) throw new Error(error.message)
-    },
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ['customer-emis'] }),
   })
 }
 
@@ -595,8 +574,9 @@ export function useCustomerReferralLeads(customerId: string | undefined) {
 
 export function bookingMoney(b: CustomerBooking, emis: CustomerEmi[], payments: CustomerPayment[]) {
   const mine = emis.filter((e) => e.booking_id === b.id)
+  // Verified money only. The booking amount is an item on the schedule and
+  // counts once the office has it, like every other payment.
   const paid = payments.filter((p) => p.booking_id === b.id).reduce((t, p) => t + Number(p.amount), 0)
-    + Number(b.token_amount ?? 0)
   const value = Number(b.sale_value ?? 0)
   const today = new Date().toISOString().slice(0, 10)
   const open = mine.filter((e) => e.status !== 'paid')

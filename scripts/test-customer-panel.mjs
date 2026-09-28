@@ -104,8 +104,13 @@ try {
 
   const { data: myBookings } = await cust.from('bookings').select('id, status, sale_value, reference')
   check('the customer sees exactly their booking', myBookings?.length === 1 && myBookings[0].id === bookingId && myBookings[0].status === 'confirmed', JSON.stringify(myBookings))
-  const { data: myEmis } = await cust.from('emis').select('id, seq, amount, status, booking_id').order('seq')
-  check('the customer sees 3 EMIs of ₹80,000', myEmis?.length === 3 && myEmis.every((e) => Number(e.amount) === 80000), JSON.stringify(myEmis?.map((e) => e.amount)))
+  const { data: allItems } = await cust.from('emis').select('id, seq, kind, amount, status, booking_id').order('seq')
+  const myEmis = (allItems ?? []).filter((e) => e.kind === 'emi')
+  check('the customer sees 3 EMIs of ₹80,000', myEmis.length === 3 && myEmis.every((e) => Number(e.amount) === 80000), JSON.stringify(myEmis.map((e) => e.amount)))
+  const bookingItem = (allItems ?? []).find((e) => e.kind === 'booking')
+  check('the booking amount taken at the office shows as paid', bookingItem && Number(bookingItem.amount) === 60000 && bookingItem.status === 'paid')
+  const { data: myPays } = await cust.from('payments').select('amount')
+  check('and counts as collected, once', (myPays ?? []).length === 1 && Number(myPays[0].amount) === 60000, JSON.stringify(myPays))
 
   console.log('\nPapers')
   const pdf = new Blob(['%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF'], { type: 'application/pdf' })
@@ -131,7 +136,7 @@ try {
   check('and about the registry', notes?.some((n) => n.title === 'Registry done' && n.link === '/customer/plots'))
 
   console.log('\nInstalments')
-  const e1 = myEmis?.[0]
+  const e1 = myEmis[0]
   const cheat = await cust.from('emis').update({ status: 'paid' }).eq('id', e1.id)
   const { data: after } = await admin.from('emis').select('status').eq('id', e1.id).single()
   check('the customer cannot mark an EMI paid', Boolean(cheat.error) || after?.status !== 'paid', `status ${after?.status}`)
@@ -141,7 +146,7 @@ try {
   check('the customer uploads a slip', !su.error, su.error?.message)
   const sw = await cust.from('emis').update({ slip_path: slipPath, slip_uploaded_at: new Date().toISOString(), status: 'awaiting_verification', reference: 'UTR123' }).eq('id', e1.id)
   check('the EMI goes for verification', !sw.error, sw.error?.message)
-  const { data: adminNotes } = await admin.from('notifications').select('link, body').eq('link', '/admin/crm').ilike('body', `%${myBookings?.[0]?.reference}%`).order('created_at', { ascending: false }).limit(1)
+  const { data: adminNotes } = await admin.from('notifications').select('link, body').eq('link', '/admin/crm?tab=pending').ilike('body', `%${myBookings?.[0]?.reference}%`).order('created_at', { ascending: false }).limit(1)
   check('the office is pointed at Payments CRM', adminNotes?.length === 1)
   await admin.from('emis').update({ status: 'rejected', reject_reason: 'Slip is blurred' }).eq('id', e1.id)
   const { data: notes2 } = await cust.from('notifications').select('title, body')

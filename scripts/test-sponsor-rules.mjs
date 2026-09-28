@@ -585,17 +585,20 @@ await test('a confirmed sale gets a payment schedule', member.id, async () => {
   })
 })
 
-await test('a schedule always sums to the balance after the token', member.id, async () => {
+await test('a live schedule always sums to the sale value (booking amount included)', member.id, async () => {
   await asOwner(member.id, async () => {
+    // Since payments_crm_v2 the booking amount is item 0 of the schedule, so
+    // booking + EMIs + balance + milestones must equal the sale value exactly.
     const { rows } = await client.query(
       `select b.reference,
-              round(b.sale_value - b.token_amount, 2) balance,
+              round(b.sale_value, 2) sale_value,
               round(sum(e.amount), 2) scheduled
          from public.bookings b join public.emis e on e.booking_id = b.id
-        group by b.reference, b.sale_value, b.token_amount
-       having round(b.sale_value - b.token_amount, 2) <> round(sum(e.amount), 2)`,
+        where b.deleted_at is null and b.status in ('step1_done', 'step2_approved', 'confirmed')
+        group by b.reference, b.sale_value
+       having round(b.sale_value, 2) <> round(sum(e.amount), 2)`,
     )
-    assert(rows.length === 0, `schedule does not match the balance on ${rows.map(r => r.reference).join(', ')}`)
+    assert(rows.length === 0, `schedule does not match the sale value on ${rows.map(r => r.reference).join(', ')}`)
   })
 })
 
