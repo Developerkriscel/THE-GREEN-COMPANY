@@ -199,7 +199,7 @@ export function CustomerLogin() {
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
               placeholder="e.g. RGC100005"
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-[oklch(62%_.19_43)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[oklch(62%_.19_43)]/20 transition-all"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all"
             />
           </div>
 
@@ -208,7 +208,7 @@ export function CustomerLogin() {
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500">
                 Password
               </label>
-              <Link to="/forgot-password" className="text-xs font-medium text-[oklch(54%_.19_40)] hover:text-[oklch(62%_.19_43)]">
+              <Link to="/forgot-password" className="text-xs font-medium text-brand-primary-dark hover:text-brand-primary">
                 Forgot password?
               </Link>
             </div>
@@ -220,7 +220,7 @@ export function CustomerLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 pr-10 text-sm text-gray-900 placeholder-gray-400 focus:border-[oklch(62%_.19_43)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[oklch(62%_.19_43)]/20 transition-all"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 pr-10 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all"
               />
               <button
                 type="button"
@@ -245,8 +245,8 @@ export function CustomerLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg py-3 text-sm font-bold text-white shadow-elegant disabled:opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-[oklch(62%_.19_43)]/40"
-            style={{ background: 'linear-gradient(135deg, oklch(68% .18 48) 0%, oklch(54% .19 40) 100%)' }}
+            className="w-full rounded-lg py-3 text-sm font-bold text-white shadow-elegant disabled:opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+            style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -278,7 +278,7 @@ export function CustomerLogin() {
             </p>
             <button
               onClick={() => { setSignupSuccess(false); setTab('login') }}
-              className="text-sm font-semibold text-[oklch(54%_.19_40)] hover:text-[oklch(62%_.19_43)]"
+              className="text-sm font-semibold text-brand-primary-dark hover:text-brand-primary"
             >
               ← Back to Login
             </button>
@@ -301,7 +301,7 @@ export function CustomerLogin() {
                 value={signupName}
                 onChange={(e) => setSignupName(e.target.value)}
                 placeholder="Your full name"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-[oklch(62%_.19_43)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[oklch(62%_.19_43)]/20 transition-all"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all"
               />
             </div>
 
@@ -315,7 +315,7 @@ export function CustomerLogin() {
                 value={signupPhone}
                 onChange={(e) => setSignupPhone(e.target.value)}
                 placeholder="+91 98765 43210"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-[oklch(62%_.19_43)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[oklch(62%_.19_43)]/20 transition-all"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all"
               />
             </div>
 
@@ -328,15 +328,15 @@ export function CustomerLogin() {
                 value={signupSponsorId}
                 onChange={(e) => setSignupSponsorId(e.target.value)}
                 placeholder="Referred by (Sponsor ID)"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-[oklch(62%_.19_43)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[oklch(62%_.19_43)]/20 transition-all"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all"
               />
             </div>
 
             <button
               type="submit"
               disabled={signupLoading}
-              className="w-full rounded-lg py-3 text-sm font-bold text-white shadow-elegant disabled:opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-[oklch(62%_.19_43)]/40"
-              style={{ background: 'linear-gradient(135deg, oklch(68% .18 48) 0%, oklch(54% .19 40) 100%)' }}
+              className="w-full rounded-lg py-3 text-sm font-bold text-white shadow-elegant disabled:opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+              style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}
             >
               {signupLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -357,7 +357,7 @@ export function CustomerLogin() {
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500">
           Admin?{' '}
-          <Link to="/admin-login" className="font-semibold text-[oklch(54%_.19_40)] hover:text-[oklch(62%_.19_43)]">
+          <Link to="/admin-login" className="font-semibold text-brand-primary-dark hover:text-brand-primary">
             Admin Login →
           </Link>
         </p>

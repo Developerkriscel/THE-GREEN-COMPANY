@@ -68,8 +68,8 @@ export function WelcomeLetterView({ letter, member }: { letter: WelcomeLetter; m
   return (
     <article className="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-12">
       <header className="border-b border-slate-100 pb-6 text-center">
-        <h1 className="text-2xl font-extrabold text-[oklch(20%_.06_260)]">{fill(letter.brand_title)}</h1>
-        <p className="mt-1 text-sm italic text-[oklch(54%_.19_40)]">{fill(letter.subtitle)}</p>
+        <h1 className="text-2xl font-extrabold text-brand-dark">{fill(letter.brand_title)}</h1>
+        <p className="mt-1 text-sm italic text-brand-primary-dark">{fill(letter.subtitle)}</p>
       </header>
 
       <div className="mt-6 flex items-center justify-between text-xs text-slate-500">
@@ -77,7 +77,7 @@ export function WelcomeLetterView({ letter, member }: { letter: WelcomeLetter; m
         <span>{fill('{{date}}')}</span>
       </div>
 
-      <h2 className="mt-6 text-lg font-bold text-[oklch(20%_.06_260)]">{fill(letter.heading)}</h2>
+      <h2 className="mt-6 text-lg font-bold text-brand-dark">{fill(letter.heading)}</h2>
       <p className="mt-4 font-medium text-slate-800">{fill(letter.salutation)}</p>
 
       <div className="mt-4 space-y-4 text-sm leading-relaxed text-slate-700">
@@ -92,7 +92,7 @@ export function WelcomeLetterView({ letter, member }: { letter: WelcomeLetter; m
         {letter.company_line && <p className="text-xs text-slate-500">{fill(letter.company_line)}</p>}
       </div>
 
-      <footer className="mt-8 border-t border-slate-100 pt-4 text-center text-xs italic text-[oklch(54%_.19_40)]">
+      <footer className="mt-8 border-t border-slate-100 pt-4 text-center text-xs italic text-brand-primary-dark">
         {fill(letter.footer_slogan)}
       </footer>
     </article>

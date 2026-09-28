@@ -35,12 +35,12 @@ export function ContactPage() {
       {/* Hero */}
       <section
         className="py-20 text-white text-center relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, oklch(20% .06 260) 0%, oklch(14% .05 260) 45%, oklch(62% .19 43) 100%)' }}
+        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
-          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">Get in Touch</span>
+          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Get in Touch</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">{c.hero_title}</h1>
           <p className="mx-auto max-w-xl text-lg text-white/60">
             {c.hero_subtitle}
@@ -57,8 +57,8 @@ export function ContactPage() {
           <div className="grid lg:grid-cols-2 gap-14">
             {/* Left: info */}
             <div>
-              <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Reach Us</span>
-              <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)]">{BRAND.name}</h2>
+              <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Reach Us</span>
+              <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">{BRAND.name}</h2>
               <p className="mt-4 text-gray-500 leading-relaxed">
                 We operate from multiple locations across Delhi-NCR. Reach us by phone, WhatsApp, or visit our head office.
               </p>
@@ -66,13 +66,13 @@ export function ContactPage() {
               <div className="mt-8 space-y-5">
                 {infoItems.map(item => (
                   <a key={item.label} href={item.href}
-                    className="flex items-start gap-4 group rounded-xl border border-gray-100 bg-gray-50 p-4 hover:border-[oklch(62%_.19_43)]/30 hover:shadow-elegant transition-all">
-                    <div className="flex-shrink-0 h-11 w-11 rounded-xl bg-[oklch(62%_.19_43)]/10 flex items-center justify-center text-xl">
+                    className="flex items-start gap-4 group rounded-xl border border-gray-100 bg-gray-50 p-4 hover:border-brand-primary/30 hover:shadow-elegant transition-all">
+                    <div className="flex-shrink-0 h-11 w-11 rounded-xl bg-brand-primary/10 flex items-center justify-center text-xl">
                       {item.icon}
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-[oklch(62%_.19_43)]">{item.label}</p>
-                      <p className="mt-0.5 text-sm font-medium text-[oklch(14%_.05_260)]">{item.value}</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-brand-primary">{item.label}</p>
+                      <p className="mt-0.5 text-sm font-medium text-brand-darker">{item.value}</p>
                     </div>
                   </a>
                 ))}
@@ -80,11 +80,11 @@ export function ContactPage() {
 
               {/* Branches */}
               {branches.length > 0 && <div className="mt-10">
-                <p className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(14%_.05_260)] mb-4">Our Branches</p>
+                <p className="text-xs font-bold uppercase tracking-[.2em] text-brand-darker mb-4">Our Branches</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {branches.map(b => (
                     <div key={b} className="flex items-center gap-2.5 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-                      <span className="text-[oklch(62%_.19_43)]">📌</span>
+                      <span className="text-brand-primary">📌</span>
                       <span className="text-sm font-medium text-gray-700">{b}</span>
                     </div>
                   ))}
@@ -102,8 +102,8 @@ export function ContactPage() {
 
             {/* Right: form */}
             <div>
-              <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Send Enquiry</span>
-              <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)] mb-8">We'll Call You Back</h2>
+              <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Send Enquiry</span>
+              <h2 className="mt-3 text-3xl font-extrabold text-brand-darker mb-8">We'll Call You Back</h2>
               <Card>
                 <CardBody>
                   <EnquiryForm />
@@ -150,8 +150,8 @@ export function EnquiryForm({ projectId, compact = false }: { projectId?: string
   if (sent) {
     return (
       <div className="flex flex-col items-center gap-2 py-8 text-center">
-        <CheckCircle2 className="h-10 w-10 text-[oklch(62%_.19_43)]" />
-        <p className="text-sm font-semibold text-[oklch(14%_.05_260)]">Thank you — we have your enquiry.</p>
+        <CheckCircle2 className="h-10 w-10 text-brand-primary" />
+        <p className="text-sm font-semibold text-brand-darker">Thank you — we have your enquiry.</p>
         <p className="max-w-sm text-sm text-gray-500">A sales partner will call you shortly.</p>
         <Button variant="outline" size="sm" className="mt-2" onClick={() => setSent(false)}>Send another</Button>
       </div>
@@ -160,7 +160,7 @@ export function EnquiryForm({ projectId, compact = false }: { projectId?: string
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">
-      {!compact && <h2 className="text-base font-semibold text-[oklch(14%_.05_260)]">Send an enquiry</h2>}
+      {!compact && <h2 className="text-base font-semibold text-brand-darker">Send an enquiry</h2>}
       {error && <ErrorState error={error} />}
       <Field label="Full name" required>
         <Input name="name" required placeholder="Your name" autoComplete="name" />

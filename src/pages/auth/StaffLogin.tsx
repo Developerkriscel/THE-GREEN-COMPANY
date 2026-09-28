@@ -51,7 +51,7 @@ export function StaffLogin() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={`admin@${BRAND.website}`}
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-[oklch(62%_.19_43)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[oklch(62%_.19_43)]/20 transition-all"
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all"
           />
         </div>
 
@@ -60,7 +60,7 @@ export function StaffLogin() {
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500">
               Password
             </label>
-            <a href="#" className="text-xs font-medium text-[oklch(54%_.19_40)] hover:text-[oklch(62%_.19_43)]">
+            <a href="#" className="text-xs font-medium text-brand-primary-dark hover:text-brand-primary">
               Forgot password?
             </a>
           </div>
@@ -72,7 +72,7 @@ export function StaffLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 pr-10 text-sm text-gray-900 placeholder-gray-400 focus:border-[oklch(62%_.19_43)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[oklch(62%_.19_43)]/20 transition-all"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 pr-10 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all"
             />
             <button
               type="button"
@@ -97,7 +97,7 @@ export function StaffLogin() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-[oklch(20%_.06_260)] py-3 text-sm font-bold text-white shadow-elegant hover:bg-[oklch(25%_.06_260)] disabled:opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-[oklch(20%_.06_260)]/40"
+          className="w-full rounded-lg bg-brand-dark py-3 text-sm font-bold text-white shadow-elegant hover:bg-brand-dark-2 disabled:opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-brand-dark/40"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -116,7 +116,7 @@ export function StaffLogin() {
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500">
           Are you a sponsor?{' '}
-          <Link to="/sponsor-login" className="font-semibold text-[oklch(54%_.19_40)] hover:text-[oklch(62%_.19_43)]">
+          <Link to="/sponsor-login" className="font-semibold text-brand-primary-dark hover:text-brand-primary">
             Sponsor Login →
           </Link>
         </p>

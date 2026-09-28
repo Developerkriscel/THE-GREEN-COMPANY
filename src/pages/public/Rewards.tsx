@@ -24,12 +24,12 @@ export function RewardsPage() {
       {/* Hero */}
       <section
         className="py-20 text-white text-center relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, oklch(20% .06 260) 0%, oklch(14% .05 260) 45%, oklch(62% .19 43) 100%)' }}
+        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
-          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">Trending Achievements</span>
+          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Trending Achievements</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Reward Income</h1>
           <p className="mx-auto max-w-xl text-lg text-white/60">
             Every milestone unlocks a reward. Hit the target — claim the prize.
@@ -48,11 +48,11 @@ export function RewardsPage() {
                     className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute top-3 left-3 flex gap-2">
-                    <span className="rounded-full bg-[oklch(14%_.05_260)]/80 px-3 py-1 text-xs font-bold text-white uppercase tracking-wider backdrop-blur">
+                    <span className="rounded-full bg-brand-darker/80 px-3 py-1 text-xs font-bold text-white uppercase tracking-wider backdrop-blur">
                       Level {r.level}
                     </span>
                     {r.trending && (
-                      <span className="rounded-full bg-[oklch(62%_.19_43)] px-3 py-1 text-xs font-bold text-white">
+                      <span className="rounded-full bg-brand-primary px-3 py-1 text-xs font-bold text-white">
                         🔥 Trending
                       </span>
                     )}
@@ -61,13 +61,13 @@ export function RewardsPage() {
                 </div>
                 <div className="p-5">
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-xl bg-[oklch(62%_.19_43)]/10 p-3 text-center">
-                      <p className="text-xs font-bold uppercase tracking-wider text-[oklch(62%_.19_43)] mb-1">Joining</p>
-                      <p className="text-sm font-bold text-[oklch(14%_.05_260)]">{r.joining}</p>
+                    <div className="rounded-xl bg-brand-primary/10 p-3 text-center">
+                      <p className="text-xs font-bold uppercase tracking-wider text-brand-primary mb-1">Joining</p>
+                      <p className="text-sm font-bold text-brand-darker">{r.joining}</p>
                     </div>
-                    <div className="rounded-xl bg-[oklch(14%_.05_260)]/5 p-3 text-center">
-                      <p className="text-xs font-bold uppercase tracking-wider text-[oklch(14%_.05_260)] mb-1">Sales</p>
-                      <p className="text-sm font-bold text-[oklch(14%_.05_260)]">{r.sales}</p>
+                    <div className="rounded-xl bg-brand-darker/5 p-3 text-center">
+                      <p className="text-xs font-bold uppercase tracking-wider text-brand-darker mb-1">Sales</p>
+                      <p className="text-sm font-bold text-brand-darker">{r.sales}</p>
                     </div>
                   </div>
                 </div>
@@ -86,11 +86,11 @@ export function RewardsPage() {
 
       {/* CTA */}
       <section className="py-16"
-        style={{ background: 'linear-gradient(135deg, oklch(62% .19 43) 0%, oklch(54% .19 40) 100%)' }}>
+        style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary)) 0%, rgb(var(--c-primary-dark)) 100%)' }}>
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-extrabold text-white">Start Unlocking Rewards Today</h2>
           <p className="mt-3 text-white/70">Every joining brings you closer to your next reward milestone.</p>
-          <a href="/register" className="mt-6 inline-block rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-[oklch(54%_.19_40)] shadow-lg hover:-translate-y-0.5 transition-all">
+          <a href="/register" className="mt-6 inline-block rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-brand-primary-dark shadow-lg hover:-translate-y-0.5 transition-all">
             Join Now — Free
           </a>
         </div>

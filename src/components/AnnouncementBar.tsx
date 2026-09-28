@@ -34,9 +34,9 @@ const SKIN: Record<BannerTone, { wrap: string; icon: typeof Megaphone; cta: stri
     cta: 'bg-amber-600 text-white hover:bg-amber-700',
   },
   offer: {
-    wrap: 'bg-gradient-to-r from-orange-500 to-rose-500 text-white ring-orange-300',
+    wrap: 'bg-gradient-to-r from-brand-primary to-rose-500 text-white ring-brand-primary/40',
     icon: Tag,
-    cta: 'bg-white text-orange-700 hover:bg-orange-50',
+    cta: 'bg-white text-brand-primary-dark hover:bg-brand-primary/10',
   },
 }
 

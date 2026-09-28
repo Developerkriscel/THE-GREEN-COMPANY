@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useProjects, useSiteSetting, useCmsContent, useBanners, useRanks } from '@/lib/queries'
 import { BRAND } from '@/lib/brand'
 import { planRows } from '@/lib/plan'
+import { RANKS as PLAN_FALLBACK } from '@/pages/public/Plans'
 
 const HERO_DEFAULTS = {
   badge: 'Mission 90 Days — Registrations Open',
@@ -146,7 +147,7 @@ export function ProjectCard({ project }: { project: Record<string, any> }) {
   return (
     <Link
       to={`/projects/${project.slug}`}
-      className="group flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant hover:border-[oklch(62%_.19_43)]/30 transition-all duration-300 overflow-hidden"
+      className="group flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant hover:border-brand-primary/30 transition-all duration-300 overflow-hidden"
     >
       {project.hero_image ? (
         <div className="h-40 overflow-hidden">
@@ -157,19 +158,19 @@ export function ProjectCard({ project }: { project: Record<string, any> }) {
           />
         </div>
       ) : (
-        <div className="h-40 bg-gradient-to-br from-[oklch(20%_.06_260)] to-[oklch(62%_.19_43)] flex items-center justify-center">
+        <div className="h-40 bg-gradient-to-br from-brand-dark to-brand-primary flex items-center justify-center">
           <span className="text-4xl font-black text-white/30">{project.name?.[0]}</span>
         </div>
       )}
       <div className="p-5 flex flex-col flex-1">
-        <p className="text-xs font-bold uppercase tracking-widest text-[oklch(62%_.19_43)] mb-1">{project.city ?? 'India'}</p>
-        <h3 className="text-base font-bold text-[oklch(14%_.05_260)] group-hover:text-[oklch(54%_.19_40)] transition-colors">{project.name}</h3>
+        <p className="text-xs font-bold uppercase tracking-widest text-brand-primary mb-1">{project.city ?? 'India'}</p>
+        <h3 className="text-base font-bold text-brand-darker group-hover:text-brand-primary-dark transition-colors">{project.name}</h3>
         <p className="mt-1 text-sm text-gray-500 flex-1 line-clamp-2">{project.location}</p>
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-sm font-bold text-[oklch(54%_.19_40)]">
+          <span className="text-sm font-bold text-brand-primary-dark">
             {project.price_from ? `₹${Number(project.price_from).toLocaleString('en-IN')} / sq yd` : 'Contact for price'}
           </span>
-          <span className="text-xs text-[oklch(62%_.19_43)] font-semibold">View →</span>
+          <span className="text-xs text-brand-primary font-semibold">View →</span>
         </div>
       </div>
     </Link>
@@ -184,8 +185,8 @@ function FeaturedProjects() {
     <section className="py-20 bg-gray-50">
       <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
         <div className="text-center mb-12">
-          <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Our Developments</span>
-          <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)] sm:text-4xl">
+          <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Our Developments</span>
+          <h2 className="mt-3 text-3xl font-extrabold text-brand-darker sm:text-4xl">
             Built on Trust. Designed for Growth.
           </h2>
           <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
@@ -199,7 +200,7 @@ function FeaturedProjects() {
         </div>
         <div className="mt-8 text-center">
           <Link to="/projects"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[oklch(54%_.19_40)] hover:text-[oklch(62%_.19_43)] transition-colors">
+            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary-dark hover:text-brand-primary transition-colors">
             View all projects
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -226,8 +227,8 @@ function PromoBanners() {
               className="relative overflow-hidden rounded-2xl p-8 text-white shadow-elegant min-h-[180px] flex flex-col justify-center"
               style={{
                 background: b.image_url
-                  ? `linear-gradient(120deg, oklch(20% .06 260 / .82), oklch(20% .06 260 / .45)), url(${b.image_url}) center/cover`
-                  : 'linear-gradient(135deg, oklch(62% .19 43), oklch(54% .19 40))',
+                  ? `linear-gradient(120deg, rgb(var(--c-dark) / .82), rgb(var(--c-dark) / .45)), url(${b.image_url}) center/cover`
+                  : 'linear-gradient(135deg, rgb(var(--c-primary)), rgb(var(--c-primary-dark)))',
               }}
             >
               <h3 className="text-2xl font-extrabold">{b.title}</h3>
@@ -235,7 +236,7 @@ function PromoBanners() {
               {b.cta_label && b.cta_link && (
                 <Link
                   to={b.cta_link}
-                  className="mt-5 inline-flex w-fit items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-[oklch(54%_.19_40)] shadow hover:-translate-y-0.5 transition-all"
+                  className="mt-5 inline-flex w-fit items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-brand-primary-dark shadow hover:-translate-y-0.5 transition-all"
                 >
                   {b.cta_label}
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -253,7 +254,9 @@ function PromoBanners() {
 
 export function Home() {
   const { data: rankData = [] } = useRanks()
-  const ranks = planRows(rankData)
+  // The built-in plan stands in while the ranks load or if they cannot.
+  const liveRanks = planRows(rankData)
+  const ranks = liveRanks.length ? liveRanks : PLAN_FALLBACK
   const freeCount = ranks.filter((r) => r.joining === 'Free').length
   const { data: heroCfg } = useSiteSetting('home.hero')
   const hero = { ...HERO_DEFAULTS, ...(heroCfg ?? {}) }
@@ -275,7 +278,7 @@ export function Home() {
         {/* Overlay gradient */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to right, oklch(20% .06 260 / .95) 0%, oklch(20% .06 260 / .7) 50%, rgba(0,0,0,0) 100%)' }}
+          style={{ background: 'linear-gradient(to right, rgb(var(--c-dark) / .95) 0%, rgb(var(--c-dark) / .7) 50%, rgba(0,0,0,0) 100%)' }}
         />
 
         {/* Dot grid */}
@@ -285,12 +288,12 @@ export function Home() {
         <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8 py-28 w-full">
           <div className="max-w-2xl">
             {/* Mission badge */}
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[oklch(72%_.18_48)]/40 bg-[oklch(62%_.19_43)]/15 px-4 py-1.5 backdrop-blur-sm">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-primary-glow/40 bg-brand-primary/15 px-4 py-1.5 backdrop-blur-sm">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[oklch(72%_.18_48)] opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[oklch(62%_.19_43)]" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-primary-glow opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-primary" />
               </span>
-              <span className="text-xs font-bold uppercase tracking-[.15em] text-[oklch(72%_.18_48)]">
+              <span className="text-xs font-bold uppercase tracking-[.15em] text-brand-primary-glow">
                 {hero.badge}
               </span>
             </div>
@@ -299,7 +302,7 @@ export function Home() {
               {hero.title_lead}{' '}
               <span
                 className="bg-clip-text text-transparent"
-                style={{ backgroundImage: 'linear-gradient(to right, oklch(80% .16 85), oklch(72% .18 48))' }}
+                style={{ backgroundImage: 'linear-gradient(to right, rgb(var(--c-gold)), rgb(var(--c-primary-glow)))' }}
               >
                 {hero.title_accent}
               </span>{' '}
@@ -313,7 +316,7 @@ export function Home() {
               <Link
                 to={hero.primary_cta_link}
                 className="inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold text-white shadow-elegant hover:opacity-90 transition-all"
-                style={{ background: 'linear-gradient(135deg, oklch(68% .18 48) 0%, oklch(54% .19 40) 100%)' }}
+                style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}
               >
                 {hero.primary_cta_label}
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -347,12 +350,12 @@ export function Home() {
       </section>
 
       {/* ══════════════════════ STATS BAR ══════════════════════ */}
-      <section className="bg-[oklch(14%_.05_260)] -mt-1 py-12">
+      <section className="bg-brand-darker -mt-1 py-12">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8">
             {STATS.map((s) => (
               <div key={s.label} className="text-center">
-                <p className="text-3xl lg:text-4xl font-extrabold text-[oklch(72%_.18_48)]">{s.value}</p>
+                <p className="text-3xl lg:text-4xl font-extrabold text-brand-primary-glow">{s.value}</p>
                 <p className="mt-1 text-xs font-bold tracking-widest uppercase text-white/40">{s.label}</p>
               </div>
             ))}
@@ -367,8 +370,8 @@ export function Home() {
       <section className="py-20 bg-white">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Why {BRAND.name}</span>
-            <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)] sm:text-4xl">
+            <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Why {BRAND.name}</span>
+            <h2 className="mt-3 text-3xl font-extrabold text-brand-darker sm:text-4xl">
               A plan built for serious earners
             </h2>
             <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
@@ -380,14 +383,14 @@ export function Home() {
             {WHY_ITEMS.map((item) => (
               <div
                 key={item.title}
-                className="group rounded-2xl border border-gray-100 p-6 hover:border-[oklch(62%_.19_43)]/30 hover:shadow-elegant transition-all duration-300"
+                className="group rounded-2xl border border-gray-100 p-6 hover:border-brand-primary/30 hover:shadow-elegant transition-all duration-300"
                 style={{ background: 'linear-gradient(oklch(1 0 0) 0%, oklch(0.985 0.02 60) 100%)' }}
               >
                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl text-white transition-all"
-                  style={{ background: 'linear-gradient(135deg, oklch(68% .18 48) 0%, oklch(54% .19 40) 100%)' }}>
+                  style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}>
                   {item.icon}
                 </div>
-                <h3 className="text-base font-bold text-[oklch(14%_.05_260)] mb-2">{item.title}</h3>
+                <h3 className="text-base font-bold text-brand-darker mb-2">{item.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
               </div>
             ))}
@@ -398,7 +401,7 @@ export function Home() {
       {/* ══════════════════════ TOP ACHIEVER ══════════════════════ */}
       <section
         className="py-24 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, oklch(20% .06 260) 0%, oklch(14% .05 260) 45%, oklch(62% .19 43) 100%)' }}
+        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
@@ -407,10 +410,10 @@ export function Home() {
           <div className="flex flex-col lg:flex-row items-center gap-16">
             {/* Text */}
             <div className="lg:w-1/2 text-center lg:text-left">
-              <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">Meet Our Top Achiever</span>
+              <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Meet Our Top Achiever</span>
               <h2 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl lg:text-5xl leading-tight">
                 Real leaders.<br />
-                <span className="text-[oklch(72%_.18_48)]">Real rewards.</span>
+                <span className="text-brand-primary-glow">Real rewards.</span>
               </h2>
               <p className="mt-4 text-white/60 leading-relaxed max-w-md">
                 Celebrating the champions who turned Mission 90 Days into a lifetime achievement.
@@ -419,28 +422,28 @@ export function Home() {
               {/* Achiever stats */}
               <div className="mt-8 grid grid-cols-3 gap-4 max-w-sm">
                 <div className="text-center lg:text-left">
-                  <p className="text-2xl font-extrabold text-[oklch(72%_.18_48)]">1,240+</p>
+                  <p className="text-2xl font-extrabold text-brand-primary-glow">1,240+</p>
                   <p className="mt-1 text-xs text-white/50 uppercase tracking-wider">Direct Team</p>
                 </div>
                 <div className="text-center lg:text-left">
-                  <p className="text-2xl font-extrabold text-[oklch(72%_.18_48)]">₹42 Cr</p>
+                  <p className="text-2xl font-extrabold text-brand-primary-glow">₹42 Cr</p>
                   <p className="mt-1 text-xs text-white/50 uppercase tracking-wider">Total Sales</p>
                 </div>
                 <div className="text-center lg:text-left">
-                  <p className="text-2xl font-extrabold text-[oklch(72%_.18_48)]">Crown</p>
+                  <p className="text-2xl font-extrabold text-brand-primary-glow">Crown</p>
                   <p className="mt-1 text-xs text-white/50 uppercase tracking-wider">Rank</p>
                 </div>
               </div>
 
               {/* Achiever badge */}
-              <div className="mt-8 inline-flex items-center gap-4 rounded-2xl border border-[oklch(72%_.18_48)]/20 bg-white/5 backdrop-blur px-6 py-4">
+              <div className="mt-8 inline-flex items-center gap-4 rounded-2xl border border-brand-primary-glow/20 bg-white/5 backdrop-blur px-6 py-4">
                 <img
                   src={topAchiever.img}
                   alt={topAchiever.name}
-                  className="h-14 w-14 rounded-full object-cover border-2 border-[oklch(72%_.18_48)]/50"
+                  className="h-14 w-14 rounded-full object-cover border-2 border-brand-primary-glow/50"
                 />
                 <div className="text-left">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[oklch(72%_.18_48)]">🏆 Champion of the Season</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-brand-primary-glow">🏆 Champion of the Season</p>
                   <p className="text-white font-bold text-lg">{topAchiever.name}</p>
                   <p className="text-white/50 text-sm">{topAchiever.rank}</p>
                 </div>
@@ -451,7 +454,7 @@ export function Home() {
                 <Link
                   to="/register"
                   className="inline-flex items-center gap-2 rounded-xl px-7 py-3 text-sm font-bold text-white shadow-elegant hover:opacity-90 transition-all"
-                  style={{ background: 'linear-gradient(135deg, oklch(68% .18 48) 0%, oklch(54% .19 40) 100%)' }}
+                  style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}
                 >
                   Chase the Crown
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -466,9 +469,9 @@ export function Home() {
               <div className="relative">
                 {/* Glow ring */}
                 <div className="absolute inset-0 rounded-full blur-2xl"
-                  style={{ background: 'oklch(72% .18 48 / .25)', transform: 'scale(1.15)' }} />
+                  style={{ background: 'rgb(var(--c-primary-glow) / .25)', transform: 'scale(1.15)' }} />
                 {/* Photo circle */}
-                <div className="relative h-56 w-56 sm:h-72 sm:w-72 rounded-full border-4 border-[oklch(72%_.18_48)]/40 overflow-hidden shadow-glow">
+                <div className="relative h-56 w-56 sm:h-72 sm:w-72 rounded-full border-4 border-brand-primary-glow/40 overflow-hidden shadow-glow">
                   <img
                     src={topAchiever.img}
                     alt={topAchiever.name}
@@ -477,7 +480,7 @@ export function Home() {
                 </div>
                 {/* Name badge */}
                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-6 py-2 text-xs font-bold uppercase tracking-widest text-white shadow-elegant"
-                  style={{ background: 'linear-gradient(135deg, oklch(68% .18 48) 0%, oklch(54% .19 40) 100%)' }}>
+                  style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)) 0%, rgb(var(--c-primary-dark)) 100%)' }}>
                   {topAchiever.rank}
                 </div>
               </div>
@@ -489,8 +492,8 @@ export function Home() {
       {/* ══════════════════════ HALL OF FAME MARQUEE ══════════════════════ */}
       <section className="py-16 bg-gray-50 overflow-hidden">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8 mb-10 text-center">
-          <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Award Achievers Gallery</span>
-          <h2 className="mt-2 text-2xl font-extrabold text-[oklch(14%_.05_260)]">HALL OF FAME</h2>
+          <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Award Achievers Gallery</span>
+          <h2 className="mt-2 text-2xl font-extrabold text-brand-darker">HALL OF FAME</h2>
           <p className="mt-2 text-sm text-gray-500 max-w-lg mx-auto">
             Real leaders. Real rewards. Celebrating the champions who turned Mission 90 Days into a lifetime achievement.
           </p>
@@ -511,7 +514,7 @@ export function Home() {
                 />
                 {/* Bottom overlay */}
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[oklch(72%_.18_48)]">{a.rank}</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-brand-primary-glow">{a.rank}</p>
                   <p className="text-sm font-bold text-white">{a.name}</p>
                 </div>
               </div>
@@ -524,8 +527,8 @@ export function Home() {
       <section className="py-20 bg-white">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)]">Income Structure</span>
-            <h2 className="mt-3 text-3xl font-extrabold text-[oklch(14%_.05_260)] sm:text-4xl">
+            <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Income Structure</span>
+            <h2 className="mt-3 text-3xl font-extrabold text-brand-darker sm:text-4xl">
               Ranks & Sponsor Income
             </h2>
             <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
@@ -538,7 +541,7 @@ export function Home() {
           <div className="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-[oklch(14%_.05_260)] text-white">
+                <tr className="bg-brand-darker text-white">
                   <th className="py-4 pl-6 pr-4 text-left text-xs font-bold uppercase tracking-wider">#</th>
                   <th className="py-4 px-4 text-left text-xs font-bold uppercase tracking-wider">Rank</th>
                   <th className="py-4 px-4 text-right text-xs font-bold uppercase tracking-wider">Joining</th>
@@ -547,18 +550,18 @@ export function Home() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {ranks.slice(0, 7).map((r, i) => (
-                  <tr key={r.rank} className="hover:bg-[oklch(62%_.19_43)]/5 transition-colors">
+                  <tr key={r.rank} className="hover:bg-brand-primary/5 transition-colors">
                     <td className="py-3.5 pl-6 pr-4 text-gray-400 font-medium">{String(i + 1).padStart(2, '0')}</td>
-                    <td className="py-3.5 px-4 font-semibold text-[oklch(14%_.05_260)]">
+                    <td className="py-3.5 px-4 font-semibold text-brand-darker">
                       {r.rank}
                       {r.joining === 'Free' && (
-                        <span className="ml-2 inline-flex items-center rounded-full bg-[oklch(62%_.19_43)]/10 px-2 py-0.5 text-xs font-semibold text-[oklch(54%_.19_40)]">
+                        <span className="ml-2 inline-flex items-center rounded-full bg-brand-primary/10 px-2 py-0.5 text-xs font-semibold text-brand-primary-dark">
                           Entry
                         </span>
                       )}
                     </td>
                     <td className="py-3.5 px-4 text-right text-gray-600">{r.joining}</td>
-                    <td className="py-3.5 pl-4 pr-6 text-right font-bold text-[oklch(54%_.19_40)]">{r.pct}</td>
+                    <td className="py-3.5 pl-4 pr-6 text-right font-bold text-brand-primary-dark">{r.pct}</td>
                   </tr>
                 ))}
               </tbody>
@@ -568,7 +571,7 @@ export function Home() {
           <div className="mt-6 text-center">
             <Link
               to="/plans"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[oklch(54%_.19_40)] hover:text-[oklch(62%_.19_43)] transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary-dark hover:text-brand-primary transition-colors"
             >
               See all {ranks.length} ranks
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -580,10 +583,10 @@ export function Home() {
       </section>
 
       {/* ══════════════════════ REWARDS — real photos ══════════════════════ */}
-      <section className="py-20 bg-[oklch(14%_.05_260)]">
+      <section className="py-20 bg-brand-darker">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">Exclusive Benefits</span>
+            <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Exclusive Benefits</span>
             <h2 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">From smartphone to a house fund</h2>
             <p className="mt-3 mx-auto max-w-xl text-base text-white/50">
               Beyond commissions — unlock experiences and assets that celebrate your success.
@@ -592,7 +595,7 @@ export function Home() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {REWARDS.map((r) => (
-              <div key={r.title} className="group rounded-2xl overflow-hidden border border-white/10 hover:border-[oklch(72%_.18_48)]/30 transition-all duration-300">
+              <div key={r.title} className="group rounded-2xl overflow-hidden border border-white/10 hover:border-brand-primary-glow/30 transition-all duration-300">
                 <div className="relative h-48 overflow-hidden">
                   <img
                     src={r.img}
@@ -600,7 +603,7 @@ export function Home() {
                     className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span className="absolute top-3 left-3 rounded-full bg-[oklch(62%_.19_43)]/90 px-3 py-1 text-xs font-bold text-white uppercase tracking-wider">
+                  <span className="absolute top-3 left-3 rounded-full bg-brand-primary/90 px-3 py-1 text-xs font-bold text-white uppercase tracking-wider">
                     {r.tag}
                   </span>
                 </div>
@@ -608,11 +611,11 @@ export function Home() {
                   <h3 className="text-base font-bold text-white mb-2">{r.title}</h3>
                   <div className="flex gap-3 text-xs text-white/60 mb-3">
                     <span className="inline-flex items-center gap-1">
-                      <span className="text-[oklch(72%_.18_48)]">●</span>
+                      <span className="text-brand-primary-glow">●</span>
                       {r.joining} Fresh Joining
                     </span>
                     <span className="inline-flex items-center gap-1">
-                      <span className="text-[oklch(72%_.18_48)]">●</span>
+                      <span className="text-brand-primary-glow">●</span>
                       {r.sales} Sales
                     </span>
                   </div>
@@ -624,7 +627,7 @@ export function Home() {
           <div className="mt-8 text-center">
             <Link
               to="/rewards"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[oklch(72%_.18_48)] hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary-glow hover:text-white transition-colors"
             >
               All rewards
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -643,7 +646,7 @@ export function Home() {
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div
             className="rounded-3xl px-8 py-14 text-center shadow-elegant"
-            style={{ background: 'linear-gradient(135deg, oklch(62% .19 43) 0%, oklch(54% .19 40) 100%)' }}
+            style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary)) 0%, rgb(var(--c-primary-dark)) 100%)' }}
           >
             <h2 className="text-3xl font-extrabold text-white sm:text-4xl">Start your Mission 90 Days Training</h2>
             <p className="mt-4 mx-auto max-w-lg text-lg text-white/70">
@@ -652,7 +655,7 @@ export function Home() {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
                 to="/register"
-                className="rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-[oklch(54%_.19_40)] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                className="rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-brand-primary-dark shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
               >
                 Join Now
               </Link>

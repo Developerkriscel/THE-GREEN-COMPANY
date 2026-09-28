@@ -104,7 +104,7 @@ export function SponsorDashboard() {
             onClick={() => setShowWelcomeLetter(true)}
             className="flex items-center gap-2 border-slate-300 bg-white font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
           >
-            <Mail className="h-4 w-4 text-[#ea580c]" /> Welcome Letter
+            <Mail className="h-4 w-4 text-brand-primary" /> Welcome Letter
           </Button>
 
           <div className="flex items-center rounded-xl border border-slate-300 bg-white px-3 py-1.5 shadow-sm">
@@ -241,7 +241,7 @@ export function SponsorDashboard() {
       {cycle && (
         <Card className="mt-4 border-slate-200/80 shadow-sm">
           <div className="flex flex-wrap items-center gap-4 px-5 py-4">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-50 text-[#ea580c]">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
               <CalendarClock className="h-6 w-6" />
             </span>
             <div className="min-w-0 flex-1">
@@ -256,7 +256,7 @@ export function SponsorDashboard() {
             <div className="text-right">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Next payout</p>
               <p className="mt-0.5 text-base font-bold text-slate-900">{date(cycle.next)}</p>
-              <p className="text-xs font-medium text-[#ea580c]">
+              <p className="text-xs font-medium text-brand-primary">
                 {cycle.daysAway === 0 ? 'Due now' : `In ${cycle.daysAway} day${cycle.daysAway === 1 ? '' : 's'}`}
               </p>
             </div>
@@ -278,7 +278,7 @@ export function SponsorDashboard() {
             </div>
             <div>
               <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                <BadgeCheck className="h-4 w-4 text-[#ea580c]" /> Current Plan
+                <BadgeCheck className="h-4 w-4 text-brand-primary" /> Current Plan
               </p>
               <p className="mt-1 text-2xl font-extrabold text-slate-900">
                 {plan?.name ?? 'Crown'}
@@ -293,7 +293,7 @@ export function SponsorDashboard() {
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
               <div
-                className="h-full rounded-full bg-[#ea580c] transition-all duration-500"
+                className="h-full rounded-full bg-brand-primary transition-all duration-500"
                 style={{ width: `${Math.min(100, Math.max(8, (directs.length / 15) * 100))}%` }}
               />
             </div>
@@ -316,7 +316,7 @@ export function SponsorDashboard() {
         </div>
 
         {/* Rank Roadmap Promo card */}
-        <div className="flex flex-col justify-between rounded-2xl bg-gradient-to-br from-[#0b192c] to-[#152e4d] p-6 text-white shadow-md">
+        <div className="flex flex-col justify-between rounded-2xl bg-gradient-to-br from-brand-sidebar to-brand-sidebar-active p-6 text-white shadow-md">
           <div>
             <div className="inline-flex rounded-xl bg-white/10 p-2.5 text-amber-400">
               <Trophy className="h-6 w-6" />
@@ -330,7 +330,7 @@ export function SponsorDashboard() {
           <div className="mt-6">
             <Link
               to="/sponsor/rank"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#ea580c] px-4 py-2.5 text-sm font-bold text-white shadow transition-all hover:bg-[#d94e08]"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-2.5 text-sm font-bold text-white shadow transition-all hover:bg-[#d94e08]"
             >
               View Roadmap <ExternalLink className="h-4 w-4" />
             </Link>
@@ -344,7 +344,7 @@ export function SponsorDashboard() {
           title="Recent Team Activity"
           subtitle="Downline team members and sponsor placements"
           action={
-            <Link to="/sponsor/team" className="text-xs font-semibold text-[#ea580c] hover:underline">
+            <Link to="/sponsor/team" className="text-xs font-semibold text-brand-primary hover:underline">
               View all
             </Link>
           }
@@ -354,7 +354,7 @@ export function SponsorDashboard() {
             title="No team members yet"
             description="Share your referral link to start building your direct team."
             action={
-              <Link to="/sponsor/refer" className="text-sm font-semibold text-[#ea580c] hover:underline">
+              <Link to="/sponsor/refer" className="text-sm font-semibold text-brand-primary hover:underline">
                 Refer a member
               </Link>
             }
@@ -408,7 +408,7 @@ export function SponsorDashboard() {
             title="Recent income"
             subtitle="Newest first"
             action={
-              <Link to="/sponsor/income" className="text-xs font-semibold text-[#ea580c] hover:underline">
+              <Link to="/sponsor/income" className="text-xs font-semibold text-brand-primary hover:underline">
                 View all income
               </Link>
             }

@@ -14,7 +14,7 @@ export function AuthLayout({ children, title, subtitle, badge, footer }: AuthLay
     <div
       className="min-h-screen flex items-center justify-center px-4 py-12 font-sans"
       style={{
-        background: 'linear-gradient(135deg, oklch(20% .06 260) 0%, oklch(14% .05 260) 45%, oklch(62% .19 43) 100%)',
+        background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)',
       }}
     >
       {/* Card */}
@@ -23,19 +23,19 @@ export function AuthLayout({ children, title, subtitle, badge, footer }: AuthLay
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex flex-col items-center gap-3">
             <img
-              src="/brand-mark-512.png"
+              src={BRAND.markSquare}
               alt={BRAND.name}
-              className="h-16 w-auto rounded-xl object-contain shadow-elegant"
+              className="h-20 w-auto object-contain drop-shadow-lg"
             />
           </Link>
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           {/* Header stripe */}
-          <div className="bg-[oklch(20%_.06_260)] px-8 py-6">
+          <div className="bg-brand-dark px-8 py-6">
             {badge && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[oklch(62%_.19_43)]/40 bg-[oklch(62%_.19_43)]/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[oklch(72%_.18_48)] mb-3">
-                <span className="h-1.5 w-1.5 rounded-full bg-[oklch(62%_.19_43)]" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-primary/40 bg-brand-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-brand-primary-glow mb-3">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />
                 {badge}
               </span>
             )}

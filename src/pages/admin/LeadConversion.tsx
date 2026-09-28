@@ -84,7 +84,7 @@ export function AdminLeadConversion() {
 
       <div
         className="mb-5 rounded-2xl px-6 py-5 text-white shadow-sm"
-        style={{ background: 'linear-gradient(135deg, oklch(62% .19 43), oklch(54% .19 40))' }}
+        style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary)), rgb(var(--c-primary-dark)))' }}
       >
         <p className="text-xs font-bold uppercase tracking-widest text-white/70">Overall Conversion</p>
         <p className="mt-1 text-4xl font-extrabold">{conversion}%</p>

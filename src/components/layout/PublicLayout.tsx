@@ -34,8 +34,8 @@ export function PublicLayout() {
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-[oklch(14%_.05_260)]/95 backdrop-blur-md shadow-lg'
-            : 'bg-[oklch(14%_.05_260)]'
+            ? 'bg-brand-darker/95 backdrop-blur-md shadow-lg'
+            : 'bg-brand-darker'
         }`}
       >
         <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
@@ -43,9 +43,9 @@ export function PublicLayout() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
               <img
-                src="/brand-mark-512.png"
+                src={BRAND.markSquare}
                 alt={BRAND.name}
-                className="h-10 w-auto rounded-lg object-contain"
+                className="h-11 w-auto object-contain drop-shadow"
               />
             </Link>
 
@@ -57,7 +57,7 @@ export function PublicLayout() {
                   to={link.href}
                   className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                     pathname === link.href
-                      ? 'text-[oklch(72%_.18_48)] bg-white/5'
+                      ? 'text-brand-primary-glow bg-white/5'
                       : 'text-white/80 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -76,7 +76,7 @@ export function PublicLayout() {
               </Link>
               <Link
                 to="/register"
-                className="px-4 py-1.5 text-sm font-bold rounded-md bg-[oklch(62%_.19_43)] hover:bg-[oklch(54%_.19_40)] text-white shadow-elegant transition-colors"
+                className="px-4 py-1.5 text-sm font-bold rounded-md bg-brand-primary hover:bg-brand-primary-dark text-white shadow-elegant transition-colors"
               >
                 Join Now
               </Link>
@@ -97,7 +97,7 @@ export function PublicLayout() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="xl:hidden border-t border-white/10 bg-[oklch(14%_.05_260)] py-3 px-4">
+          <div className="xl:hidden border-t border-white/10 bg-brand-darker py-3 px-4">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -109,7 +109,7 @@ export function PublicLayout() {
             ))}
             <div className="mt-4 flex gap-2">
               <Link to="/sponsor-login" className="flex-1 py-2 text-center text-sm font-semibold text-white border border-white/20 rounded-md">Login</Link>
-              <Link to="/register" className="flex-1 py-2 text-center text-sm font-bold rounded-md bg-[oklch(62%_.19_43)] text-white">Join Now</Link>
+              <Link to="/register" className="flex-1 py-2 text-center text-sm font-bold rounded-md bg-brand-primary text-white">Join Now</Link>
             </div>
           </div>
         )}
@@ -119,16 +119,16 @@ export function PublicLayout() {
       <main className="pt-16"><Outlet /></main>
 
       {/* ── Footer ── */}
-      <footer className="bg-[oklch(14%_.05_260)] text-white">
+      <footer className="bg-brand-darker text-white">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             {/* Brand */}
             <div className="lg:col-span-1">
               <Link to="/" className="flex items-center gap-2.5 mb-4">
                 <img
-                  src="/brand-mark-512.png"
+                  src={BRAND.markSquare}
                   alt={BRAND.name}
-                  className="h-12 w-auto rounded-lg object-contain"
+                  className="h-14 w-auto object-contain drop-shadow"
                 />
               </Link>
               <p className="text-sm text-white/50 leading-relaxed">
@@ -145,7 +145,7 @@ export function PublicLayout() {
 
             {/* Quick links */}
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-widest text-[oklch(62%_.19_43)] mb-5">Quick Links</h4>
+              <h4 className="text-sm font-bold uppercase tracking-widest text-brand-primary mb-5">Quick Links</h4>
               <ul className="space-y-2.5">
                 {NAV_LINKS.slice(0, 5).map((link) => (
                   <li key={link.href}>
@@ -159,7 +159,7 @@ export function PublicLayout() {
 
             {/* Company */}
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-widest text-[oklch(62%_.19_43)] mb-5">Company</h4>
+              <h4 className="text-sm font-bold uppercase tracking-widest text-brand-primary mb-5">Company</h4>
               <ul className="space-y-2.5">
                 {NAV_LINKS.slice(5).map((link) => (
                   <li key={link.href}>
@@ -179,18 +179,18 @@ export function PublicLayout() {
 
             {/* Contact */}
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-widest text-[oklch(62%_.19_43)] mb-5">Contact Us</h4>
+              <h4 className="text-sm font-bold uppercase tracking-widest text-brand-primary mb-5">Contact Us</h4>
               <ul className="space-y-3 text-sm text-white/50">
                 <li className="flex gap-2">
-                  <span className="mt-0.5 flex-shrink-0 text-[oklch(62%_.19_43)]">📍</span>
+                  <span className="mt-0.5 flex-shrink-0 text-brand-primary">📍</span>
                   {BRAND.address}
                 </li>
                 <li className="flex gap-2">
-                  <span className="mt-0.5 flex-shrink-0 text-[oklch(62%_.19_43)]">📞</span>
+                  <span className="mt-0.5 flex-shrink-0 text-brand-primary">📞</span>
                   +91 {BRAND.phone}
                 </li>
                 <li className="flex gap-2">
-                  <span className="mt-0.5 flex-shrink-0 text-[oklch(62%_.19_43)]">✉️</span>
+                  <span className="mt-0.5 flex-shrink-0 text-brand-primary">✉️</span>
                   {BRAND.email}
                 </li>
               </ul>

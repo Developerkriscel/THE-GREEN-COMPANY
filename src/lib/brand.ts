@@ -56,7 +56,7 @@ export const BRAND_DEFAULTS: BrandSettings = {
 export const BRAND = {
   ...BRAND_DEFAULTS,
   /** Served from public/ unless the office uploaded a logo. */
-  mark: '/brand-mark.jpg',
+  mark: '/brand-mark.png',
   markSquare: '/brand-mark-512.png',
   guidelines: '/brand-guidelines.jpg',
   phoneHref: 'tel:+919211809636',
@@ -79,7 +79,7 @@ export function applyBrand(stored: Partial<BrandSettings> | null | undefined) {
   const b = resolveBrand(stored)
   Object.assign(BRAND, b)
   const logo = assetUrl(b.logoUrl)
-  BRAND.mark = logo || '/brand-mark.jpg'
+  BRAND.mark = logo || '/brand-mark.png'
   BRAND.markSquare = logo || '/brand-mark-512.png'
   const digits = b.phone.replace(/\D/g, '')
   BRAND.phoneHref = `tel:+${digits.length === 10 ? `91${digits}` : digits}`

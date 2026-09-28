@@ -41,35 +41,33 @@ export function AppShell({
       {/* Sidebar */}
       <aside
         className={clsx(
-          'fixed inset-y-0 left-0 z-50 flex h-full w-64 shrink-0 flex-col bg-[#0b192c] text-white border-r border-slate-800 transition-transform lg:static lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 flex h-full w-64 shrink-0 flex-col bg-brand-sidebar text-white border-r border-white/10 transition-transform lg:static lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-slate-800/80">
+        <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-white/10">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#ea580c] text-white font-bold shadow">
-              <img
-                src={BRAND.markSquare}
-                alt={BRAND.name}
-                className="h-7 w-7 rounded object-cover"
-                onError={(e) => {
-                  ;(e.target as HTMLElement).style.display = 'none'
-                }}
-              />
-            </div>
+            <img
+              src={BRAND.markSquare}
+              alt={BRAND.name}
+              className="h-10 w-10 shrink-0 object-contain drop-shadow"
+              onError={(e) => {
+                ;(e.target as HTMLElement).style.display = 'none'
+              }}
+            />
             <div className="leading-tight">
               <p className="text-xs font-bold tracking-wider text-white uppercase">{BRAND.name}</p>
-              <p className="text-[10px] font-semibold tracking-widest text-slate-400 uppercase">
+              <p className="text-[10px] font-semibold tracking-widest text-brand-gold/80 uppercase">
                 {area === 'Administration' ? 'ADMIN CONSOLE' : 'SPONSOR PANEL'}
               </p>
             </div>
           </Link>
-          <button className="rounded p-1 text-slate-400 hover:text-white lg:hidden" onClick={() => setOpen(false)}>
+          <button className="rounded p-1 text-white/60 hover:text-white lg:hidden" onClick={() => setOpen(false)}>
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+        <div className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-brand-gold/70">
           Navigation
         </div>
 
@@ -84,8 +82,8 @@ export function AppShell({
                 clsx(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-[#152e4d] text-white font-semibold shadow-sm'
-                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white',
+                    ? 'bg-brand-sidebar-active text-white font-semibold shadow-sm'
+                    : 'text-white/75 hover:bg-white/10 hover:text-white',
                 )
               }
             >
@@ -95,12 +93,12 @@ export function AppShell({
           ))}
         </nav>
 
-        <div className="shrink-0 border-t border-slate-800 bg-[#081220] p-3">
+        <div className="shrink-0 border-t border-white/10 bg-brand-sidebar-footer p-3">
           <div className="flex items-center gap-3 rounded-xl px-2 py-1.5">
             <Avatar path={profile?.avatar_path} name={profile?.full_name || profile?.email} size={36} tone="brand" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-white">{profile?.full_name || 'Member'}</p>
-              <p className="truncate text-xs font-mono text-slate-400">{profile?.user_code ?? profile?.email}</p>
+              <p className="truncate text-xs font-mono text-white/55">{profile?.user_code ?? profile?.email}</p>
             </div>
           </div>
           <div className="mt-1 flex flex-wrap gap-1 px-2">

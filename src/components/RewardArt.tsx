@@ -13,7 +13,7 @@ import {
  */
 
 const MATCHERS: Array<[RegExp, typeof Gift, string]> = [
-  [/juicer|blender|mixer|grinder/i, Soup, 'from-amber-100 to-orange-100 text-orange-500'],
+  [/juicer|blender|mixer|grinder/i, Soup, 'from-amber-100 to-brand-primary/20 text-brand-primary'],
   [/phone|mobile|iphone/i, Smartphone, 'from-slate-100 to-blue-100 text-blue-500'],
   [/laptop|computer/i, Laptop, 'from-slate-100 to-indigo-100 text-indigo-500'],
   [/bike|bullet|scooter|enfield/i, Bike, 'from-stone-100 to-red-100 text-red-500'],

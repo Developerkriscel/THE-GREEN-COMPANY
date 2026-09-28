@@ -90,13 +90,13 @@ function TeamGrid({ members }: { members: typeof DIRECTORS }) {
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
       {members.map((m) => (
         <div key={m.name + m.img} className="group rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant overflow-hidden transition-all">
-          <div className="h-56 overflow-hidden bg-[oklch(20%_.06_260)]">
+          <div className="h-56 overflow-hidden bg-brand-dark">
             <img src={m.img} alt={m.name} loading="lazy"
               className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
           </div>
           <div className="p-4 text-center">
-            <span className="text-xs font-bold uppercase tracking-widest text-[oklch(62%_.19_43)]">{m.role}</span>
-            <h3 className="mt-1 text-sm font-bold text-[oklch(14%_.05_260)]">{m.name}</h3>
+            <span className="text-xs font-bold uppercase tracking-widest text-brand-primary">{m.role}</span>
+            <h3 className="mt-1 text-sm font-bold text-brand-darker">{m.name}</h3>
           </div>
         </div>
       ))}
@@ -108,8 +108,8 @@ function Section({ badge, title, subtitle, children }: { badge: string; title: s
   return (
     <section className="py-14 bg-white border-b border-gray-100 last:border-0">
       <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
-        <p className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)] mb-1">{badge}</p>
-        <h2 className="text-2xl font-extrabold text-[oklch(14%_.05_260)] mb-1">{title}</h2>
+        <p className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary mb-1">{badge}</p>
+        <h2 className="text-2xl font-extrabold text-brand-darker mb-1">{title}</h2>
         <p className="text-sm text-gray-500 mb-8">{subtitle}</p>
         {children}
       </div>
@@ -136,12 +136,12 @@ export function TeamPage() {
       {/* Hero */}
       <section
         className="py-20 text-white text-center relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, oklch(20% .06 260) 0%, oklch(14% .05 260) 45%, oklch(62% .19 43) 100%)' }}
+        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
-          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">OUR TEAM</span>
+          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">OUR TEAM</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Leadership at {BRAND.name}</h1>
           <p className="mx-auto max-w-xl text-lg text-white/60">
             Director, Managing Director, Branch Managers and Rank Achievers powering the Symocity network.
@@ -176,11 +176,11 @@ export function TeamPage() {
       {/* Join CTA */}
       <section className="py-14 bg-gray-50 text-center">
         <div className="mx-auto max-w-lg px-6">
-          <h2 className="text-2xl font-extrabold text-[oklch(14%_.05_260)]">Join Our Team</h2>
+          <h2 className="text-2xl font-extrabold text-brand-darker">Join Our Team</h2>
           <p className="mt-3 text-gray-500">Build your career with one of India's most trusted real estate networks.</p>
           <a href="/register"
             className="mt-6 inline-block rounded-xl px-8 py-3.5 text-sm font-bold text-white shadow-lg hover:-translate-y-0.5 transition-all"
-            style={{ background: 'linear-gradient(135deg, oklch(68% .18 48), oklch(54% .19 40))' }}>
+            style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)), rgb(var(--c-primary-dark)))' }}>
             Become a Partner
           </a>
         </div>

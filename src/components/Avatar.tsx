@@ -36,7 +36,7 @@ export function Avatar({
     <span
       className={clsx(
         'relative inline-flex shrink-0 items-center justify-center overflow-hidden font-semibold',
-        tone === 'brand' ? 'bg-[#ea580c] text-white shadow' : 'bg-slate-200 text-slate-700',
+        tone === 'brand' ? 'bg-brand-primary text-white shadow' : 'bg-slate-200 text-slate-700',
         shape,
         className,
       )}

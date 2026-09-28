@@ -34,12 +34,12 @@ export function NewsPage() {
       {/* Hero */}
       <section
         className="py-20 text-white text-center relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, oklch(20% .06 260) 0%, oklch(14% .05 260) 45%, oklch(62% .19 43) 100%)' }}
+        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
-          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">Latest Updates</span>
+          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Latest Updates</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">News</h1>
           <p className="mx-auto max-w-xl text-lg text-white/60">
             Announcements and updates from {BRAND.name}.
@@ -53,13 +53,13 @@ export function NewsPage() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {news.map((item) => (
               <article key={item.title} className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-elegant transition-all overflow-hidden group">
-                <div className="h-56 overflow-hidden bg-[oklch(20%_.06_260)]">
+                <div className="h-56 overflow-hidden bg-brand-dark">
                   <img src={item.img} alt={item.title} loading="lazy"
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-5">
-                  <span className="text-xs font-bold text-[oklch(62%_.19_43)] bg-[oklch(62%_.19_43)]/10 px-2 py-0.5 rounded-full">{item.date}</span>
-                  <h3 className="mt-3 text-base font-extrabold text-[oklch(14%_.05_260)]">{item.title}</h3>
+                  <span className="text-xs font-bold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">{item.date}</span>
+                  <h3 className="mt-3 text-base font-extrabold text-brand-darker">{item.title}</h3>
                   <p className="mt-1 text-sm text-gray-500">{item.desc}</p>
                 </div>
               </article>
@@ -71,7 +71,7 @@ export function NewsPage() {
       {/* CTA */}
       <section className="py-12 bg-gray-50 text-center">
         <div className="mx-auto max-w-md px-6">
-          <h2 className="text-xl font-extrabold text-[oklch(14%_.05_260)]">Stay in the Loop</h2>
+          <h2 className="text-xl font-extrabold text-brand-darker">Stay in the Loop</h2>
           <p className="mt-2 text-sm text-gray-500">Follow us on WhatsApp for the latest {BRAND.short} updates.</p>
           <a href="https://wa.me/919211809636" target="_blank" rel="noopener noreferrer"
             className="mt-5 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg hover:-translate-y-0.5 transition-all"

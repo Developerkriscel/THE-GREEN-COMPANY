@@ -28,12 +28,12 @@ export function ProjectsPage() {
       {/* Hero */}
       <section
         className="py-20 text-white text-center relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, oklch(20% .06 260) 0%, oklch(14% .05 260) 45%, oklch(62% .19 43) 100%)' }}
+        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
-          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">Our Developments</span>
+          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Our Developments</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Built on Trust. Designed for Growth.</h1>
           <p className="mx-auto max-w-2xl text-lg text-white/60">
             From premium plots to integrated townships, every {BRAND.name} project is engineered for long-term value.
@@ -81,11 +81,11 @@ export function ProjectsPage() {
       {/* CTA */}
       <section className="py-14 bg-gray-50 text-center">
         <div className="mx-auto max-w-lg px-6">
-          <h2 className="text-2xl font-extrabold text-[oklch(14%_.05_260)]">Interested in a Project?</h2>
+          <h2 className="text-2xl font-extrabold text-brand-darker">Interested in a Project?</h2>
           <p className="mt-3 text-gray-500">Our sales team will arrange a site visit and walk you through plot options.</p>
           <a href="/contact"
             className="mt-6 inline-block rounded-xl px-8 py-3.5 text-sm font-bold text-white shadow-lg hover:-translate-y-0.5 transition-all"
-            style={{ background: 'linear-gradient(135deg, oklch(68% .18 48), oklch(54% .19 40))' }}>
+            style={{ background: 'linear-gradient(135deg, rgb(var(--c-primary-light)), rgb(var(--c-primary-dark)))' }}>
             Contact Us
           </a>
         </div>
@@ -108,7 +108,7 @@ function ProjectCard({ project }: { project: Record<string, any> }) {
   return (
     <Link
       to={`/projects/${project.slug}`}
-      className="group flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant hover:border-[oklch(62%_.19_43)]/30 transition-all duration-300 overflow-hidden"
+      className="group flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant hover:border-brand-primary/30 transition-all duration-300 overflow-hidden"
     >
       {/* Image / gradient placeholder */}
       {project.hero_image ? (
@@ -122,7 +122,7 @@ function ProjectCard({ project }: { project: Record<string, any> }) {
           />
         </div>
       ) : (
-        <div className="h-44 bg-gradient-to-br from-[oklch(20%_.06_260)] to-[oklch(62%_.19_43)] flex items-center justify-center relative overflow-hidden">
+        <div className="h-44 bg-gradient-to-br from-brand-dark to-brand-primary flex items-center justify-center relative overflow-hidden">
           <span className="text-6xl font-black text-white/20">{project.name?.[0]}</span>
           <div className="pointer-events-none absolute inset-0 opacity-[0.04]"
             style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
@@ -131,7 +131,7 @@ function ProjectCard({ project }: { project: Record<string, any> }) {
 
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-1">
-          <p className="text-xs font-bold uppercase tracking-widest text-[oklch(62%_.19_43)]">
+          <p className="text-xs font-bold uppercase tracking-widest text-brand-primary">
             {project.city ?? 'India'}
           </p>
           {status && (
@@ -140,7 +140,7 @@ function ProjectCard({ project }: { project: Record<string, any> }) {
             </span>
           )}
         </div>
-        <h3 className="text-base font-bold text-[oklch(14%_.05_260)] group-hover:text-[oklch(54%_.19_40)] transition-colors leading-snug">
+        <h3 className="text-base font-bold text-brand-darker group-hover:text-brand-primary-dark transition-colors leading-snug">
           {project.name}
         </h3>
         <p className="mt-1 text-sm text-gray-500 flex-1 line-clamp-2">{project.location}</p>
@@ -148,7 +148,7 @@ function ProjectCard({ project }: { project: Record<string, any> }) {
         <div className="mt-4 flex items-center justify-between border-t border-gray-50 pt-3">
           <div>
             <p className="text-xs text-gray-400">From</p>
-            <p className="text-sm font-bold text-[oklch(54%_.19_40)]">
+            <p className="text-sm font-bold text-brand-primary-dark">
               {project.price_from
                 ? `₹${Number(project.price_from).toLocaleString('en-IN')} / sq yd`
                 : 'Contact for price'}

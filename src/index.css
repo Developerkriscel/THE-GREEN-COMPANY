@@ -4,6 +4,34 @@
 
 :root {
   color-scheme: light;
+  /* Brand palette, sampled from the logo. The one place to change the site's colours. */
+  --c-primary: 217 113 50;
+  --c-primary-dark: 176 99 45;
+  --c-primary-light: 232 132 58;
+  --c-primary-glow: 234 188 102;
+  --c-darker: 20 31 10;
+  --c-dark: 31 46 16;
+  --c-dark-2: 40 57 26;
+  --c-sidebar: 24 36 12;
+  --c-sidebar-active: 47 68 20;
+  --c-sidebar-footer: 17 26 7;
+  --c-gold: 234 188 102;
+  --c-gold-light: 249 212 132;
+  --c-gold-dark: 175 129 55;
+  --c-muted: 94 79 64;
+  --c-leaf: 90 114 18;
+  --c-leaf-dark: 59 89 15;
+  --c-brand-50: 245 248 234;
+  --c-brand-100: 232 239 207;
+  --c-brand-200: 211 224 163;
+  --c-brand-300: 182 203 111;
+  --c-brand-400: 151 177 70;
+  --c-brand-500: 120 149 44;
+  --c-brand-600: 95 122 31;
+  --c-brand-700: 75 97 24;
+  --c-brand-800: 61 79 22;
+  --c-brand-900: 50 65 21;
+  --c-brand-950: 26 36 8;
 }
 
 html {

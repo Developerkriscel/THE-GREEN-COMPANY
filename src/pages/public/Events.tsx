@@ -61,12 +61,12 @@ export function EventsPage() {
       {/* Hero */}
       <section
         className="py-20 text-white text-center relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, oklch(20% .06 260) 0%, oklch(14% .05 260) 45%, oklch(62% .19 43) 100%)' }}
+        style={{ background: 'linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 45%, rgb(var(--c-primary)) 100%)' }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
-          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-[oklch(72%_.18_48)]">Upcoming</span>
+          <span className="inline-block mb-3 text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Upcoming</span>
           <h1 className="text-4xl font-extrabold sm:text-5xl mb-4">Events</h1>
           <p className="mx-auto max-w-xl text-lg text-white/60">
             Meets, launches and achiever ceremonies.
@@ -77,20 +77,20 @@ export function EventsPage() {
       {/* Events list */}
       <section className="py-16 bg-white">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
-          <p className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)] mb-8">Company Events</p>
+          <p className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary mb-8">Company Events</p>
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((ev) => (
               <div key={ev.title} className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-elegant transition-all overflow-hidden group">
-                <div className="h-52 overflow-hidden bg-[oklch(20%_.06_260)]">
+                <div className="h-52 overflow-hidden bg-brand-dark">
                   <img src={ev.img} alt={ev.title} loading="lazy"
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-bold text-[oklch(62%_.19_43)] bg-[oklch(62%_.19_43)]/10 px-2 py-0.5 rounded-full">{ev.date}</span>
+                    <span className="text-xs font-bold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">{ev.date}</span>
                     <span className="text-xs text-gray-400 font-medium truncate">{ev.location}</span>
                   </div>
-                  <h3 className="text-sm font-bold text-[oklch(14%_.05_260)] leading-snug">{ev.title}</h3>
+                  <h3 className="text-sm font-bold text-brand-darker leading-snug">{ev.title}</h3>
                   {ev.desc && <p className="mt-1 text-xs text-gray-500">{ev.desc}</p>}
                 </div>
               </div>
@@ -102,13 +102,13 @@ export function EventsPage() {
       {/* Ceremony Schedule */}
       <section className="py-16 bg-gray-50">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
-          <p className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(62%_.19_43)] mb-2">Ceremony Schedule</p>
-          <h2 className="text-2xl font-extrabold text-[oklch(14%_.05_260)] mb-2">कार्यक्रम की समय-सूची (Event Schedule)</h2>
+          <p className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary mb-2">Ceremony Schedule</p>
+          <h2 className="text-2xl font-extrabold text-brand-darker mb-2">कार्यक्रम की समय-सूची (Event Schedule)</h2>
           <p className="text-sm text-gray-500 mb-8">Full day schedule for our upcoming ceremony.</p>
           <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-[oklch(20%_.06_260)] text-white">
+                <tr className="border-b border-gray-100 bg-brand-dark text-white">
                   <th className="py-3 px-5 text-left font-semibold text-xs">समय (Time)</th>
                   <th className="py-3 px-5 text-left font-semibold text-xs">कार्यक्रम का विवरण (Programme Details)</th>
                 </tr>
@@ -116,7 +116,7 @@ export function EventsPage() {
               <tbody>
                 {SCHEDULE.map((row, i) => (
                   <tr key={i} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                    <td className="py-3 px-5 font-medium text-[oklch(62%_.19_43)] whitespace-nowrap">{row.time}</td>
+                    <td className="py-3 px-5 font-medium text-brand-primary whitespace-nowrap">{row.time}</td>
                     <td className="py-3 px-5 text-gray-700">
                       <div>{row.hi}</div>
                       <div className="text-gray-400 text-xs">({row.en})</div>
@@ -132,7 +132,7 @@ export function EventsPage() {
       {/* WhatsApp CTA */}
       <section className="py-12 bg-white text-center">
         <div className="mx-auto max-w-md px-6">
-          <h2 className="text-xl font-extrabold text-[oklch(14%_.05_260)]">Stay Updated</h2>
+          <h2 className="text-xl font-extrabold text-brand-darker">Stay Updated</h2>
           <p className="mt-2 text-sm text-gray-500">Get event reminders and announcements on WhatsApp.</p>
           <a href="https://wa.me/919211809636" target="_blank" rel="noopener noreferrer"
             className="mt-5 inline-flex items-center gap-3 rounded-xl px-6 py-3.5 text-sm font-bold text-white shadow-lg hover:-translate-y-0.5 transition-all"
