@@ -803,8 +803,8 @@ function TeamTab({ member, members }: { member: Profile; members: Profile[] }) {
   return (
     <Card>
       <div className="flex gap-1 border-b border-slate-200 px-4 py-2">
-        <button onClick={() => setView('direct')} className={`rounded px-3 py-1 text-sm font-medium ${view === 'direct' ? 'bg-brand-700 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>Direct ({direct.length})</button>
-        <button onClick={() => setView('group')} className={`rounded px-3 py-1 text-sm font-medium ${view === 'group' ? 'bg-brand-700 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>Group ({group.length})</button>
+        <button onClick={() => setView('direct')} className={`rounded px-3 py-1 text-sm font-medium ${view === 'direct' ? 'bg-gold-metal text-brand-darker shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>Direct ({direct.length})</button>
+        <button onClick={() => setView('group')} className={`rounded px-3 py-1 text-sm font-medium ${view === 'group' ? 'bg-gold-metal text-brand-darker shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>Group ({group.length})</button>
       </div>
       {list.length === 0 ? (
         <EmptyState title="No team members" />

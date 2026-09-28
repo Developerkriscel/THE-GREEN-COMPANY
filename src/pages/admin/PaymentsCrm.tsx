@@ -148,7 +148,7 @@ export function AdminPaymentsCrm() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 text-sm font-medium ${tab === t ? 'bg-brand-700 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+            className={`px-4 py-2 text-sm font-medium ${tab === t ? 'bg-gold-metal text-brand-darker shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
           >
             {t === 'collections' ? 'Collections' : t === 'pending' ? 'Slips to verify' : 'All instalments'}
           </button>

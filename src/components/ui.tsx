@@ -21,8 +21,8 @@ type ButtonSize = 'sm' | 'md' | 'lg'
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: 'btn-gold',
-  secondary: 'bg-slate-900 text-white hover:bg-slate-800 focus-visible:outline-slate-900',
-  outline: 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-50',
+  secondary: 'bg-brand-darker text-brand-gold-light hover:bg-brand-dark focus-visible:outline-brand-gold-dark',
+  outline: 'border border-brand-gold/40 bg-white text-brand-darker hover:border-brand-gold-dark hover:bg-brand-gold/10',
   ghost: 'text-slate-700 hover:bg-slate-100',
   danger: 'bg-red-600 text-white hover:bg-red-700 focus-visible:outline-red-600',
 }
@@ -68,7 +68,7 @@ export function Button({
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={clsx('rounded-xl border border-slate-200 bg-white shadow-sm', className)}>
+    <div className={clsx('rounded-2xl border border-brand-gold/15 bg-white shadow-luxe', className)}>
       {children}
     </div>
   )
@@ -84,9 +84,12 @@ export function CardHeader({
   action?: ReactNode
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 px-5 py-4">
+    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-brand-gold/15 px-5 py-4">
       <div>
-        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-brand-darker">
+          <span className="h-3.5 w-1 shrink-0 rounded-full bg-gold-metal" aria-hidden />
+          {title}
+        </h3>
         {subtitle && <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p>}
       </div>
       {action}
@@ -107,7 +110,7 @@ const TONES = {
   red: 'bg-red-50 text-red-700 ring-red-200',
   blue: 'bg-blue-50 text-blue-700 ring-blue-200',
   violet: 'bg-violet-50 text-violet-700 ring-violet-200',
-  gold: 'bg-amber-100 text-amber-900 ring-amber-300',
+  gold: 'bg-gold-metal text-brand-darker ring-brand-gold-dark/30 font-semibold',
 } as const
 
 export type Tone = keyof typeof TONES
@@ -166,7 +169,7 @@ export function Field({
 
 const FIELD_CLASS =
   'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 ' +
-  'placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100 ' +
+  'placeholder:text-slate-400 focus:border-brand-gold-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/25 ' +
   'disabled:bg-slate-50 disabled:text-slate-500'
 
 export function Input({ className, ...rest }: InputHTMLAttributes<HTMLInputElement>) {
@@ -195,7 +198,7 @@ export function Checkbox({
       <input
         type="checkbox"
         {...rest}
-        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-600"
+        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-gold-dark focus:ring-brand-gold"
       />
       <span>{label}</span>
     </label>
@@ -216,7 +219,7 @@ export function Th({ children, className }: { children?: ReactNode; className?: 
   return (
     <th
       className={clsx(
-        'whitespace-nowrap border-b border-slate-200 px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500',
+        'whitespace-nowrap border-b border-brand-gold/25 bg-brand-gold/[0.08] px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-brand-gold-deep',
         className,
       )}
     >
@@ -354,18 +357,19 @@ export function Modal({
   const width = { sm: 'max-w-md', md: 'max-w-xl', lg: 'max-w-3xl' }[size]
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-0 sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-brand-darker/50 p-0 backdrop-blur-sm sm:items-center sm:p-4">
       <div className="absolute inset-0" onClick={onClose} aria-hidden />
       <div
         role="dialog"
         aria-modal="true"
         className={clsx(
-          'relative z-10 max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-xl sm:rounded-2xl',
+          'relative z-10 max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-2xl ring-1 ring-brand-gold/20 sm:rounded-2xl',
           width,
         )}
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+        <div className="h-1 bg-gold-metal" aria-hidden />
+        <div className="flex items-center justify-between border-b border-brand-gold/15 px-5 py-4">
+          <h2 className="text-base font-semibold text-brand-darker">{title}</h2>
           <button onClick={onClose} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
             <X className="h-4 w-4" />
           </button>
@@ -443,12 +447,23 @@ export function StatTile({
   icon?: ReactNode
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="card-luxe relative overflow-hidden rounded-2xl border border-brand-gold/15 bg-white p-4 shadow-luxe">
+      <div className="absolute inset-x-0 top-0 h-[3px] bg-gold-metal" aria-hidden />
       <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-        {icon && <span className={clsx('rounded-lg p-1.5', TONES[tone])}>{icon}</span>}
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+        {icon && (
+          <span
+            className={clsx(
+              'rounded-xl p-2 shadow-sm',
+              // Attention tones keep their colour; everything else is a gold coin.
+              tone === 'amber' || tone === 'red' ? TONES[tone] : 'bg-gold-metal text-brand-darker',
+            )}
+          >
+            {icon}
+          </span>
+        )}
       </div>
-      <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
+      <p className="mt-2 text-2xl font-bold tracking-tight text-brand-darker">{value}</p>
       {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
     </div>
   )
@@ -466,8 +481,9 @@ export function PageHeader({
   return (
     <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">{title}</h1>
-        {description && <p className="mt-1 max-w-2xl text-sm text-slate-500">{description}</p>}
+        <h1 className="text-xl font-bold tracking-tight text-brand-darker sm:text-2xl">{title}</h1>
+        <span className="mt-2 block h-1 w-12 rounded-full bg-gold-metal" aria-hidden />
+        {description && <p className="mt-2 max-w-2xl text-sm text-slate-500">{description}</p>}
       </div>
       {action}
     </div>

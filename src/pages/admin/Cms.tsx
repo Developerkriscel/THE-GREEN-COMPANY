@@ -53,7 +53,7 @@ export function AdminCms() {
             onClick={() => setTab(key)}
             className={
               'rounded-md px-3 py-1.5 text-sm font-medium transition ' +
-              (tab === key ? 'bg-brand-700 text-white' : 'text-slate-600 hover:bg-slate-100')
+              (tab === key ? 'bg-gold-metal text-brand-darker shadow-sm' : 'text-slate-600 hover:bg-slate-100')
             }
           >
             {label}

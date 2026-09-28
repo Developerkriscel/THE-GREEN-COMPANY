@@ -166,3 +166,52 @@ body {
   .coin-float { animation: none; }
   .btn-gold::after { display: none; }
 }
+
+/* ------------------------------------------------------------------ panels
+   The admin and sponsor panels: an ivory workspace lit by a soft gold glow,
+   a deep leaf-green sidebar edged in gold, gold-lit navigation. */
+@layer components {
+  .panel-canvas {
+    background:
+      radial-gradient(1100px 380px at 100% -10%, rgb(var(--c-gold) / .13), transparent 60%),
+      radial-gradient(700px 320px at -10% 110%, rgb(var(--c-leaf) / .07), transparent 60%),
+      #faf7f0;
+  }
+  .panel-sidebar {
+    background:
+      radial-gradient(420px 220px at 0% 0%, rgb(var(--c-gold) / .16), transparent 70%),
+      linear-gradient(180deg, rgb(var(--c-sidebar)) 0%, rgb(var(--c-darker)) 62%, rgb(var(--c-sidebar-footer)) 100%);
+    box-shadow: inset -1px 0 0 rgb(var(--c-gold) / .22);
+  }
+  .nav-active {
+    position: relative;
+    color: rgb(var(--c-gold-light));
+    background: linear-gradient(90deg, rgb(var(--c-gold) / .24), rgb(var(--c-gold) / .05) 85%);
+    box-shadow: inset 0 0 0 1px rgb(var(--c-gold) / .22);
+  }
+  .nav-active::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, rgb(var(--c-gold-light)), rgb(var(--c-gold-dark)));
+    box-shadow: 0 0 10px rgb(var(--c-gold) / .8);
+  }
+  .shadow-luxe {
+    box-shadow: 0 1px 2px rgb(0 0 0 / .04), 0 14px 32px -20px rgb(var(--c-gold-dark) / .45);
+  }
+  .glass-bar {
+    background: rgb(255 255 255 / .78);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  }
+}
+
+/* The sidebar's scrollbar: thin and gold, not a white bar on dark green. */
+.panel-sidebar nav { scrollbar-width: thin; scrollbar-color: rgb(var(--c-gold) / .28) transparent; }
+.panel-sidebar nav::-webkit-scrollbar { width: 6px; }
+.panel-sidebar nav::-webkit-scrollbar-track { background: transparent; }
+.panel-sidebar nav::-webkit-scrollbar-thumb { background: rgb(var(--c-gold) / .28); border-radius: 6px; }

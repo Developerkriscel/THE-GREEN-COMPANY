@@ -179,7 +179,7 @@ export function AdminDashboard() {
               <div key={r.name} className="flex items-center gap-3">
                 <span className="w-32 shrink-0 truncate text-xs font-medium text-slate-600">{r.name}</span>
                 <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full rounded-full bg-brand-500" style={{ width: `${(r.n / maxRank) * 100}%` }} />
+                  <div className="h-full rounded-full bg-gold-metal" style={{ width: `${(r.n / maxRank) * 100}%` }} />
                 </div>
                 <span className="w-8 shrink-0 text-right text-xs font-semibold text-slate-700">{r.n}</span>
               </div>

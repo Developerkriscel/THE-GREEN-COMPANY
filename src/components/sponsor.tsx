@@ -87,7 +87,7 @@ export function ProgressBar({
 }) {
   const pct = Math.max(0, Math.min(100, percent))
   const fill =
-    tone === 'green' ? 'bg-emerald-500' : tone === 'amber' ? 'bg-amber-500' : 'bg-brand-600'
+    tone === 'green' ? 'bg-emerald-500' : tone === 'amber' ? 'bg-amber-500' : 'bg-gold-metal'
   return (
     <div className={clsx('h-2 w-full overflow-hidden rounded-full bg-slate-100', className)}>
       <div className={clsx('h-full rounded-full transition-all', fill)} style={{ width: `${pct}%` }} />

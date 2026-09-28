@@ -168,7 +168,7 @@ export function MessagesPage() {
                     <div className="flex shrink-0 items-center gap-1.5">
                       {unreadFor.get(t.id) ? (
                         <span
-                          className="inline-flex min-w-[1.25rem] justify-center rounded-full bg-brand-600 px-1.5 py-0.5 text-[10px] font-bold text-white"
+                          className="inline-flex min-w-[1.25rem] justify-center rounded-full bg-gold-metal px-1.5 py-0.5 text-[10px] font-bold text-brand-darker"
                           title={`${unreadFor.get(t.id)} unread`}
                         >
                           {unreadFor.get(t.id)}
@@ -229,7 +229,7 @@ export function MessagesPage() {
                           m.internal
                             ? 'border border-amber-200 bg-amber-50 text-amber-900'
                             : mine
-                              ? 'bg-brand-700 text-white'
+                              ? 'bg-brand-dark text-white'
                               : 'bg-slate-100 text-slate-800',
                         )}
                       >

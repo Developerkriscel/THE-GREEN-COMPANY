@@ -38,13 +38,13 @@ export function AdminGenealogy() {
           <div className="inline-flex overflow-hidden rounded-lg border border-slate-200">
             <button
               onClick={() => setKind('sponsor')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium ${kind === 'sponsor' ? 'bg-brand-700 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium ${kind === 'sponsor' ? 'bg-gold-metal text-brand-darker shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
             >
               <Network className="h-4 w-4" /> Sponsor
             </button>
             <button
               onClick={() => setKind('placement')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium ${kind === 'placement' ? 'bg-brand-700 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium ${kind === 'placement' ? 'bg-gold-metal text-brand-darker shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
             >
               <GitBranch className="h-4 w-4" /> Placement
             </button>

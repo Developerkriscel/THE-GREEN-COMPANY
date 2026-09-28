@@ -57,7 +57,7 @@ export function AdminBusinessSettings() {
             onClick={() => setTab(key)}
             className={
               'inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ' +
-              (tab === key ? 'bg-brand-700 text-white' : 'text-slate-600 hover:bg-slate-100')
+              (tab === key ? 'bg-gold-metal text-brand-darker shadow-sm' : 'text-slate-600 hover:bg-slate-100')
             }
           >
             {icon} {label}

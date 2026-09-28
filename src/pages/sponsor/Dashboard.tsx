@@ -46,7 +46,9 @@ export function SponsorDashboard() {
 
   const credits = ledger.filter((l) => isCounted(l) && l.kind === 'credit')
   const thisMonth = netOf(credits.filter((l) => inMonth(l.created_at)))
-  const totalIncome = credits.reduce((acc, c) => acc + (c.net || c.amount || 0), 0)
+  // netOf converts: amounts arrive as numeric strings ("1500.00"), and adding
+  // those directly concatenated them into text, which showed as "₹NaN".
+  const totalIncome = netOf(credits)
   const recent = credits.slice(0, 5)
 
   const directs = downline.filter((d) => d.level === 1)
@@ -316,7 +318,7 @@ export function SponsorDashboard() {
         </div>
 
         {/* Rank Roadmap Promo card */}
-        <div className="flex flex-col justify-between rounded-2xl bg-gradient-to-br from-brand-sidebar to-brand-sidebar-active p-6 text-white shadow-md">
+        <div className="flex flex-col justify-between rounded-2xl bg-leaf-deep p-6 text-white shadow-luxe ring-1 ring-brand-gold/25">
           <div>
             <div className="inline-flex rounded-xl bg-white/10 p-2.5 text-amber-400">
               <Trophy className="h-6 w-6" />
@@ -330,7 +332,7 @@ export function SponsorDashboard() {
           <div className="mt-6">
             <Link
               to="/sponsor/rank"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-2.5 text-sm font-bold text-white shadow transition-all hover:bg-[#d94e08]"
+              className="btn-gold w-full rounded-xl px-4 py-2.5 text-sm"
             >
               View Roadmap <ExternalLink className="h-4 w-4" />
             </Link>

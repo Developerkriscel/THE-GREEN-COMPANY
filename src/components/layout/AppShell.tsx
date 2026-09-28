@@ -1,12 +1,11 @@
 import { useState, type ReactNode } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import clsx from 'clsx'
-import { Bell, LogOut, Menu, User, X } from 'lucide-react'
+import { Bell, LogOut, Menu, X } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { ago } from '@/lib/format'
-import { Badge } from '@/components/ui'
 import { RankBadge } from '@/components/status'
 import { BRAND } from '@/lib/brand'
 import { Avatar } from '@/components/Avatar'
@@ -36,29 +35,31 @@ export function AppShell({
   const { profile, signOut } = useAuth()
 
   return (
-    /* Shell matching production portal styling: Dark Navy sidebar, warm canvas, sticky topbar */
-    <div className="flex h-screen overflow-hidden bg-[#fbf8f4]">
+    /* Deep leaf-green sidebar edged in gold, an ivory workspace lit by a soft
+       gold glow, and a frosted top bar: the logo's palette, in the panels. */
+    <div className="panel-canvas flex h-screen overflow-hidden">
       {/* Sidebar */}
       <aside
         className={clsx(
-          'fixed inset-y-0 left-0 z-50 flex h-full w-64 shrink-0 flex-col bg-brand-sidebar text-white border-r border-white/10 transition-transform lg:static lg:translate-x-0',
+          'panel-sidebar fixed inset-y-0 left-0 z-50 flex h-full w-64 shrink-0 flex-col text-white transition-transform lg:static lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-white/10">
-          <Link to="/" className="flex items-center gap-2.5">
+        <div className="relative flex h-[72px] shrink-0 items-center justify-between px-4">
+          <Link to="/" className="flex items-center gap-3">
             <img
               src={BRAND.markSquare}
               alt={BRAND.name}
-              className="h-10 w-10 shrink-0 object-contain drop-shadow"
+              className="h-12 w-12 shrink-0 object-contain"
+              style={{ filter: 'drop-shadow(0 2px 6px rgb(0 0 0 / .45)) drop-shadow(0 0 10px rgb(var(--c-gold) / .25))' }}
               onError={(e) => {
                 ;(e.target as HTMLElement).style.display = 'none'
               }}
             />
             <div className="leading-tight">
-              <p className="text-xs font-bold tracking-wider text-white uppercase">{BRAND.name}</p>
-              <p className="text-[10px] font-semibold tracking-widest text-brand-gold/80 uppercase">
-                {area === 'Administration' ? 'ADMIN CONSOLE' : 'SPONSOR PANEL'}
+              <p className="text-gold-metal text-[15px] font-extrabold uppercase tracking-[0.2em]">{BRAND.short}</p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55">
+                {area === 'Administration' ? 'Admin Console' : 'Sponsor Panel'}
               </p>
             </div>
           </Link>
@@ -67,7 +68,9 @@ export function AppShell({
           </button>
         </div>
 
-        <div className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-brand-gold/70">
+        <div className="gold-hairline mx-4" aria-hidden />
+        <div className="flex items-center gap-2 px-5 pt-4 pb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-brand-gold/70">
+          <span className="h-1.5 w-1.5 rotate-45 bg-brand-gold/80" aria-hidden />
           Navigation
         </div>
 
@@ -80,10 +83,10 @@ export function AppShell({
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 clsx(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
                   isActive
-                    ? 'bg-brand-sidebar-active text-brand-gold-light font-semibold shadow-sm ring-1 ring-brand-gold/25'
-                    : 'text-white/75 hover:bg-white/10 hover:text-white',
+                    ? 'nav-active font-semibold'
+                    : 'text-white/70 hover:bg-white/[0.06] hover:text-white hover:translate-x-0.5',
                 )
               }
             >
@@ -93,61 +96,77 @@ export function AppShell({
           ))}
         </nav>
 
-        <div className="shrink-0 border-t border-white/10 bg-brand-sidebar-footer p-3">
-          <div className="flex items-center gap-3 rounded-xl px-2 py-1.5">
-            <Avatar path={profile?.avatar_path} name={profile?.full_name || profile?.email} size={36} tone="brand" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-white">{profile?.full_name || 'Member'}</p>
-              <p className="truncate text-xs font-mono text-white/55">{profile?.user_code ?? profile?.email}</p>
+        <div className="shrink-0 p-3">
+          <div className="rounded-2xl bg-white/[0.05] p-3 ring-1 ring-brand-gold/20">
+            <div className="flex items-center gap-3">
+              <span className="rounded-full p-[2px] bg-gold-metal shadow">
+                <Avatar path={profile?.avatar_path} name={profile?.full_name || profile?.email} size={36} tone="brand" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-white">{profile?.full_name || 'Member'}</p>
+                <p className="truncate text-[11px] font-mono text-white/50">{profile?.member_code ?? profile?.user_code ?? profile?.email}</p>
+              </div>
             </div>
-          </div>
-          <div className="mt-1 flex flex-wrap gap-1 px-2">
-            <Badge tone="blue">{profile?.role ?? '—'}</Badge>
-            {profile?.rank?.name && <RankBadge name={profile.rank.name} />}
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              <span className="rounded-full bg-brand-gold/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-gold-light ring-1 ring-brand-gold/30">
+                {profile?.role === 'admin' ? 'Administrator' : profile?.role === 'rep' ? 'Sponsor' : profile?.role ?? '—'}
+              </span>
+              {profile?.rank?.name && <RankBadge name={profile.rank.name} />}
+            </div>
           </div>
         </div>
       </aside>
 
-      {open && <div className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden" onClick={() => setOpen(false)} />}
+      {open && <div className="fixed inset-0 z-40 bg-brand-darker/60 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} />}
 
       {/* Main */}
-      <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden bg-[#fbf8f4]">
-        <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur sm:px-6">
+      <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="glass-bar relative flex h-16 shrink-0 items-center justify-between gap-3 px-4 sm:px-6">
+          <div className="gold-hairline absolute inset-x-0 bottom-0" aria-hidden />
           <div className="flex items-center gap-3">
             <button
-              className="rounded p-1.5 text-slate-600 hover:bg-slate-100"
+              className="rounded-lg p-1.5 text-brand-darker/70 hover:bg-brand-gold/10 lg:hidden"
               onClick={() => setOpen((prev) => !prev)}
+              aria-label="Menu"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
-              <span>{area === 'Administration' ? 'Admin panel' : 'Sponsor panel'}</span>
+            <div className="leading-tight">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-gold-deep">
+                {area === 'Administration' ? 'Admin Console' : 'Sponsor Panel'}
+              </p>
+              <p className="text-sm font-semibold text-brand-darker">
+                {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <NotificationBell />
             <Link
               to={`${nav[0]?.to.split('/').slice(0, 2).join('/')}/profile`}
-              className="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100"
+              className="flex items-center gap-2 rounded-full py-1 pl-1 pr-1 transition-colors hover:bg-brand-gold/10 sm:pr-3"
               title="Profile"
             >
-              <User className="h-5 w-5" />
+              <span className="rounded-full bg-gold-metal p-[2px]">
+                <Avatar path={profile?.avatar_path} name={profile?.full_name || profile?.email} size={30} tone="brand" />
+              </span>
+              <span className="hidden text-sm font-semibold text-brand-darker sm:inline">
+                {profile?.full_name?.split(' ')[0] || 'Profile'}
+              </span>
             </Link>
-            <span className="hidden text-sm font-medium text-slate-700 sm:inline">
-              Hi, {profile?.full_name || 'User'}
-            </span>
             <button
               onClick={() => void signOut()}
-              className="ml-2 flex items-center gap-1.5 text-sm font-medium text-slate-700 transition-colors hover:text-red-600"
+              className="flex items-center gap-1.5 rounded-full border border-brand-gold/30 px-3 py-1.5 text-sm font-medium text-brand-darker transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-700"
+              title="Log out"
             >
               <LogOut className="h-4 w-4" />
-              <span>Logout</span>
+              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </header>
 
         {/* The main scroll area */}
-        <main className="min-w-0 flex-1 overflow-y-auto bg-[#fbf8f4] p-4 sm:p-6">
+        <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {banner && <div className="mb-4">{banner}</div>}
           {children ?? <Outlet />}
         </main>
@@ -189,12 +208,12 @@ function NotificationBell() {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-full p-2.5 text-slate-600 transition-colors hover:bg-slate-200/60"
+        className="relative rounded-full p-2.5 text-brand-darker/70 transition-colors hover:bg-brand-gold/10 hover:text-brand-darker"
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5" />
         {unread > 0 && (
-          <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">
+          <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold-metal px-1 text-[10px] font-bold text-brand-darker ring-2 ring-white">
             {unread > 9 ? '9+' : unread}
           </span>
         )}
@@ -203,8 +222,9 @@ function NotificationBell() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-2.5">
+          <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-brand-gold/20 bg-white shadow-2xl">
+            <div className="h-1 bg-gold-metal" aria-hidden />
+            <div className="flex items-center justify-between border-b border-brand-gold/15 px-4 py-2.5">
               <p className="text-sm font-semibold">Notifications</p>
               <button onClick={() => void markAllRead()} className="text-xs text-brand-700 hover:underline">
                 Mark all read
@@ -221,7 +241,7 @@ function NotificationBell() {
                   onClick={() => setOpen(false)}
                   className={clsx(
                     'block border-b border-slate-100 px-4 py-3 last:border-0 hover:bg-slate-50',
-                    !n.read_at && 'bg-brand-50/40',
+                    !n.read_at && 'bg-brand-gold/[0.07]',
                   )}
                 >
                   <p className="text-sm font-medium text-slate-900">{n.title}</p>
