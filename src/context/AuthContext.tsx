@@ -131,19 +131,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw new Error(error.message)
   }, [])
 
-  // Customers log in with the User ID issued at booking. The RPC resolves it to
-  // the synthetic auth email, and only ever for role='customer' accounts.
-  const signInCustomer = useCallback(async (userCode: string, password: string) => {
-    const { data, error } = await supabase.rpc('resolve_customer_login', {
-      p_user_code: userCode.trim(),
+  // Customers sign in with their customer ID, mobile or e-mail. The RPC
+  // resolves that to the account's login address, only ever for active
+  // customer accounts, and answers null (not an error) for anything unknown.
+  const signInCustomer = useCallback(async (identifier: string, password: string) => {
+    await supabase.auth.signOut({ scope: 'local' }).catch(() => {})
+    const { data, error } = await supabase.rpc('resolve_customer_identifier', {
+      p_identifier: identifier.trim(),
     })
-    if (error || !data) throw new Error('Invalid User ID or password')
+    if (error || !data) throw new Error('Invalid customer ID or password')
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: data as string,
       password,
     })
-    if (signInError) throw new Error('Invalid User ID or password')
+    if (signInError) throw new Error('Invalid customer ID or password')
   }, [])
 
   // Self-registration always lands as an inactive rep. The server-side trigger
@@ -261,6 +263,8 @@ export function homeRouteFor(role: AppRole | null | undefined) {
       return '/admin'
     case 'rep':
       return '/sponsor'
+    case 'customer':
+      return '/customer'
     default:
       return '/'
   }

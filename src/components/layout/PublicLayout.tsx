@@ -96,6 +96,12 @@ export function PublicLayout() {
                 Login
               </Link>
               <Link
+                to="/customer-login"
+                className="px-4 py-1.5 text-sm font-semibold text-brand-gold-light border border-brand-gold/40 rounded-md hover:bg-brand-gold/10 transition-colors"
+              >
+                Customer
+              </Link>
+              <Link
                 to="/register"
                 className="btn-gold px-4 py-1.5 text-sm rounded-md"
               >
@@ -140,6 +146,7 @@ export function PublicLayout() {
             <div className="mt-5 grid grid-cols-2 gap-3">
               <Link to="/sponsor-login" className="rounded-xl border border-brand-gold/40 py-3 text-center text-sm font-semibold text-brand-gold-light">Login</Link>
               <Link to="/register" className="btn-gold rounded-xl py-3 text-center text-sm">Join Now</Link>
+              <Link to="/customer-login" className="col-span-2 rounded-xl bg-white/[0.06] py-2.5 text-center text-sm font-semibold text-brand-gold-light ring-1 ring-brand-gold/30">Customer Login — my plot &amp; EMI</Link>
             </div>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <a href={BRAND.phoneHref} className="flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] py-2.5 text-sm font-medium text-white/85 ring-1 ring-white/10">
@@ -210,6 +217,9 @@ export function PublicLayout() {
                 ))}
                 <li>
                   <Link to="/sponsor-login" className="text-sm text-white/50 hover:text-white transition-colors">Sponsor Login</Link>
+                </li>
+                <li>
+                  <Link to="/customer-login" className="text-sm text-white/50 hover:text-white transition-colors">Customer Login</Link>
                 </li>
                 <li>
                   <Link to="/admin-login" className="text-sm text-white/50 hover:text-white transition-colors">Admin Login</Link>

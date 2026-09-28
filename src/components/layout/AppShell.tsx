@@ -67,7 +67,7 @@ export function AppShell({
             <div className="leading-tight">
               <p className="text-gold-metal text-[15px] font-extrabold uppercase tracking-[0.2em]">{BRAND.short}</p>
               <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55">
-                {area === 'Administration' ? 'Admin Console' : 'Sponsor Panel'}
+                {area === 'Administration' ? 'Admin Console' : area === 'Customer' ? 'Customer Portal' : 'Sponsor Panel'}
               </p>
             </div>
           </Link>
@@ -136,7 +136,7 @@ export function AppShell({
             <img src={BRAND.markSquare} alt="" className="h-9 w-9 object-contain drop-shadow lg:hidden" />
             <div className="leading-tight">
               <p className="whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.22em] text-brand-gold-deep">
-                {area === 'Administration' ? 'Admin Console' : 'Sponsor Panel'}
+                {area === 'Administration' ? 'Admin Console' : area === 'Customer' ? 'Customer Portal' : 'Sponsor Panel'}
               </p>
               <p className="hidden text-sm font-semibold text-brand-darker sm:block">
                 {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}

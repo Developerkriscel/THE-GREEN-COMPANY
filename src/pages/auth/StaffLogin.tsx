@@ -97,7 +97,7 @@ export function StaffLogin() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-brand-dark py-3 text-sm font-bold text-white shadow-elegant hover:bg-brand-dark-2 disabled:opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-brand-dark/40"
+          className="btn-gold w-full rounded-lg py-3 text-sm"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">

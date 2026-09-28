@@ -17,7 +17,7 @@ export function RequireAuth({ roles }: { roles?: AppRole[] }) {
 
   if (!session) {
     // The office signs in at one door, members at the other.
-    const to = roles?.includes('admin') ? '/admin-login' : '/sponsor-login'
+    const to = roles?.includes('admin') ? '/admin-login' : roles?.includes('customer') ? '/customer-login' : '/sponsor-login'
     return <Navigate to={to} state={{ from: location.pathname }} replace />
   }
 

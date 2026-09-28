@@ -25,6 +25,9 @@ import {
   Trophy,
   TrendingUp,
   Gift,
+  Headphones,
+  LandPlot,
+  MessageSquareHeart,
   UserCircle,
   UserPlus,
   Users,
@@ -54,6 +57,7 @@ import { NotFound } from '@/pages/public/NotFound'
 /* auth */
 import { StaffLogin } from '@/pages/auth/StaffLogin'
 import { CustomerLogin } from '@/pages/auth/CustomerLogin'
+import { CustomerSignIn } from '@/pages/auth/CustomerSignIn'
 import { RegisterRep } from '@/pages/auth/RegisterRep'
 import { ForgotPassword } from '@/pages/auth/ForgotPassword'
 import { ResetPassword } from '@/pages/auth/ResetPassword'
@@ -81,6 +85,15 @@ import { AdminGenealogy } from '@/pages/admin/Genealogy'
 import { AdminAudit } from '@/pages/admin/Audit'
 import { AdminCms } from '@/pages/admin/Cms'
 import { AdminReports } from '@/pages/admin/Reports'
+import { AdminCustomers } from '@/pages/admin/Customers'
+import { AdminCustomerDetail } from '@/pages/admin/CustomerDetail'
+
+/* customer (plot buyer) panel */
+import { CustomerDashboard } from '@/pages/customer/Dashboard'
+import { CustomerPlots, CustomerDocuments } from '@/pages/customer/Plots'
+import { CustomerPayments } from '@/pages/customer/Payments'
+import { CustomerContact, CustomerFeedbackPage, CustomerOffers, CustomerRefer } from '@/pages/customer/Engage'
+import { CustomerProfile } from '@/pages/customer/Profile'
 
 /* sponsor (member network panel) */
 import { SponsorDashboard } from '@/pages/sponsor/Dashboard'
@@ -99,10 +112,9 @@ import { SponsorIdCard } from '@/pages/sponsor/IdCard'
 import { SponsorLeads } from '@/pages/sponsor/Leads'
 import { SponsorPayments } from '@/pages/sponsor/Payments'
 
-/* The rep (/app), manager (/mgr) and customer (/portal) panels were retired
-   on 2026-09-24: the business runs two panels, /admin and /sponsor. Their
-   page files are still on disk under src/pages/{rep,manager,customer} but
-   nothing routes to them. */
+/* The rep (/app) and manager (/mgr) panels were retired on 2026-09-24. The
+   business runs three panels: /admin, /sponsor (members) and /customer (plot
+   buyers, whose accounts the office opens under Admin -> Customers). */
 
 /* shared */
 import { BookingDetail } from '@/pages/shared/BookingDetail'
@@ -121,6 +133,7 @@ const adminNav: NavItem[] = [
   { to: '/admin/cms', label: 'Website CMS', icon: <LayoutGrid className={ico} /> },
   { to: '/admin/settings', label: 'Business Settings', icon: <Settings className={ico} /> },
   { to: '/admin/members', label: 'Members', icon: <Users className={ico} /> },
+  { to: '/admin/customers', label: 'Customers', icon: <UserCircle className={ico} /> },
   { to: '/admin/tree', label: 'Member Tree', icon: <Network className={ico} /> },
   { to: '/admin/genealogy', label: 'Genealogy', icon: <GitBranch className={ico} /> },
   { to: '/admin/sales', label: 'Plot Sales', short: 'Sales', icon: <BadgeCheck className={ico} /> },
@@ -174,6 +187,22 @@ const sponsorNav: NavItem[] = [
   { to: '/sponsor/password', label: 'Change Password', icon: <KeyRound className={ico} /> },
 ]
 
+// The plot buyer's own view: their plots, instalments, papers the office
+// uploaded, offers, referrals and feedback.
+const customerNav: NavItem[] = [
+  { to: '/customer', label: 'Dashboard', short: 'Home', icon: <Gauge className={ico} />, end: true },
+  { to: '/customer/plots', label: 'My Plots', short: 'Plots', icon: <LandPlot className={ico} /> },
+  { to: '/customer/payments', label: 'EMI & Payments', short: 'EMI', icon: <Receipt className={ico} /> },
+  { to: '/customer/documents', label: 'Registry & Papers', short: 'Papers', icon: <FileText className={ico} /> },
+  { to: '/customer/offers', label: 'New Offers', icon: <Gift className={ico} /> },
+  { to: '/customer/refer', label: 'Refer a Friend', icon: <UserPlus className={ico} /> },
+  { to: '/customer/feedback', label: 'Feedback', icon: <MessageSquareHeart className={ico} /> },
+  { to: '/customer/contact', label: 'Contact Us', icon: <Headphones className={ico} /> },
+  { to: '/customer/notifications', label: 'Notifications', icon: <Bell className={ico} /> },
+  { to: '/customer/profile', label: 'My Profile', icon: <UserCircle className={ico} /> },
+  { to: '/customer/password', label: 'Change Password', icon: <KeyRound className={ico} /> },
+]
+
 export function App() {
   return (
     <Routes>
@@ -198,12 +227,13 @@ export function App() {
         {/* The paths the live site uses. */}
         <Route path="/admin-login" element={<StaffLogin />} />
         <Route path="/sponsor-login" element={<CustomerLogin />} />
+        <Route path="/customer-login" element={<CustomerSignIn />} />
         <Route path="/join" element={<RegisterRep />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Earlier paths, kept so links already sent out still work. */}
         <Route path="/login" element={<Navigate to="/admin-login" replace />} />
-        <Route path="/portal/login" element={<Navigate to="/sponsor-login" replace />} />
+        <Route path="/portal/login" element={<Navigate to="/customer-login" replace />} />
         <Route path="/register" element={<Navigate to="/join" replace />} />
       </Route>
       <Route path="/reset-password" element={<ResetPassword />} />
@@ -215,6 +245,8 @@ export function App() {
           <Route path="cms" element={<AdminCms />} />
           <Route path="members" element={<AdminMembers />} />
           <Route path="members/:code" element={<AdminMemberDetail />} />
+          <Route path="customers" element={<AdminCustomers />} />
+          <Route path="customers/:id" element={<AdminCustomerDetail />} />
           <Route path="tree" element={<AdminMemberTree />} />
           <Route path="genealogy" element={<AdminGenealogy />} />
           <Route path="sales" element={<AdminPlotSales />} />
@@ -285,12 +317,30 @@ export function App() {
         </Route>
       </Route>
 
+      {/* ------------------------------------------------- customer panel */}
+      <Route element={<RequireAuth roles={['customer']} />}>
+        <Route path="/customer" element={<AppShell nav={customerNav} area="Customer" quick={['/customer', '/customer/plots', '/customer/payments', '/customer/documents']} />}>
+          <Route index element={<CustomerDashboard />} />
+          <Route path="plots" element={<CustomerPlots />} />
+          <Route path="payments" element={<CustomerPayments />} />
+          <Route path="documents" element={<CustomerDocuments />} />
+          <Route path="offers" element={<CustomerOffers />} />
+          <Route path="refer" element={<CustomerRefer />} />
+          <Route path="feedback" element={<CustomerFeedbackPage />} />
+          <Route path="contact" element={<CustomerContact />} />
+          <Route path="notifications" element={<SponsorNotifications description="Updates from the office about your plot, instalments and papers." />} />
+          <Route path="profile" element={<CustomerProfile />} />
+          <Route path="password" element={<ChangePasswordPage />} />
+        </Route>
+      </Route>
+
       {/* Old panel paths. The business runs two panels -- admin and sponsor --
           so anything aimed at the retired ones lands on the sponsor panel. */}
       <Route path="/messages/:id" element={<Navigate to="/sponsor/messages" replace />} />
       <Route path="/app/*" element={<Navigate to="/sponsor" replace />} />
       <Route path="/mgr/*" element={<Navigate to="/sponsor" replace />} />
-      <Route path="/portal/*" element={<Navigate to="/sponsor" replace />} />
+      <Route path="/portal/documents" element={<Navigate to="/customer/documents" replace />} />
+      <Route path="/portal/*" element={<Navigate to="/customer" replace />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )

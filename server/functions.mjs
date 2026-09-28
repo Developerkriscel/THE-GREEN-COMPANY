@@ -392,6 +392,86 @@ async function createMember(body, ctx) {
   })
 }
 
+/* ------------------------------------------------------- create-customer */
+/**
+ * Admin-only: open a customer account (the customer panel login) with the
+ * details from the office's customer sheet. The account is created active
+ * with an RG-C-… customer ID (app.handle_new_user); the customer signs in
+ * with that ID, their mobile or their e-mail and the password set here.
+ * A customer without an e-mail gets an internal login address — they never
+ * see or use it.
+ */
+async function createCustomer(body, ctx) {
+  const callerId = ctx?.claims?.sub
+  if (!callerId) throw Object.assign(new Error('Not authenticated'), { status: 401 })
+
+  const fullName = String(body.full_name ?? '').trim()
+  const phoneDigits = String(body.phone ?? '').replace(/\D/g, '').replace(/^(91|0)(?=\d{10}$)/, '')
+  const password = String(body.password ?? '')
+  const emailIn = String(body.email ?? '').trim().toLowerCase()
+  if (fullName.length < 2) throw Object.assign(new Error('Enter the customer\'s name'), { status: 400 })
+  if (phoneDigits.length < 10) throw Object.assign(new Error('Enter a 10-digit mobile number'), { status: 400 })
+  if (password.length < 6) throw Object.assign(new Error('The password needs at least 6 characters'), { status: 400 })
+  if (emailIn && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailIn)) {
+    throw Object.assign(new Error('That e-mail address is not valid'), { status: 400 })
+  }
+  const relation = ['S/O', 'D/O', 'W/O', 'C/O'].includes(body.guardian_relation) ? body.guardian_relation : null
+  const clean = (v) => (v == null || String(v).trim() === '' ? null : String(v).trim())
+
+  return withOwner(async (client) => {
+    const { rows: adminRows } = await client.query(`select role from public.profiles where id = $1`, [callerId])
+    if (adminRows[0]?.role !== 'admin') {
+      throw Object.assign(new Error('Only an administrator can add customers'), { status: 403 })
+    }
+
+    const { rows: samePhone } = await client.query(
+      `select user_code, full_name from public.profiles
+        where role = 'customer' and deleted_at is null
+          and right(regexp_replace(coalesce(phone, ''), '\D', '', 'g'), 10) = $1`,
+      [phoneDigits.slice(-10)],
+    )
+    if (samePhone.length) {
+      throw Object.assign(
+        new Error(`A customer with this mobile already exists: ${samePhone[0].full_name} (${samePhone[0].user_code})`),
+        { status: 409 },
+      )
+    }
+
+    const email = emailIn || `c${phoneDigits.slice(-10)}.${Date.now().toString(36)}@customers.symocity.app`
+    const { rows: dupe } = await client.query(`select 1 from auth.users where lower(email) = $1`, [email])
+    if (dupe.length) throw Object.assign(new Error('That e-mail is already registered'), { status: 409 })
+
+    await client.query(`select set_config('request.jwt.claims', $1, true)`, [
+      JSON.stringify({ sub: callerId, role: 'authenticated' }),
+    ])
+
+    const { rows: userRows } = await client.query(
+      `insert into auth.users (email, encrypted_password, email_confirmed_at, raw_user_meta_data, raw_app_meta_data)
+       values ($1, $2, now(), $3, $4) returning id`,
+      [email, hashPassword(password), JSON.stringify({ full_name: fullName, phone: phoneDigits }),
+       JSON.stringify({ account_kind: 'customer' })],
+    )
+    const id = userRows[0].id
+
+    await client.query(
+      `update public.profiles
+          set full_name = $2, phone = $3, address = $4, city = $5, state = $6, pincode = $7, notes = $8
+        where id = $1`,
+      [id, fullName, phoneDigits, clean(body.address), clean(body.city), clean(body.state), clean(body.pincode), clean(body.notes)],
+    )
+    await client.query(
+      `insert into public.customer_details
+         (customer_id, guardian_relation, guardian_name, alt_phone, rm_id, rm_name, rm_phone,
+          referred_by_name, referred_by_phone, created_by)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [id, relation, clean(body.guardian_name), clean(body.alt_phone), body.rm_id || null,
+       clean(body.rm_name), clean(body.rm_phone), clean(body.referred_by_name), clean(body.referred_by_phone), callerId],
+    )
+    const { rows: created } = await client.query(`select user_code from public.profiles where id = $1`, [id])
+    return { ok: true, id, user_code: created[0]?.user_code ?? null }
+  })
+}
+
 /* ---------------------------------------------------- set-member-password */
 /* Admin-only: reset another member's login password. */
 async function setMemberPassword(body, ctx) {
@@ -466,6 +546,7 @@ const FUNCTIONS = {
   'flag-overdue-emis': flagOverdueEmis,
   'send-email': sendEmail,
   'create-member': createMember,
+  'create-customer': createCustomer,
   'set-member-password': setMemberPassword,
 }
 

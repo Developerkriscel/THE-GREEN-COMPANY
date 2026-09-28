@@ -37,6 +37,11 @@ function makePool(connectionString) {
     connectionTimeoutMillis: 15_000,
   })
   p.on('error', (err) => console.error('[db] idle client error:', err.message))
+  // The pool only listens for errors on IDLE clients. A socket reset on a
+  // client that is checked out emits 'error' with no listener, which kills
+  // the whole process (seen as ECONNRESET from Neon). The query in flight
+  // still rejects and the request fails normally; this keeps the server up.
+  p.on('connect', (client) => client.on('error', (err) => console.error('[db] client error:', err.message)))
   return p
 }
 

@@ -15,7 +15,7 @@ import type { Notification } from '@/lib/types'
  * anything older simply fell off the end. This is the full list, and the place
  * a member can actually catch up.
  */
-export function SponsorNotifications() {
+export function SponsorNotifications({ description = 'Updates from the office about your account, payouts and team.' }: { description?: string } = {}) {
   const { profile } = useAuth()
   const me = profile?.id
   const qc = useQueryClient()
@@ -73,7 +73,7 @@ export function SponsorNotifications() {
     <>
       <PageHeader
         title="Notifications"
-        description="Updates from the office about your account, payouts and team."
+        description={description}
         action={
           unread.length > 0 ? (
             <Button variant="outline" size="sm" loading={markAll.isPending} onClick={() => markAll.mutate()}>
