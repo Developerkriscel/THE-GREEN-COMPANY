@@ -276,7 +276,12 @@ function iso(y: number, mo: number, d: number) {
  * Every row checked: ready, a duplicate (of an earlier row or of a lead the
  * member already has), or invalid with the reason.
  */
-export function checkLeads(raws: RawLead[], defaults: LeadDefaults, existingMobiles: Iterable<string>): CheckedLead[] {
+export function checkLeads(
+  raws: RawLead[],
+  defaults: LeadDefaults,
+  existingMobiles: Iterable<string>,
+  existingLabel = 'Already in your leads',
+): CheckedLead[] {
   const existing = new Set<string>()
   for (const m of existingMobiles) {
     const n = normalizeMobile(m)
@@ -287,7 +292,7 @@ export function checkLeads(raws: RawLead[], defaults: LeadDefaults, existingMobi
     const row = i + 1
     const mobile = normalizeMobile(raw.mobile)
     if (!mobile) return { row, raw, status: 'invalid', reason: raw.mobile ? 'Mobile number is not valid' : 'No mobile number' }
-    if (existing.has(mobile)) return { row, raw, status: 'duplicate', reason: 'Already in your leads' }
+    if (existing.has(mobile)) return { row, raw, status: 'duplicate', reason: existingLabel }
     if (inFile.has(mobile)) return { row, raw, status: 'duplicate', reason: 'Repeated in this file' }
     inFile.add(mobile)
     let name = clean(raw.name)

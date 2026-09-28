@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Download, Phone, Search } from 'lucide-react'
-import { Badge, Card, EmptyState, ErrorState, Input, PageHeader, Select, Spinner, Table, Td, Th, type Tone } from '@/components/ui'
-import { useLeads } from '@/lib/queries'
+import { Download, Phone, Search, Upload } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { Badge, Button, Card, EmptyState, ErrorState, Input, PageHeader, Select, Spinner, Table, Td, Th, type Tone } from '@/components/ui'
+import { useLeads, useMembers, useProjects } from '@/lib/queries'
+import { LeadImport } from '@/components/LeadImport'
 import { date, downloadCsv, money } from '@/lib/format'
 import type { LeadStatus } from '@/lib/types'
 
@@ -26,6 +28,17 @@ export function AdminLeadConversion() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const [owner, setOwner] = useState('')
+  const [importing, setImporting] = useState(false)
+  const qc = useQueryClient()
+  const { data: members = [] } = useMembers()
+  const { data: projects = [] } = useProjects()
+  const assignable = useMemo(
+    () => members
+      .filter((m) => m.role === 'rep' && m.status === 'active')
+      .map((m) => ({ id: m.id, label: `${m.full_name}${m.member_code ? ` (${m.member_code})` : ''}` }))
+      .sort((a, b) => a.label.localeCompare(b.label)),
+    [members],
+  )
 
   const owners = useMemo(() => {
     const m = new Map<string, string>()
@@ -46,7 +59,7 @@ export function AdminLeadConversion() {
     const q = search.trim().toLowerCase()
     return leads.filter((l) => {
       if (status && l.status !== status) return false
-      if (owner && l.owner?.id !== owner) return false
+      if (owner === 'pool' ? l.owner : owner && l.owner?.id !== owner) return false
       if (q && ![l.name, l.mobile, l.project?.name].filter(Boolean).some((v) => String(v).toLowerCase().includes(q))) return false
       return true
     })
@@ -58,10 +71,14 @@ export function AdminLeadConversion() {
         title="Lead Conversion Tracker"
         description="Track follow-up progress and conversion rates across all sponsors."
         action={
+          <div className="flex flex-wrap gap-2">
+          <Button onClick={() => setImporting(true)}>
+            <Upload className="h-4 w-4" /> Import leads
+          </Button>
           <button
             onClick={() =>
               downloadCsv('leads', filtered.map((l) => ({
-                lead: l.name, mobile: l.mobile, sponsor: l.owner?.full_name ?? '',
+                lead: l.name, mobile: l.mobile, sponsor: l.owner?.full_name ?? 'Office pool',
                 project: l.project?.name ?? '', budget: l.budget ?? '', status: l.status,
                 updated: l.created_at,
               })))
@@ -70,6 +87,7 @@ export function AdminLeadConversion() {
           >
             <Download className="h-4 w-4" /> Export CSV
           </button>
+          </div>
         }
       />
 
@@ -104,6 +122,7 @@ export function AdminLeadConversion() {
           </Select>
           <Select value={owner} onChange={(e) => setOwner(e.target.value)}>
             <option value="">All sponsors</option>
+            <option value="pool">Office pool (unassigned)</option>
             {owners.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
           </Select>
         </div>
@@ -134,7 +153,7 @@ export function AdminLeadConversion() {
                     <Link to={`/admin/leads/${l.id}`} className="font-medium text-slate-900 hover:text-brand-700">{l.name}</Link>
                     <p className="text-xs text-slate-400">{l.mobile}</p>
                   </Td>
-                  <Td className="text-slate-600">{l.owner?.full_name ?? '—'}</Td>
+                  <Td className="text-slate-600">{l.owner?.full_name ?? <span className="text-brand-gold-deep">Office pool</span>}</Td>
                   <Td className="text-slate-600">{l.project?.name ?? '—'}</Td>
                   <Td className="text-slate-600">{money(l.budget)}</Td>
                   <Td><Badge tone={STATUS_TONE[l.status]}>{l.status.replace(/_/g, ' ')}</Badge></Td>
@@ -145,6 +164,17 @@ export function AdminLeadConversion() {
           </Table>
         )}
       </Card>
+      {importing && (
+        <LeadImport
+          ownerId={null}
+          owners={assignable}
+          existingMobiles={leads.map((l) => l.mobile)}
+          existingLabel="Already a lead"
+          projects={projects}
+          onClose={() => setImporting(false)}
+          onImported={() => void qc.invalidateQueries({ queryKey: ['leads'] })}
+        />
+      )}
     </div>
   )
 }

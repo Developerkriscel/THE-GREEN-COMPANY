@@ -598,6 +598,18 @@ async function main() {
   const { rowCount: foreignRows } = await db.query(`select 1 from leads where name = $1`, [`${TAG} bulk foreign`])
   check('…but cannot import leads into another member\'s list', foreign.status >= 400 && foreignRows === 0, foreign.data)
 
+  const officeImport = await api('/rest/v1/leads', {
+    token: ADMIN, method: 'POST', headers: { Prefer: 'return=representation' },
+    body: [
+      { name: `${TAG} office to B`, mobile: '9000000011', source: 'import', owner_id: bSession.data.user.id },
+      { name: `${TAG} office pool`, mobile: '9000000012', source: 'import', owner_id: null },
+    ],
+  })
+  check('the office can import leads into a member\'s list or the unassigned pool', officeImport.status === 201 && officeImport.data?.length === 2, officeImport.data)
+  const bSeesImport = await api(`/rest/v1/leads?select=name&name=like.${encodeURIComponent(TAG)}*office*`, { token: B })
+  check('…and the member sees only the leads assigned to them',
+    bSeesImport.data?.length === 1 && bSeesImport.data[0].name === `${TAG} office to B`, bSeesImport.data)
+
   // ------------------------------------------------------ profile photos
   // supabase-js posts a Blob as FormData, so these go up exactly that way:
   // a cacheControl field and the file appended under an empty name.

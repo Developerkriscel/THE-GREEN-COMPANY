@@ -31,10 +31,15 @@ const tomorrow = () => {
 }
 
 export function LeadImport({
-  ownerId, existingMobiles, projects, onClose, onImported,
+  ownerId, owners, existingMobiles, existingLabel, projects, onClose, onImported,
 }: {
-  ownerId: string
+  /** Whose list the leads go into; null = the office pool (admin only). */
+  ownerId: string | null
+  /** The office's choice of member; shown as "Assign to" when given. */
+  owners?: { id: string; label: string }[]
+  /** Mobiles already on file — the member's own, or every lead for the office. */
   existingMobiles: string[]
+  existingLabel?: string
   projects: { id: string; name: string }[]
   onClose: () => void
   onImported: () => void
@@ -51,6 +56,7 @@ export function LeadImport({
   const [textLeads, setTextLeads] = useState<RawLead[] | null>(null)
 
   const [defaults, setDefaults] = useState({ source: 'import', project_id: null as string | null, next_follow_up: tomorrow() as string | null })
+  const [owner, setOwner] = useState<string>(ownerId ?? '')
   const [problemsOnly, setProblemsOnly] = useState(false)
   const [progress, setProgress] = useState(0)
   const [result, setResult] = useState<{ added: number; skipped: CheckedLead[] } | null>(null)
@@ -65,7 +71,10 @@ export function LeadImport({
     () => (table ? rowsFromTable(table, mapping) : textLeads ?? []),
     [table, mapping, textLeads],
   )
-  const checked = useMemo(() => checkLeads(raws.slice(0, MAX_ROWS), defaults, existingMobiles), [raws, defaults, existingMobiles])
+  const checked = useMemo(
+    () => checkLeads(raws.slice(0, MAX_ROWS), defaults, existingMobiles, existingLabel),
+    [raws, defaults, existingMobiles, existingLabel],
+  )
   const ready = checked.filter((c) => c.status === 'ready')
   const dupes = checked.filter((c) => c.status === 'duplicate')
   const invalid = checked.filter((c) => c.status === 'invalid')
@@ -114,7 +123,7 @@ export function LeadImport({
   }
 
   async function doImport() {
-    const rows = ready.map((r) => ({ ...r.lead!, owner_id: ownerId }))
+    const rows = ready.map((r) => ({ ...r.lead!, owner_id: owner || null }))
     setStep('saving'); setProgress(0); setError(null)
     let added = 0
     try {
@@ -253,6 +262,15 @@ export function LeadImport({
             </div>
           )}
 
+          {owners && (
+            <Field label="Assign to" hint="The member whose Lead follow-up these appear in, or the office pool to share out later.">
+              <Select value={owner} onChange={(e) => setOwner(e.target.value)}>
+                <option value="">Office pool (unassigned)</option>
+                {owners.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </Select>
+            </Field>
+          )}
+
           <div className="grid gap-3 sm:grid-cols-3">
             <Field label="Source (when the file has none)">
               <Select value={defaults.source} onChange={(e) => setDefaults({ ...defaults, source: e.target.value })}>
@@ -325,6 +343,11 @@ export function LeadImport({
         <div className="py-4 text-center">
           <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" />
           <p className="mt-3 text-lg font-bold text-brand-darker">{num(result.added)} lead{result.added === 1 ? '' : 's'} added</p>
+          {owners && (
+            <p className="mt-1 text-sm text-slate-600">
+              {owner ? `Assigned to ${owners.find((o) => o.id === owner)?.label ?? 'the member'}.` : 'In the office pool, unassigned.'}
+            </p>
+          )}
           {result.skipped.length > 0 && (
             <>
               <p className="mt-1 text-sm text-slate-600">
