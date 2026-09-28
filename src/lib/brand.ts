@@ -26,6 +26,10 @@ export interface BrandSettings {
   websiteUrl: string
   email: string
   phone: string
+  /** Digits only; the WhatsApp chat link and the "WhatsApp" line. */
+  whatsapp: string
+  /** Head office address, on the footer, Contact page, ID card and documents. */
+  address: string
   /** An uploaded logo, stored as a `/storage/v1/...` path; null uses the built-in mark. */
   logoUrl: string | null
   /** The three lines the brand sheet closes on. */
@@ -36,12 +40,14 @@ export interface BrandSettings {
 export const BRAND_DEFAULTS: BrandSettings = {
   name: 'Symocity',
   short: 'Symocity',
-  legalName: 'Royal Symo Green City Pvt Ltd',
+  legalName: 'ROYAL SYMO GREEN CITY PRIVATE LIMITED',
   tagline: 'You Together Make Millionaire',
   website: 'symocity.com',
   websiteUrl: 'https://symocity.com',
   email: 'symocitydevelopers@gmail.com',
   phone: '9211809636',
+  whatsapp: '9211809636',
+  address: 'Office No. 325, 3rd Floor, Universal Trade Tower, Sector 49, Sohna Road, Gurgaon, Haryana',
   logoUrl: null,
   values: ['Building Communities', 'Creating Wealth', 'Sustainable Living'],
   compliance: 'RERA Compliant · Premium Real Estate Developer',
@@ -87,7 +93,7 @@ export function applyBrand(stored: Partial<BrandSettings> | null | undefined) {
   }
 }
 
-/** `© 2026 Royal Symo Green City Pvt Ltd. All rights reserved.` */
+/** `© 2026 ROYAL SYMO GREEN CITY PRIVATE LIMITED. All rights reserved.` */
 export function copyright(year = new Date().getFullYear()) {
   return `© ${year} ${BRAND.legalName}. All rights reserved.`
 }

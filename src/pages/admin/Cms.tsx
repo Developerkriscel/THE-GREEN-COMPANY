@@ -718,7 +718,7 @@ function ContactTab() {
 
   return (
     <Card>
-      <CardHeader title="Contact details" subtitle="Shown in the website footer and on the contact page." />
+      <CardHeader title="Contact page" subtitle="The heading and branch list on the Contact page." />
       <CardBody>
         <form
           className="space-y-3"
@@ -726,32 +726,24 @@ function ContactTab() {
             e.preventDefault()
             const f = new FormData(e.currentTarget)
             save.mutate({
-              company: String(f.get('company') ?? ''),
-              phone: String(f.get('phone') ?? ''),
-              email: String(f.get('email') ?? ''),
-              whatsapp: String(f.get('whatsapp') ?? ''),
-              address: String(f.get('address') ?? ''),
               hero_title: String(f.get('hero_title') ?? ''),
               hero_subtitle: String(f.get('hero_subtitle') ?? ''),
               branches: String(f.get('branches') ?? ''),
             })
           }}
         >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Company name"><Input name="company" defaultValue={v.company ?? ''} /></Field>
-            <Field label="Phone / WhatsApp display"><Input name="phone" defaultValue={v.phone ?? ''} /></Field>
-            <Field label="Email"><Input name="email" type="email" defaultValue={v.email ?? ''} /></Field>
-            <Field label="WhatsApp number (digits only)"><Input name="whatsapp" defaultValue={v.whatsapp ?? ''} /></Field>
-          </div>
-          <Field label="Head office address"><Textarea name="address" rows={2} defaultValue={v.address ?? ''} /></Field>
+          <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
+            The company name, phone, WhatsApp, email and head office address are edited in{' '}
+            <Link to="/admin/settings" className="font-medium text-brand-700 hover:underline">Business Settings → Company</Link>.
+          </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Contact page heading"><Input name="hero_title" defaultValue={v.hero_title ?? ''} placeholder={`Talk to ${BRAND.name}`} /></Field>
             <Field label="Contact page subtitle"><Input name="hero_subtitle" defaultValue={v.hero_subtitle ?? ''} placeholder="Talk to a sales partner…" /></Field>
           </div>
           <Field label="Branches" hint="One branch per line — shown in the 'Our Branches' grid.">
-            <Textarea name="branches" rows={5} defaultValue={v.branches ?? ''} placeholder={'ILD / Gurgaon\nSector 47 / Gurgaon\nDelhi'} />
+            <Textarea name="branches" rows={5} defaultValue={v.branches ?? ''} placeholder={'Sector 49 / Gurgaon\nSohna Road / Gurgaon'} />
           </Field>
-          <Button type="submit" loading={save.isPending}>Save contact details</Button>
+          <Button type="submit" loading={save.isPending}>Save contact page</Button>
         </form>
       </CardBody>
     </Card>

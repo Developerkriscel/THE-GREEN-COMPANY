@@ -183,7 +183,7 @@ export function PublicLayout() {
               <ul className="space-y-3 text-sm text-white/50">
                 <li className="flex gap-2">
                   <span className="mt-0.5 flex-shrink-0 text-[oklch(62%_.19_43)]">📍</span>
-                  ILD Trade Centre Mall, Sector-47, Gurugram, Haryana
+                  {BRAND.address}
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-0.5 flex-shrink-0 text-[oklch(62%_.19_43)]">📞</span>

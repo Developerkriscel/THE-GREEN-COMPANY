@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Building2, ExternalLink, ImageUp, Pencil, Plus, Power, Receipt, Trash2, Trophy } from 'lucide-react'
+import { Building2, ExternalLink, FileText, ImageUp, LandPlot, MapPinned, Pencil, Plus, Power, Receipt, Trash2, Trophy } from 'lucide-react'
 import { assetUrl, supabase } from '@/lib/supabase'
 import { useRanks, useSiteSetting } from '@/lib/queries'
 import { BRAND, BRAND_DEFAULTS, applyBrand, resolveBrand, type BrandSettings } from '@/lib/brand'
 import { rankFeatures, joiningLabel } from '@/lib/plan'
 import { money, num, pct } from '@/lib/format'
 import type { Rank } from '@/lib/types'
+import { AdminProjects } from '@/pages/admin/Projects'
+import { AdminPlots } from '@/pages/admin/Plots'
 import {
   Badge, Button, Card, CardBody, CardHeader, Field, Input, Modal, PageHeader,
   Select, Spinner, Table, Td, Textarea, Th, useToast,
@@ -21,18 +23,24 @@ import {
  *   Rank plan      every rank's percentages, salary, fees, reward and the
  *                  conditions to reach it — the same rows the income engine
  *                  pays on, and the public Plans/Home tables are built from
+ *   Projects       the projects for sale, with their photos and details
+ *   Plots          the plot inventory, prices and status
  *   Payouts        TDS, admin charge, minimum withdrawal
- *   Other content  where the rest (pages, banners, projects…) is edited
+ *   Terms          the Terms & Conditions page
+ *   Other content  where the rest (banners, rewards, news…) is edited
  */
 
-type Tab = 'company' | 'plan' | 'payouts' | 'more'
+type Tab = 'company' | 'plan' | 'projects' | 'plots' | 'payouts' | 'terms' | 'more'
 
 export function AdminBusinessSettings() {
   const [tab, setTab] = useState<Tab>('company')
   const tabs: [Tab, string, ReactNode][] = [
     ['company', 'Company', <Building2 key="c" className="h-4 w-4" />],
     ['plan', 'Rank plan', <Trophy key="p" className="h-4 w-4" />],
+    ['projects', 'Projects', <MapPinned key="pr" className="h-4 w-4" />],
+    ['plots', 'Plots', <LandPlot key="pl" className="h-4 w-4" />],
     ['payouts', 'Payouts & deductions', <Receipt key="r" className="h-4 w-4" />],
+    ['terms', 'Terms & Conditions', <FileText key="t" className="h-4 w-4" />],
     ['more', 'Other content', <ExternalLink key="m" className="h-4 w-4" />],
   ]
   return (
@@ -58,7 +66,10 @@ export function AdminBusinessSettings() {
       </div>
       {tab === 'company' && <CompanyTab />}
       {tab === 'plan' && <RankPlanTab />}
+      {tab === 'projects' && <AdminProjects embedded />}
+      {tab === 'plots' && <AdminPlots embedded />}
       {tab === 'payouts' && <PayoutsTab />}
+      {tab === 'terms' && <TermsTab />}
       {tab === 'more' && <MoreTab />}
     </div>
   )
@@ -75,6 +86,7 @@ const COMPANY_FIELDS: { key: keyof BrandSettings; label: string; hint?: string; 
   { key: 'websiteUrl', label: 'Website link', hint: 'Full address, e.g. https://symocity.com' },
   { key: 'email', label: 'Contact email' },
   { key: 'phone', label: 'Contact phone' },
+  { key: 'whatsapp', label: 'WhatsApp number', hint: 'Digits only — used for the WhatsApp chat button.' },
   { key: 'compliance', label: 'Compliance line', hint: 'e.g. RERA Compliant · Premium Real Estate Developer' },
 ]
 
@@ -120,6 +132,10 @@ function CompanyTab() {
         push('error', `${f.label} cannot be empty.`)
         return
       }
+    }
+    if (form.whatsapp && !/^\+?[\d\s-]{8,15}$/.test(form.whatsapp.trim())) {
+      push('error', 'The WhatsApp number should be digits only, e.g. 9211809636.')
+      return
     }
     if (form.websiteUrl && !/^https?:\/\//i.test(form.websiteUrl.trim())) {
       push('error', 'The website link must start with http:// or https://')
@@ -191,6 +207,11 @@ function CompanyTab() {
               />
             </Field>
           ))}
+          <div className="sm:col-span-2">
+            <Field label="Head office address" hint="Website footer, Contact page, ID card and documents.">
+              <Textarea rows={2} value={form.address} onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))} />
+            </Field>
+          </div>
           <div className="sm:col-span-2">
             <Field label="Brand values" hint="One per line — shown in the website footer.">
               <Textarea rows={3} value={valuesText} onChange={(e) => setValuesText(e.target.value)} />
@@ -572,17 +593,65 @@ function PayoutsTab() {
   )
 }
 
+/* ================================================================== Terms */
+
+function TermsTab() {
+  const qc = useQueryClient()
+  const { push } = useToast()
+  const { data, isLoading } = useQuery({
+    queryKey: ['cms-page', 'terms'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('cms_pages').select('title, body, published').eq('slug', 'terms').maybeSingle()
+      if (error) throw new Error(error.message)
+      return data as { title: string; body: string; published: boolean } | null
+    },
+  })
+  const [body, setBody] = useState('')
+  useEffect(() => { if (data) setBody(data.body ?? '') }, [data])
+
+  const save = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('cms_pages').upsert(
+        { slug: 'terms', title: data?.title || 'Terms & Conditions', body, published: true, updated_at: new Date().toISOString() },
+        { onConflict: 'slug' },
+      )
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      push('success', 'Terms & Conditions saved.')
+      void qc.invalidateQueries({ queryKey: ['cms-page'] })
+    },
+    onError: (e: Error) => push('error', e.message),
+  })
+
+  if (isLoading) return <Spinner label="Loading the terms…" />
+  return (
+    <Card>
+      <CardHeader
+        title="Terms & Conditions"
+        subtitle="Shown on the Terms page and linked from sign-up and every booking. One point per line."
+        action={<Link to="/page/terms" target="_blank" className="text-sm font-medium text-brand-700 hover:underline">View page</Link>}
+      />
+      <CardBody className="space-y-4">
+        <Textarea rows={16} value={body} onChange={(e) => setBody(e.target.value)} />
+        <div className="flex justify-end">
+          <Button loading={save.isPending} disabled={!body.trim()} onClick={() => save.mutate()}>Save terms</Button>
+        </div>
+      </CardBody>
+    </Card>
+  )
+}
+
 /* ========================================================== Other content */
 
 function MoreTab() {
   const items: [string, string, string][] = [
-    ['Terms & Conditions, About and other pages', 'Website CMS → Pages', '/admin/cms'],
-    ['Contact page (address, WhatsApp, branches)', 'Website CMS → Contact', '/admin/cms'],
+    ['About and other pages', 'Website CMS → Pages', '/admin/cms'],
+    ['Contact page heading and branch list', 'Website CMS → Contact', '/admin/cms'],
     ['Home page hero, banners and announcement bar', 'Website CMS → Hero / Banners', '/admin/cms'],
     ['Level-wise payout (₹ per sq yd)', 'Website CMS → Plans', '/admin/cms'],
     ['Rewards gallery, achievers, team, events and news', 'Website CMS', '/admin/cms'],
     ['Welcome letter wording', 'Website CMS → Welcome letter', '/admin/cms'],
-    ['Projects and plots for sale', 'Website CMS → Featured projects / Plots', '/admin/cms'],
   ]
   return (
     <Card>

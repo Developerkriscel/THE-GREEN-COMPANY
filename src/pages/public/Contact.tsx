@@ -5,34 +5,31 @@ import { Button, Card, CardBody, ErrorState, Field, Input, Select, Textarea } fr
 import { CheckCircle2 } from 'lucide-react'
 import { BRAND } from '@/lib/brand'
 
-const BRANCHES = [
-  'ILD / Gurgaon',
-  'Sector 47 / Gurgaon',
-  'Delhi',
-  'Dwarka / Delhi',
-  'Kapashera / Delhi',
-]
-
 const CONTACT_DEFAULTS = {
   hero_title: `Talk to ${BRAND.name}`,
   hero_subtitle: 'Talk to a sales partner. No obligation — we never share your details.',
-  phone: '+91 9211809636',
-  email: BRAND.email,
-  address: 'ILD Trade Centre Mall, Sector-47, Gurugram, Haryana, India',
-  whatsapp: '9211809636',
   branches: '',
 }
 
 export function ContactPage() {
   const { data: cfg } = useSiteSetting('public.contact')
-  const c = { ...CONTACT_DEFAULTS, ...(cfg ?? {}) }
+  // The company's own details come from Business Settings → Company; this
+  // page's settings row only carries its heading and branch list.
+  const c = {
+    ...CONTACT_DEFAULTS,
+    ...(cfg ?? {}),
+    phone: `+91 ${BRAND.phone}`,
+    email: BRAND.email,
+    address: BRAND.address,
+    whatsapp: BRAND.whatsapp,
+  }
   const waDigits = (c.whatsapp || c.phone).replace(/\D/g, '')
   const infoItems = [
     { icon: '📞', label: 'Phone / WhatsApp', value: c.phone, href: `tel:${c.phone.replace(/\s/g, '')}` },
     { icon: '✉️', label: 'Email', value: c.email, href: `mailto:${c.email}` },
     { icon: '📍', label: 'Head Office', value: c.address, href: '#' },
   ]
-  const branches = c.branches ? c.branches.split('\n').map((s) => s.trim()).filter(Boolean) : BRANCHES
+  const branches = c.branches ? c.branches.split('\n').map((s) => s.trim()).filter(Boolean) : []
   return (
     <>
       {/* Hero */}
@@ -82,7 +79,7 @@ export function ContactPage() {
               </div>
 
               {/* Branches */}
-              <div className="mt-10">
+              {branches.length > 0 && <div className="mt-10">
                 <p className="text-xs font-bold uppercase tracking-[.2em] text-[oklch(14%_.05_260)] mb-4">Our Branches</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {branches.map(b => (
@@ -92,7 +89,7 @@ export function ContactPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </div>}
 
               {/* WhatsApp CTA */}
               <a href={`https://wa.me/${waDigits}`} target="_blank" rel="noopener noreferrer"
