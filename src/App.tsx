@@ -117,13 +117,13 @@ import { KycPage } from '@/pages/shared/Kyc'
 const ico = 'h-4 w-4'
 
 const adminNav: NavItem[] = [
-  { to: '/admin', label: 'Dashboard', icon: <Gauge className={ico} />, end: true },
+  { to: '/admin', label: 'Dashboard', short: 'Home', icon: <Gauge className={ico} />, end: true },
   { to: '/admin/cms', label: 'Website CMS', icon: <LayoutGrid className={ico} /> },
   { to: '/admin/settings', label: 'Business Settings', icon: <Settings className={ico} /> },
   { to: '/admin/members', label: 'Members', icon: <Users className={ico} /> },
   { to: '/admin/tree', label: 'Member Tree', icon: <Network className={ico} /> },
   { to: '/admin/genealogy', label: 'Genealogy', icon: <GitBranch className={ico} /> },
-  { to: '/admin/sales', label: 'Plot Sales', icon: <BadgeCheck className={ico} /> },
+  { to: '/admin/sales', label: 'Plot Sales', short: 'Sales', icon: <BadgeCheck className={ico} /> },
   { to: '/admin/crm', label: 'Payments CRM', icon: <Wallet className={ico} /> },
   { to: '/admin/payouts', label: 'Payouts', icon: <Banknote className={ico} /> },
   { to: '/admin/leads', label: 'Lead Conversion', icon: <Phone className={ico} /> },
@@ -150,17 +150,17 @@ void adminSecondaryNav
 // The member's own network business. A member signs in as `rep` and lands
 // here; the single-level sales workspace below stays reachable at /app.
 const sponsorNav: NavItem[] = [
-  { to: '/sponsor', label: 'Dashboard', icon: <Gauge className={ico} />, end: true },
+  { to: '/sponsor', label: 'Dashboard', short: 'Home', icon: <Gauge className={ico} />, end: true },
   { to: '/sponsor/sales', label: 'Plot Sales', icon: <BadgeCheck className={ico} /> },
   { to: '/sponsor/verified-sales', label: 'Verified Sales', icon: <ClipboardCheck className={ico} /> },
   { to: '/sponsor/payments', label: 'Payments', icon: <Receipt className={ico} /> },
-  { to: '/sponsor/leads', label: 'Lead Follow-up', icon: <Phone className={ico} /> },
-  { to: '/sponsor/wallet', label: 'My Wallet', icon: <Wallet className={ico} /> },
+  { to: '/sponsor/leads', label: 'Lead Follow-up', short: 'Leads', icon: <Phone className={ico} /> },
+  { to: '/sponsor/wallet', label: 'My Wallet', short: 'Wallet', icon: <Wallet className={ico} /> },
   { to: '/sponsor/income/direct', label: 'Direct Income', icon: <TrendingUp className={ico} /> },
   { to: '/sponsor/income/level', label: 'Level Income', icon: <Layers className={ico} /> },
   { to: '/sponsor/withdrawals', label: 'Withdrawals', icon: <Banknote className={ico} /> },
   { to: '/sponsor/team', label: 'My Team', icon: <Users className={ico} /> },
-  { to: '/sponsor/tree', label: 'Genealogy', icon: <GitBranch className={ico} /> },
+  { to: '/sponsor/tree', label: 'Genealogy', short: 'Tree', icon: <GitBranch className={ico} /> },
   { to: '/sponsor/rank', label: 'Rank & Progress', icon: <Trophy className={ico} /> },
   { to: '/sponsor/rewards', label: 'Rewards', icon: <Gift className={ico} /> },
   { to: '/sponsor/refer', label: 'Refer a Member', icon: <UserPlus className={ico} /> },
@@ -210,7 +210,7 @@ export function App() {
 
       {/* -------------------------------------------------------- admin */}
       <Route element={<RequireAuth roles={['admin']} />}>
-        <Route path="/admin" element={<AppShell nav={adminNav} area="Administration" />}>
+        <Route path="/admin" element={<AppShell nav={adminNav} area="Administration" quick={['/admin', '/admin/members', '/admin/sales', '/admin/payouts']} />}>
           <Route index element={<AdminDashboard />} />
           <Route path="cms" element={<AdminCms />} />
           <Route path="members" element={<AdminMembers />} />
@@ -249,7 +249,7 @@ export function App() {
 
       {/* -------------------------------------------------- sponsor panel */}
       <Route element={<RequireAuth roles={['rep']} />}>
-        <Route path="/sponsor" element={<AppShell nav={sponsorNav} area="Sponsor" banner={<AnnouncementBar />} />}>
+        <Route path="/sponsor" element={<AppShell nav={sponsorNav} area="Sponsor" banner={<AnnouncementBar />} quick={['/sponsor', '/sponsor/wallet', '/sponsor/tree', '/sponsor/leads']} />}>
           <Route index element={<SponsorDashboard />} />
           <Route path="wallet" element={<SponsorWallet />} />
           <Route path="income" element={<SponsorIncome />} />

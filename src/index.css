@@ -215,3 +215,81 @@ body {
 .panel-sidebar nav::-webkit-scrollbar { width: 6px; }
 .panel-sidebar nav::-webkit-scrollbar-track { background: transparent; }
 .panel-sidebar nav::-webkit-scrollbar-thumb { background: rgb(var(--c-gold) / .28); border-radius: 6px; }
+
+/* ---------------------------------------------------------- genealogy tree
+   Nested lists drawn as a tree: each child hangs from a gold line that runs
+   up to its parent. (src/components/GenealogyChart.tsx) */
+.gtree ul {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 26px 0 0;
+}
+.gtree > ul { padding-top: 0; }
+.gtree li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  list-style: none;
+  padding: 26px 8px 0;
+}
+.gtree > ul > li { padding-top: 10px; }
+/* the horizontal rail above siblings, and each child's drop to it */
+.gtree li::before,
+.gtree li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 50%;
+  width: 50%;
+  height: 26px;
+  border-top: 2px solid rgb(var(--c-gold) / .75);
+}
+.gtree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 2px solid rgb(var(--c-gold) / .75);
+}
+.gtree li:only-child::before,
+.gtree li:only-child::after { display: none; }
+.gtree li:only-child { padding-top: 0; }
+.gtree li:first-child::before,
+.gtree li:last-child::after { border: 0 none; }
+.gtree li:last-child::before {
+  border-right: 2px solid rgb(var(--c-gold) / .75);
+  border-radius: 0 10px 0 0;
+}
+.gtree li:first-child::after { border-radius: 10px 0 0 0; }
+/* the drop from a parent down to the rail */
+.gtree ul ul::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 26px;
+  border-left: 2px solid rgb(var(--c-gold) / .75);
+}
+.gtree > ul > li::before, .gtree > ul > li::after { display: none; }
+/* the fold/unfold button sits on the line under a card */
+.gtree-toggle {
+  position: relative;
+  z-index: 1;
+  margin-top: -11px;
+  display: flex;
+  height: 22px;
+  min-width: 22px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: rgb(var(--c-darker));
+  background-image: linear-gradient(135deg, rgb(var(--c-gold-light)), rgb(var(--c-gold)) 50%, rgb(var(--c-gold-dark)));
+  box-shadow: 0 2px 6px rgb(var(--c-gold-dark) / .5), 0 0 0 2px #faf7f0;
+}
+.gtree-toggle + ul { padding-top: 14px; }
+.gtree-toggle + ul::before { top: -12px; height: 26px; }
+.gtree-scroller { scrollbar-width: thin; scrollbar-color: rgb(var(--c-gold) / .4) transparent; }

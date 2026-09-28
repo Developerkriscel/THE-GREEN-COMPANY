@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRight, Search, X } from 'lucide-react'
+import { ChevronRight, List, Network, Search, X } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { legsOf, useMyDownline, useSponsorProfile, type DownlineRow } from '@/lib/sponsor'
 import { Badge, Card, CardHeader, EmptyState, Input, PageHeader } from '@/components/ui'
 import { MemberStatusBadge, SkeletonRows } from '@/components/sponsor'
 import { rankTone } from '@/lib/network'
 import { date, num } from '@/lib/format'
+import { GenealogyChart, type ChartNode } from '@/components/GenealogyChart'
 
 /**
  * Module 6 — the same downline as My Team, seen as a shape.
@@ -30,6 +31,7 @@ export function SponsorTree() {
   const { data: downline = [], isLoading } = useMyDownline(me)
   const [search, setSearch] = useState('')
   const [focus, setFocus] = useState<DownlineRow | null>(null)
+  const [view, setView] = useState<'tree' | 'list'>('tree')
 
   // One leg per direct member, with everyone beneath them. The page promises
   // to show which leg is growing, and the top ranks are gated on leg COUNT
@@ -69,6 +71,37 @@ export function SponsorTree() {
   const focusRoots = focus
     ? [findIn(roots, focus.id)].filter(Boolean as unknown as (v: TreeNodeData | null) => v is TreeNodeData)
     : roots
+
+  // The chart's top card is the member (or the branch they focused on).
+  const chartRoot = useMemo<ChartNode | null>(() => {
+    const toChart = (n: TreeNodeData): ChartNode => ({
+      id: n.id,
+      name: n.full_name,
+      code: n.member_code,
+      rank: n.rank_name,
+      status: n.status,
+      direct: n.direct_count,
+      team: n.team_count,
+      joined: n.joined,
+      children: n.children.map(toChart),
+    })
+    if (focus) {
+      const f = findIn(roots, focus.id)
+      return f ? toChart(f) : null
+    }
+    return {
+      id: me ?? 'me',
+      name: member?.full_name ?? 'You',
+      code: member?.member_code ?? null,
+      rank: member?.rank?.name ?? null,
+      status: member?.status ?? 'active',
+      direct: downline.filter((d) => d.level === 1).length,
+      team: downline.length,
+      avatarPath: member?.avatar_path ?? null,
+      children: roots.map(toChart),
+    }
+  }, [focus, roots, me, member, downline])
+  const matchSet = useMemo(() => new Set(matches.map((m) => m.id)), [matches])
 
   return (
     <>
@@ -152,9 +185,33 @@ export function SponsorTree() {
         <CardHeader
           title="Your position and everyone below it"
           subtitle={`${num(downline.length)} member${downline.length === 1 ? '' : 's'} in your team`}
+          action={
+            <div className="inline-flex overflow-hidden rounded-lg border border-brand-gold/30">
+              {([['tree', 'Tree', Network], ['list', 'List', List]] as const).map(([k, label, Icon]) => (
+                <button
+                  key={k}
+                  onClick={() => setView(k)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium ${view === k ? 'bg-gold-metal text-brand-darker shadow-sm' : 'bg-white text-slate-600 hover:bg-brand-gold/10'}`}
+                >
+                  <Icon className="h-4 w-4" /> {label}
+                </button>
+              ))}
+            </div>
+          }
         />
         {isLoading ? (
           <SkeletonRows rows={6} />
+        ) : view === 'tree' && chartRoot && downline.length > 0 ? (
+          <GenealogyChart
+            root={chartRoot}
+            rootLabel={focus ? undefined : 'You'}
+            onSelect={(n) => {
+              const row = downline.find((d) => d.id === n.id)
+              if (row) setFocus(row)
+            }}
+            highlight={matchSet}
+            selectLabel="Focus on this branch"
+          />
         ) : (
           <div className="overflow-x-auto p-5">
             {/* The member is always the root and is never one of the fetched rows. */}

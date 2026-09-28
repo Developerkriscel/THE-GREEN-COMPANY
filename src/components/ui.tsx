@@ -111,6 +111,7 @@ const TONES = {
   blue: 'bg-blue-50 text-blue-700 ring-blue-200',
   violet: 'bg-violet-50 text-violet-700 ring-violet-200',
   gold: 'bg-gold-metal text-brand-darker ring-brand-gold-dark/30 font-semibold',
+  leaf: 'bg-brand-50 text-brand-800 ring-brand-300',
 } as const
 
 export type Tone = keyof typeof TONES

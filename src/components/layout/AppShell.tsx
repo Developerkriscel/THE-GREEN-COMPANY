@@ -16,16 +16,21 @@ export interface NavItem {
   label: string
   icon: ReactNode
   end?: boolean
+  /** A short label for the phone's bottom bar. */
+  short?: string
 }
 
 export function AppShell({
   nav,
   area,
   banner,
+  quick,
   children,
 }: {
   nav: NavItem[]
   area: string
+  /** The four destinations on the phone's bottom bar (by `to`); "More" opens the full menu. */
+  quick?: string[]
   /** Rendered above the page, inside the scroll area. The sponsor panel passes
    *  its announcement strip here; the admin console passes nothing. */
   banner?: ReactNode
@@ -33,6 +38,9 @@ export function AppShell({
 }) {
   const [open, setOpen] = useState(false)
   const { profile, signOut } = useAuth()
+  const bottom = (quick ?? nav.slice(0, 4).map((n) => n.to))
+    .map((to) => nav.find((n) => n.to === to))
+    .filter((n): n is NavItem => Boolean(n))
 
   return (
     /* Deep leaf-green sidebar edged in gold, an ivory workspace lit by a soft
@@ -124,20 +132,16 @@ export function AppShell({
         <header className="glass-bar relative flex h-16 shrink-0 items-center justify-between gap-3 px-4 sm:px-6">
           <div className="gold-hairline absolute inset-x-0 bottom-0" aria-hidden />
           <div className="flex items-center gap-3">
-            <button
-              className="rounded-lg p-1.5 text-brand-darker/70 hover:bg-brand-gold/10 lg:hidden"
-              onClick={() => setOpen((prev) => !prev)}
-              aria-label="Menu"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
+            {/* On phones and tablets the menu opens from "More" in the bottom bar. */}
+            <img src={BRAND.markSquare} alt="" className="h-9 w-9 object-contain drop-shadow lg:hidden" />
             <div className="leading-tight">
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-gold-deep">
+              <p className="whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.22em] text-brand-gold-deep">
                 {area === 'Administration' ? 'Admin Console' : 'Sponsor Panel'}
               </p>
-              <p className="text-sm font-semibold text-brand-darker">
+              <p className="hidden text-sm font-semibold text-brand-darker sm:block">
                 {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
+              <p className="text-gold-metal text-sm font-extrabold uppercase tracking-[0.18em] sm:hidden">{BRAND.short}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
@@ -166,10 +170,57 @@ export function AppShell({
         </header>
 
         {/* The main scroll area */}
-        <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <main className="min-w-0 flex-1 overflow-y-auto p-4 pb-28 sm:p-6 sm:pb-28 lg:p-8">
           {banner && <div className="mb-4">{banner}</div>}
           {children ?? <Outlet />}
         </main>
+
+        {/* Phones: an app-style bottom bar with the four main places and "More". */}
+        <nav
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-brand-gold/25 bg-brand-darker/95 px-2 pt-1.5 backdrop-blur-xl lg:hidden"
+          style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+          aria-label="Quick navigation"
+        >
+          <div className="gold-hairline absolute inset-x-0 top-0" aria-hidden />
+          <div className="mx-auto grid max-w-md grid-cols-5">
+            {bottom.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  clsx(
+                    'flex flex-col items-center gap-1 rounded-xl py-1 text-[10.5px] font-semibold transition',
+                    isActive ? 'text-brand-gold-light' : 'text-white/60 active:text-white',
+                  )
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <span
+                      className={clsx(
+                        'flex h-8 w-8 items-center justify-center rounded-full transition',
+                        isActive ? 'bg-gold-metal text-brand-darker shadow-[0_0_14px_rgb(var(--c-gold)/0.55)]' : '',
+                      )}
+                    >
+                      {item.icon}
+                    </span>
+                    <span className="max-w-full truncate">{item.short ?? item.label}</span>
+                  </>
+                )}
+              </NavLink>
+            ))}
+            <button
+              onClick={() => setOpen(true)}
+              className="flex flex-col items-center gap-1 rounded-xl py-1 text-[10.5px] font-semibold text-white/60 active:text-white"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-full">
+                <Menu className="h-[18px] w-[18px]" />
+              </span>
+              More
+            </button>
+          </div>
+        </nav>
       </div>
     </div>
   )

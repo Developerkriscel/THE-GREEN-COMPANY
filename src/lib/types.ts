@@ -97,6 +97,8 @@ export interface MemberNode {
   role: AppRole
   direct_count: number
   team_count: number
+  /** Profile photo path (avatars bucket); only the office can read others'. */
+  avatar_path?: string | null
   children: MemberNode[]
 }
 

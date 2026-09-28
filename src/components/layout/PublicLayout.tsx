@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Mail, MapPin, Phone } from 'lucide-react'
+import { ChevronRight, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { BRAND, copyright } from '@/lib/brand'
 
 const NAV_LINKS = [
@@ -118,20 +118,38 @@ export function PublicLayout() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="xl:hidden border-t border-white/10 bg-brand-darker py-3 px-4">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className="block py-2.5 text-sm font-medium text-white/80 hover:text-white border-b border-white/5 last:border-0"
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="mt-4 flex gap-2">
-              <Link to="/sponsor-login" className="flex-1 py-2 text-center text-sm font-semibold text-white border border-white/20 rounded-md">Login</Link>
-              <Link to="/register" className="btn-gold flex-1 py-2 text-center text-sm rounded-md">Join Now</Link>
+          <div className="xl:hidden bg-leaf-deep border-t border-brand-gold/20 px-5 pb-6 pt-2 animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto">
+            <nav className="grid">
+              {NAV_LINKS.map((link) => {
+                const active = pathname === link.href
+                return (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className={`flex items-center justify-between border-b border-white/[0.07] py-3.5 text-[15px] font-semibold ${active ? 'text-brand-gold-light' : 'text-white/85 active:text-white'}`}
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className={`h-1.5 w-1.5 rotate-45 ${active ? 'bg-brand-gold shadow-[0_0_8px_rgb(var(--c-gold))]' : 'bg-brand-gold/40'}`} aria-hidden />
+                      {link.label}
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-brand-gold/50" aria-hidden />
+                  </Link>
+                )
+              })}
+            </nav>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <Link to="/sponsor-login" className="rounded-xl border border-brand-gold/40 py-3 text-center text-sm font-semibold text-brand-gold-light">Login</Link>
+              <Link to="/register" className="btn-gold rounded-xl py-3 text-center text-sm">Join Now</Link>
             </div>
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <a href={BRAND.phoneHref} className="flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] py-2.5 text-sm font-medium text-white/85 ring-1 ring-white/10">
+                <Phone className="h-4 w-4 text-brand-gold" aria-hidden /> Call us
+              </a>
+              <a href={`https://wa.me/91${BRAND.whatsapp.replace(/\D/g, '').slice(-10)}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] py-2.5 text-sm font-medium text-white/85 ring-1 ring-white/10">
+                <MessageCircle className="h-4 w-4 text-brand-gold" aria-hidden /> WhatsApp
+              </a>
+            </div>
+            <p className="text-gold-metal mt-5 text-center text-sm font-semibold italic">{BRAND.tagline}</p>
           </div>
         )}
       </header>

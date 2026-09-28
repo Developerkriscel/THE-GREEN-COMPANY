@@ -18,6 +18,7 @@ export function buildForest(members: Profile[], kind: TreeKind): MemberNode[] {
       role: m.role,
       direct_count: m.direct_count ?? 0,
       team_count: m.team_count ?? 0,
+      avatar_path: m.avatar_path ?? null,
       children: [],
     })
   }
@@ -69,7 +70,7 @@ export function rankTone(rank: string | null | undefined): Tone {
   const elite = ['Crown', 'Diamond', 'Sales Country Head', 'Core Manager']
   const senior = ['Vice President', 'GM', 'DGM', 'AGM']
   if (elite.includes(rank)) return 'gold'
-  if (senior.includes(rank)) return 'blue'
+  if (senior.includes(rank)) return 'leaf'
   return 'neutral'
 }
 

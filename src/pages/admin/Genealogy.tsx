@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Network, GitBranch, Search, ChevronDown } from 'lucide-react'
-import { Badge, Card, EmptyState, ErrorState, Input, PageHeader, Spinner } from '@/components/ui'
+import { Network, GitBranch, Search, CornerLeftUp } from 'lucide-react'
+import { Card, EmptyState, ErrorState, Input, PageHeader, Spinner } from '@/components/ui'
 import { useMembers } from '@/lib/queries'
-import { buildForest, findNode, levelize, rankTone, statusTone, type TreeKind } from '@/lib/network'
+import { buildForest, findNode, type TreeKind } from '@/lib/network'
+import { GenealogyChart, type ChartNode } from '@/components/GenealogyChart'
 import type { MemberNode } from '@/lib/types'
 
 export function AdminGenealogy() {
@@ -19,7 +20,8 @@ export function AdminGenealogy() {
   }, [forest, rootId])
 
   const root = useMemo(() => (rootId ? findNode(forest, rootId) : null), [forest, rootId])
-  const levels = useMemo(() => (root ? levelize(root) : []), [root])
+  const chartRoot = useMemo(() => (root ? toChart(root) : null), [root])
+  const topId = forest[0]?.id
 
   const searchResults = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -33,7 +35,7 @@ export function AdminGenealogy() {
     <div>
       <PageHeader
         title="Genealogy"
-        description="Visualise any member's downline by levels."
+        description="Any member's downline as a tree. Tap a member to see the network from them."
         action={
           <div className="inline-flex overflow-hidden rounded-lg border border-slate-200">
             <button
@@ -55,13 +57,21 @@ export function AdminGenealogy() {
       <Card className="mb-5 overflow-visible">
         <div className="flex flex-wrap items-center gap-3 p-4">
           <div className="text-sm text-slate-500">
-            Root:{' '}
+            Showing from:{' '}
             {root ? (
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-brand-darker">
                 <span className="font-mono">{root.member_code}</span> · {root.full_name}
               </span>
             ) : '—'}
           </div>
+          {root && topId && root.id !== topId && (
+            <button
+              onClick={() => setRootId(topId)}
+              className="inline-flex items-center gap-1 rounded-full border border-brand-gold/40 px-3 py-1 text-xs font-semibold text-brand-darker hover:bg-brand-gold/10"
+            >
+              <CornerLeftUp className="h-3.5 w-3.5" /> Top of the network
+            </button>
+          )}
           <div className="relative ml-auto min-w-[240px] flex-1 max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Change root by ID or name…" className="pl-9" />
@@ -90,75 +100,32 @@ export function AdminGenealogy() {
       ) : !root ? (
         <EmptyState title="No members yet" description="Add members to explore the genealogy." />
       ) : (
-        <div className="space-y-2">
-          {/* root card */}
-          <div className="flex justify-center">
-            <RootCard node={root} />
-          </div>
-
-          {levels.length === 0 ? (
-            <p className="pt-6 text-center text-sm text-slate-500">This member has no downline yet.</p>
+        <Card>
+          {root.children.length === 0 ? (
+            <p className="px-5 py-10 text-center text-sm text-slate-500">This member has no downline yet.</p>
           ) : (
-            levels.map((level, i) => (
-              <div key={i}>
-                <div className="flex items-center justify-center gap-2 py-4 text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  <ChevronDown className="h-4 w-4" />
-                  Level {i + 1} · {level.length} {level.length === 1 ? 'member' : 'members'}
-                </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {level.map((n) => <MemberCard key={n.id} node={n} onClick={() => setRootId(n.id)} />)}
-                </div>
-              </div>
-            ))
+            <GenealogyChart
+              root={chartRoot!}
+              onSelect={(n) => setRootId(n.id)}
+              selectLabel="Show the network from this member"
+            />
           )}
-        </div>
+        </Card>
       )}
     </div>
   )
 }
 
-function RootCard({ node }: { node: MemberNode }) {
-  return (
-    <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-4 text-white shadow-lg">
-      <div className="flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-lg font-bold">
-          {node.full_name.slice(0, 1).toUpperCase()}
-        </span>
-        <div>
-          <p className="text-base font-bold">{node.full_name}</p>
-          <p className="font-mono text-xs text-white/70">{node.member_code}</p>
-        </div>
-      </div>
-      <div className="mt-3 flex items-center gap-2">
-        {node.rank_name && (
-          <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs font-semibold">{node.rank_name}</span>
-        )}
-        <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">{node.direct_count} direct</span>
-        <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">{node.team_count} team</span>
-      </div>
-    </div>
-  )
-}
-
-function MemberCard({ node, onClick }: { node: MemberNode; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      title="Set as root"
-      className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition hover:border-brand-300 hover:shadow-md"
-    >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-bold text-brand-700">
-        {node.full_name.slice(0, 1).toUpperCase()}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-slate-800">{node.full_name}</p>
-        <p className="font-mono text-xs text-slate-400">{node.member_code}</p>
-        <div className="mt-1 flex flex-wrap items-center gap-1">
-          {node.rank_name && <Badge tone={rankTone(node.rank_name)}>{node.rank_name}</Badge>}
-          <Badge tone={statusTone(node.status)}>{node.status}</Badge>
-          {node.direct_count > 0 && <span className="text-xs text-slate-400">· {node.direct_count} direct</span>}
-        </div>
-      </div>
-    </button>
-  )
+function toChart(n: MemberNode): ChartNode {
+  return {
+    id: n.id,
+    name: n.full_name,
+    code: n.member_code,
+    rank: n.rank_name,
+    status: n.status,
+    direct: n.direct_count,
+    team: n.team_count,
+    avatarPath: n.avatar_path ?? null,
+    children: n.children.map(toChart),
+  }
 }
