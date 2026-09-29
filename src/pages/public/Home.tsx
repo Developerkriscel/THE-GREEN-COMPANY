@@ -8,8 +8,8 @@ const HERO_DEFAULTS = {
   badge: 'Mission 90 Days — Registrations Open',
   title_lead: 'Build Your',
   title_accent: 'Financial Future',
-  title_tail: `with ${BRAND.name}`,
-  subtitle: `India's trusted ${BRAND.name} network. Earn direct sponsor income, level commissions and lifetime rewards.`,
+  title_tail: `with ${BRAND.short}`,
+  subtitle: `India's trusted ${BRAND.short} network. Earn direct sponsor income, level commissions and lifetime rewards.`,
   primary_cta_label: 'Join as Sponsor',
   primary_cta_link: '/register',
   secondary_cta_label: 'View Plans',
@@ -191,7 +191,7 @@ function FeaturedProjects() {
           </h2>
           <div className="gold-rule" aria-hidden><i /></div>
           <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
-            From premium plots to integrated townships, every Symocity project is engineered for long-term value.
+            From premium plots to integrated townships, every {BRAND.short} project is engineered for long-term value.
           </p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

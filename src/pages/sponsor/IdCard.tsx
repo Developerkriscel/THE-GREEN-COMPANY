@@ -199,8 +199,13 @@ export function IdCardFaces({
           <div className="flex items-center justify-center gap-2">
             <img src={BRAND.markSquare} alt="" className="h-11 w-11 object-contain" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.35))' }} />
             <div className="text-left leading-none">
-              <p className="text-[17px] font-extrabold tracking-[0.12em]">{BRAND.short.toUpperCase()}</p>
-              <p className="mt-[3px] text-[6.5px] font-semibold tracking-[0.06em] opacity-90">{BRAND.legalName.toUpperCase()}</p>
+              <p className="text-[12px] font-extrabold tracking-[0.05em]">{BRAND.short.toUpperCase()}</p>
+              {BRAND.legalName.toUpperCase().startsWith(BRAND.short.toUpperCase()) && BRAND.legalName.length > BRAND.short.length ? (
+                <p className="mt-[3px] text-[6.5px] font-semibold tracking-[0.2em] opacity-90">{BRAND.legalName.slice(BRAND.short.length).trim().toUpperCase()}</p>
+              ) : (
+                <p className="mt-[3px] text-[6.5px] font-semibold tracking-[0.06em] opacity-90">{BRAND.legalName.toUpperCase()}</p>
+              )}
+              <p className="mt-[3px] text-[7px] font-semibold italic" style={{ color: GOLD_LIGHT }}>{BRAND.tagline}</p>
             </div>
           </div>
           <div className="mx-auto mt-2 h-[2px] w-24" style={{ background: GOLD }} />

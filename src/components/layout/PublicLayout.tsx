@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { BrandLockup } from '@/components/BrandLockup'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { ChevronRight, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { BRAND, copyright } from '@/lib/brand'
@@ -62,12 +63,8 @@ export function PublicLayout() {
         <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-              <img
-                src={BRAND.markSquare}
-                alt={BRAND.name}
-                className="h-11 w-auto object-contain drop-shadow"
-              />
+            <Link to="/" className="flex min-w-0 items-center flex-shrink" aria-label={BRAND.name}>
+              <BrandLockup size="sm" />
             </Link>
 
             {/* Desktop nav */}
@@ -76,7 +73,7 @@ export function PublicLayout() {
                 <Link
                   key={link.href}
                   to={link.href}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  className={`whitespace-nowrap px-2 py-1.5 text-[13px] font-medium rounded-md transition-colors 2xl:px-3 2xl:text-sm ${
                     pathname === link.href
                       ? 'text-brand-primary-glow bg-white/5'
                       : 'text-white/80 hover:text-white hover:bg-white/5'
@@ -91,19 +88,19 @@ export function PublicLayout() {
             <div className="hidden lg:flex items-center gap-2">
               <Link
                 to="/sponsor-login"
-                className="px-4 py-1.5 text-sm font-semibold text-white/90 border border-white/20 rounded-md hover:bg-white/10 transition-colors"
+                className="whitespace-nowrap px-3 py-1.5 text-sm font-semibold text-white/90 border border-white/20 rounded-md hover:bg-white/10 transition-colors"
               >
-                Login
+                Channel Partner
               </Link>
               <Link
                 to="/customer-login"
-                className="px-4 py-1.5 text-sm font-semibold text-brand-gold-light border border-brand-gold/40 rounded-md hover:bg-brand-gold/10 transition-colors"
+                className="whitespace-nowrap px-3 py-1.5 text-sm font-semibold text-brand-gold-light border border-brand-gold/40 rounded-md hover:bg-brand-gold/10 transition-colors"
               >
                 Customer
               </Link>
               <Link
                 to="/register"
-                className="btn-gold px-4 py-1.5 text-sm rounded-md"
+                className="btn-gold whitespace-nowrap px-3 py-1.5 text-sm rounded-md"
               >
                 Join Now
               </Link>
@@ -144,7 +141,7 @@ export function PublicLayout() {
               })}
             </nav>
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <Link to="/sponsor-login" className="rounded-xl border border-brand-gold/40 py-3 text-center text-sm font-semibold text-brand-gold-light">Login</Link>
+              <Link to="/sponsor-login" className="rounded-xl border border-brand-gold/40 py-3 text-center text-sm font-semibold text-brand-gold-light">Channel Partner</Link>
               <Link to="/register" className="btn-gold rounded-xl py-3 text-center text-sm">Join Now</Link>
               <Link to="/customer-login" className="col-span-2 rounded-xl bg-white/[0.06] py-2.5 text-center text-sm font-semibold text-brand-gold-light ring-1 ring-brand-gold/30">Customer Login — my plot &amp; EMI</Link>
             </div>
@@ -171,12 +168,8 @@ export function PublicLayout() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             {/* Brand */}
             <div className="lg:col-span-1">
-              <Link to="/" className="flex items-center gap-2.5 mb-4">
-                <img
-                  src={BRAND.markSquare}
-                  alt={BRAND.name}
-                  className="h-14 w-auto object-contain drop-shadow"
-                />
+              <Link to="/" className="mb-4 flex" aria-label={BRAND.name}>
+                <BrandLockup size="md" />
               </Link>
               <p className="text-sm text-white/50 leading-relaxed">
                 India's trusted real estate network. Earn direct income, level commissions and lifetime rewards.

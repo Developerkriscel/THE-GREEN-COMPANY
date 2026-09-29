@@ -83,7 +83,7 @@ export const config = {
   mailFrom: get('MAIL_FROM', ''),
 
   /** The company name mail is signed with. Keep in step with src/lib/brand.ts. */
-  brandName: get('BRAND_NAME', 'Symocity'),
+  brandName: get('BRAND_NAME', 'ROYAL SYMO GREEN CITY PRIVATE LIMITED'),
 
   // Schemas the REST layer will expose. `public` only, deliberately: exposing
   // `auth` or `storage` over HTTP would hand out the user table.

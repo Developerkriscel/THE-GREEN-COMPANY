@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { BrandLockup } from '@/components/BrandLockup'
 import { BRAND, copyright } from '@/lib/brand'
 
 interface AuthLayoutProps {
@@ -21,12 +22,8 @@ export function AuthLayout({ children, title, subtitle, badge, footer }: AuthLay
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex flex-col items-center gap-3">
-            <img
-              src={BRAND.markSquare}
-              alt={BRAND.name}
-              className="h-20 w-auto object-contain drop-shadow-lg"
-            />
+          <Link to="/" className="inline-flex" aria-label={BRAND.name}>
+            <BrandLockup size="lg" align="center" />
           </Link>
         </div>
 

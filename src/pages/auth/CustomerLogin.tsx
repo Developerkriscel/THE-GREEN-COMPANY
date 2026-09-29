@@ -198,7 +198,7 @@ export function CustomerLogin() {
               required
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
-              placeholder="e.g. RGC100005"
+              placeholder="e.g. RSGC100051"
               className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all"
             />
           </div>

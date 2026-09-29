@@ -38,8 +38,8 @@ export interface BrandSettings {
 }
 
 export const BRAND_DEFAULTS: BrandSettings = {
-  name: 'Symocity',
-  short: 'Symocity',
+  name: 'ROYAL SYMO GREEN CITY PRIVATE LIMITED',
+  short: 'ROYAL SYMO GREEN CITY',
   legalName: 'ROYAL SYMO GREEN CITY PRIVATE LIMITED',
   tagline: 'You Together Make Millionaire',
   website: 'symocity.com',

@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { BrandLockup } from '@/components/BrandLockup'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import clsx from 'clsx'
 import { Bell, LogOut, Menu, X } from 'lucide-react'
@@ -54,22 +55,8 @@ export function AppShell({
         )}
       >
         <div className="relative flex h-[72px] shrink-0 items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-3">
-            <img
-              src={BRAND.markSquare}
-              alt={BRAND.name}
-              className="h-12 w-12 shrink-0 object-contain"
-              style={{ filter: 'drop-shadow(0 2px 6px rgb(0 0 0 / .45)) drop-shadow(0 0 10px rgb(var(--c-gold) / .25))' }}
-              onError={(e) => {
-                ;(e.target as HTMLElement).style.display = 'none'
-              }}
-            />
-            <div className="leading-tight">
-              <p className="text-gold-metal text-[15px] font-extrabold uppercase tracking-[0.2em]">{BRAND.short}</p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55">
-                {area === 'Administration' ? 'Admin Console' : area === 'Customer' ? 'Customer Portal' : 'Sponsor Panel'}
-              </p>
-            </div>
+          <Link to="/" className="min-w-0" aria-label={BRAND.name}>
+            <BrandLockup size="sm" />
           </Link>
           <button className="rounded p-1 text-white/60 hover:text-white lg:hidden" onClick={() => setOpen(false)}>
             <X className="h-5 w-5" />
@@ -141,7 +128,8 @@ export function AppShell({
               <p className="hidden text-sm font-semibold text-brand-darker sm:block">
                 {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
-              <p className="text-gold-metal text-sm font-extrabold uppercase tracking-[0.18em] sm:hidden">{BRAND.short}</p>
+              <p className="text-gold-metal text-[11px] font-extrabold uppercase tracking-[0.08em] sm:hidden">{BRAND.short}</p>
+              <p className="text-[9.5px] font-semibold italic text-brand-gold-deep sm:hidden">{BRAND.tagline}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">

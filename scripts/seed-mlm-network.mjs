@@ -81,7 +81,7 @@ try {
   // --- reset member sequence -----------------------------------------------
   await client.query(`select setval('public.member_code_seq', 100000, true)`)
   const nextCode = async () => {
-    const { rows } = await client.query(`select 'RGC' || nextval('public.member_code_seq')::text as c`)
+    const { rows } = await client.query(`select 'RSGC' || nextval('public.member_code_seq')::text as c`)
     return rows[0].c
   }
 
