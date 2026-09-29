@@ -30,6 +30,7 @@ export function CustomerLogin() {
   const [signupLoading, setSignupLoading] = useState(false)
   const [signupError, setSignupError] = useState<string | null>(null)
   const [signupSuccess, setSignupSuccess] = useState(false)
+  const [signupAgain, setSignupAgain] = useState(false)
 
   const BAD_CREDENTIALS = 'Invalid Sponsor ID or password'
 
@@ -124,15 +125,21 @@ export function CustomerLogin() {
     setSignupError(null)
     setSignupLoading(true)
     try {
-      const { error: rpcErr } = await supabase.rpc('register_customer_inquiry', {
+      // A request the office turns into an account (Admin -> Members ->
+      // Referral requests); the sponsor ID, if given, must be a live member.
+      const { data, error: rpcErr } = await supabase.rpc('request_sponsor_signup', {
         p_name: signupName,
         p_phone: signupPhone,
-        p_sponsor_id: signupSponsorId || null,
+        p_sponsor_code: signupSponsorId.trim() || null,
       })
       if (rpcErr) throw rpcErr
+      setSignupAgain(data === 'already_received')
       setSignupSuccess(true)
     } catch (err: any) {
-      setSignupError(err.message ?? 'Registration failed. Please try again.')
+      const msg = String(err?.message ?? '')
+      setSignupError(/failed to fetch|networkerror|load failed/i.test(msg)
+        ? 'Cannot reach the server. Check your connection and try again.'
+        : msg || 'Registration failed. Please try again.')
     } finally {
       setSignupLoading(false)
     }
@@ -271,9 +278,11 @@ export function CustomerLogin() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Registration Submitted!</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">{signupAgain ? 'We already have your request' : 'Registration Submitted!'}</h3>
             <p className="text-sm text-gray-500 mb-5">
-              Your inquiry has been received. Our team will contact you within 24 hours with your Sponsor ID.
+              {signupAgain
+                ? 'Your sign-up is already with our team. They will call you on the number you gave with your Sponsor ID and password.'
+                : 'Your request has reached our team. They will call you within 24 hours with your Sponsor ID and password.'}
             </p>
             <button
               onClick={() => { setSignupSuccess(false); setTab('login') }}

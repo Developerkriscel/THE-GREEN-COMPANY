@@ -4,7 +4,7 @@ import {
   Badge, Button, Card, CardHeader, EmptyState, Field, Input, Modal, Select,
   Table, Td, Textarea, Th, useToast,
 } from '@/components/ui'
-import { useCreateMember, useDecideReferral, useRanks, useReferralQueue, type ReferralRequest } from '@/lib/queries'
+import { useCreateMember, useDecideReferral, useMembers, useRanks, useReferralQueue, type ReferralRequest } from '@/lib/queries'
 import { date } from '@/lib/format'
 
 /**
@@ -27,7 +27,7 @@ export function ReferralQueue() {
       <Card className="mb-6">
         <CardHeader
           title="Referral requests"
-          subtitle="Submitted by members from their own panel — approve to create the account, or decline with a reason"
+          subtitle="Sign-ups from the website and referrals members submit from their panel — approve to create the account, or decline with a reason"
           action={
             <div className="flex items-center gap-2">
               {pending > 0 && <Badge tone="amber">{pending} waiting</Badge>}
@@ -52,7 +52,7 @@ export function ReferralQueue() {
         ) : referrals.length === 0 ? (
           <EmptyState
             title="Nothing here"
-            description="Referrals members submit from the Sponsor Panel appear here for review."
+            description="Website sign-ups and members' referrals appear here for review."
           />
         ) : (
           <Table>
@@ -71,11 +71,14 @@ export function ReferralQueue() {
               {referrals.map((r) => (
                 <tr key={r.id} className="hover:bg-slate-50">
                   <Td className="whitespace-nowrap text-xs">{date(r.created_at)}</Td>
-                  <Td className="font-medium text-slate-800">{r.full_name}</Td>
+                  <Td className="font-medium text-slate-800">
+                    {r.full_name}
+                    {r.source === 'website' && <Badge tone="blue" className="ml-1.5">Website</Badge>}
+                  </Td>
                   <Td className="font-mono text-xs">{r.mobile}</Td>
                   <Td className="text-xs text-slate-600">{r.city ?? '—'}</Td>
                   <Td className="text-xs">
-                    {r.sponsor?.full_name ?? '—'}
+                    {r.sponsor?.full_name ?? <span className="text-amber-700">Choose when approving</span>}
                     {r.sponsor?.member_code && (
                       <span className="ml-1 font-mono text-[11px] text-slate-400">{r.sponsor.member_code}</span>
                     )}
@@ -126,10 +129,20 @@ function ApproveModal({ referral, onClose }: { referral: ReferralRequest; onClos
   const [busy, setBusy] = useState(false)
 
   const entryRank = [...ranks].sort((a, b) => a.seniority - b.seniority)[0]
+  const { data: members = [] } = useMembers()
+  const sponsors = members.filter((m) => m.role === 'rep' && m.status === 'active').sort((a, b) => a.full_name.localeCompare(b.full_name))
+  // A random first password, shown once, rather than the same one for everyone.
+  const [tempPassword] = useState(() => {
+    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
+    const pick = () => abc[Math.floor(Math.random() * abc.length)]
+    return Array.from({ length: 8 }, pick).join('') + '@' + (10 + Math.floor(Math.random() * 89))
+  })
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const f = new FormData(e.currentTarget)
+    const sponsorId = referral.sponsor_id ?? (String(f.get('sponsor_id') ?? '') || null)
+    if (!sponsorId) { toast.push('error', 'Choose the sponsor this member joins under.'); return }
     setBusy(true)
     try {
       const created = await create.mutateAsync({
@@ -137,8 +150,8 @@ function ApproveModal({ referral, onClose }: { referral: ReferralRequest; onClos
         email: String(f.get('email') ?? '').trim(),
         password: String(f.get('password') ?? ''),
         phone: referral.mobile,
-        referrer_id: referral.sponsor_id,
-        placement_parent_id: referral.sponsor_id,
+        referrer_id: sponsorId,
+        placement_parent_id: sponsorId,
         rank_id: String(f.get('rank_id') ?? '') || entryRank?.id || null,
         city: referral.city ?? undefined,
         state: referral.state ?? undefined,
@@ -166,11 +179,20 @@ function ApproveModal({ referral, onClose }: { referral: ReferralRequest; onClos
       }
     >
       <form id="approve-referral" onSubmit={onSubmit} className="space-y-3">
-        <p className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
-          Placed under <strong>{referral.sponsor?.full_name}</strong>{' '}
-          <span className="font-mono">{referral.sponsor?.member_code}</span> as a direct member. They will see
-          this person in their team as soon as the account is active.
-        </p>
+        {referral.sponsor_id ? (
+          <p className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            Placed under <strong>{referral.sponsor?.full_name}</strong>{' '}
+            <span className="font-mono">{referral.sponsor?.member_code}</span> as a direct member. They will see
+            this person in their team as soon as the account is active.
+          </p>
+        ) : (
+          <Field label="Sponsor" required hint="Signed up on the website without a sponsor ID — choose who they join under.">
+            <Select name="sponsor_id" required defaultValue="">
+              <option value="">Choose a member…</option>
+              {sponsors.map((m) => <option key={m.id} value={m.id}>{m.full_name}{m.member_code ? ` (${m.member_code})` : ''}</option>)}
+            </Select>
+          </Field>
+        )}
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Full name">
             <Input value={referral.full_name} readOnly className="bg-slate-50" />
@@ -187,7 +209,7 @@ function ApproveModal({ referral, onClose }: { referral: ReferralRequest; onClos
             />
           </Field>
           <Field label="Temporary password" required hint="Share it with the member">
-            <Input name="password" required minLength={8} defaultValue="Member@123" />
+            <Input name="password" required minLength={8} defaultValue={tempPassword} className="font-mono" />
           </Field>
           <Field label="Starting rank">
             <Select name="rank_id" defaultValue={entryRank?.id ?? ''}>

@@ -867,7 +867,9 @@ export function useDeleteMember() {
 
 export interface ReferralRequest {
   id: string
-  sponsor_id: string
+  /** Null for a website sign-up without a sponsor ID; the office picks one when approving. */
+  sponsor_id: string | null
+  source?: 'member' | 'website'
   full_name: string
   mobile: string
   email: string | null
