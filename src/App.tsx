@@ -183,7 +183,8 @@ const sponsorNav: NavItem[] = [
   { to: '/sponsor/id-card', label: 'My ID Card', icon: <BadgeCheck className={ico} /> },
   { to: '/sponsor/messages', label: 'Support', icon: <Inbox className={ico} /> },
   { to: '/sponsor/notifications', label: 'Notifications', icon: <Bell className={ico} /> },
-  { to: '/sponsor/bank', label: 'Profile & Bank', icon: <UserCircle className={ico} /> },
+  { to: '/sponsor/profile', label: 'My Profile', icon: <UserCircle className={ico} /> },
+  { to: '/sponsor/bank', label: 'Bank Details', icon: <Banknote className={ico} /> },
   { to: '/sponsor/password', label: 'Change Password', icon: <KeyRound className={ico} /> },
 ]
 

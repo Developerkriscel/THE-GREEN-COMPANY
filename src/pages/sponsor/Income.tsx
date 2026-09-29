@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Download } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import {
   useMyDownline, useMyLedger, useRankLadder, useSponsorProfile, useSponsorRates,
   inFinancialYear, inMonth, isCounted, levelSummary, netOf, type LedgerRow,
 } from '@/lib/sponsor'
-import { Badge, Card, CardHeader, EmptyState, PageHeader, Table, Td, Th } from '@/components/ui'
+import { Badge, Button, Card, CardHeader, EmptyState, PageHeader, Table, Td, Th } from '@/components/ui'
 import { Area, NetAmount, SkeletonRows } from '@/components/sponsor'
 import { date, money, num, pct } from '@/lib/format'
 
@@ -118,23 +121,13 @@ export function SponsorIncome({ initialTab = 'Direct' }: { initialTab?: TabName 
 
       {/* --- level summary sits above the level list ---------------------- */}
       {tab === 'Level' && (
-        <Card className="mb-5">
-          <CardHeader
-            title="Income by level"
-            subtitle="All twelve levels, so you can see how deep your income currently reaches"
-          />
-          <div className="grid grid-cols-2 gap-px bg-slate-100 sm:grid-cols-4 lg:grid-cols-6">
-            {levelSummary(downline, ledger).map((l) => (
-              <div key={l.level} className={`bg-white p-4 ${l.income > 0 ? '' : 'opacity-60'}`}>
-                <p className="text-xs font-medium text-slate-400">Level {l.level}</p>
-                <p className="text-sm font-bold text-slate-800">{money(l.income)}</p>
-                <p className="mt-0.5 text-[11px] text-slate-500">
-                  {num(l.members)} member{l.members === 1 ? '' : 's'} · {num(l.active)} active
-                </p>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <LevelBreakdown
+          summary={levelSummary(downline, ledger)}
+          ledger={counted.filter((l) => l.source === 'level_income')}
+          nameOf={nameOf}
+          codeOf={codeOf}
+          memberCode={member?.member_code ?? profile?.user_code ?? 'member'}
+        />
       )}
 
       <Card>
@@ -287,4 +280,86 @@ function EmptyTab({
     Rewards: 'Reward income appears here when you unlock a reward tier.',
   }
   return <EmptyState title={`No ${tab.toLowerCase()} income yet`} description={copy[tab]} />
+}
+
+/* ------------------------------------------------ level-wise breakdown */
+
+/** The plan's level rates, as the income engine reads them (active rows only). */
+function usePlanLevelRates() {
+  return useQuery({
+    queryKey: ['plan-level-rates'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('plan_levels').select('level, rate, sort_order').eq('is_active', true).order('sort_order')
+      if (error) throw new Error(error.message)
+      const m = new Map<number, number>()
+      for (const r of (data ?? []) as { level: number; rate: number }[]) if (!m.has(Number(r.level))) m.set(Number(r.level), Number(r.rate))
+      return m
+    },
+  })
+}
+
+function LevelBreakdown({ summary, ledger, nameOf, codeOf, memberCode }: {
+  summary: { level: number; members: number; active: number; income: number }[]
+  ledger: LedgerRow[]
+  nameOf: (id: string | null) => string
+  codeOf: (id: string | null) => string
+  memberCode: string
+}) {
+  const { data: rates } = usePlanLevelRates()
+  const [busy, setBusy] = useState(false)
+  const areaBy = new Map<number, number>()
+  for (const l of ledger) if (l.level) areaBy.set(l.level, (areaBy.get(l.level) ?? 0) + Number(l.area_sqyd ?? 0))
+  const rows = summary.map((s) => ({ ...s, rate: rates?.get(s.level) ?? 0, area: areaBy.get(s.level) ?? 0 }))
+  const totals = rows.reduce((t, r) => ({ area: t.area + r.area, income: t.income + r.income, members: t.members + r.members }), { area: 0, income: 0, members: 0 })
+
+  async function exportExcel() {
+    setBusy(true)
+    try {
+      const XLSX = await import('xlsx')
+      const wb = XLSX.utils.book_new()
+      const sheet1 = XLSX.utils.json_to_sheet(rows.map((r) => ({
+        Level: r.level, 'Rate (₹ per 100 sq yd)': r.rate, Members: r.members, Active: r.active,
+        'Downline sq yd': r.area, 'Level income (net ₹)': Math.round(r.income * 100) / 100,
+      })))
+      XLSX.utils.book_append_sheet(wb, sheet1, 'Level-wise')
+      const sheet2 = XLSX.utils.json_to_sheet(ledger.map((l) => ({
+        Date: l.created_at.slice(0, 10), Level: l.level, 'From member': nameOf(l.from_member_id), 'Member ID': codeOf(l.from_member_id),
+        Sale: l.reference, 'Area sq yd': Number(l.area_sqyd ?? 0), Rate: Number(l.rate_applied ?? 0),
+        Gross: Number(l.gross), TDS: Number(l.tds), 'Admin charge': Number(l.admin_charge), Net: Number(l.net),
+      })))
+      XLSX.utils.book_append_sheet(wb, sheet2, 'Entries')
+      XLSX.writeFile(wb, `level-income-${memberCode}-${new Date().toISOString().slice(0, 10)}.xlsx`)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Card className="mb-5">
+      <CardHeader
+        title="Level-wise breakdown"
+        subtitle="Every level of your team: the plan rate, the area sold there and what it earned you"
+        action={<Button size="sm" variant="outline" loading={busy} onClick={() => void exportExcel()}><Download className="h-4 w-4" /> Export Excel</Button>}
+      />
+      <Table>
+        <thead>
+          <tr><Th>Level</Th><Th className="text-right">Rate (₹ / 100 sq yd)</Th><Th className="text-right">Members</Th><Th className="text-right">Downline sq yd</Th><Th className="text-right">Level income (net)</Th></tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.level} className={r.income > 0 ? '' : 'text-slate-400'}>
+              <Td className="font-medium">Level {r.level}</Td>
+              <Td className="text-right">{r.rate ? num(r.rate) : '—'}</Td>
+              <Td className="text-right">{num(r.members)} <span className="text-xs text-slate-400">({num(r.active)} active)</span></Td>
+              <Td className="text-right">{num(r.area)}</Td>
+              <Td className="text-right font-semibold">{money(r.income)}</Td>
+            </tr>
+          ))}
+          <tr className="bg-brand-gold/[0.06] font-semibold">
+            <Td>Total</Td><Td /><Td className="text-right">{num(totals.members)}</Td><Td className="text-right">{num(totals.area)}</Td><Td className="text-right">{money(totals.income)}</Td>
+          </tr>
+        </tbody>
+      </Table>
+    </Card>
+  )
 }

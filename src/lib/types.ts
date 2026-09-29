@@ -74,6 +74,8 @@ export interface Profile {
   bank_type?: string | null
   upi_id?: string | null
   pan_number?: string | null
+  father_name?: string | null
+  spouse_name?: string | null
   bank_updated_at?: string | null
   notes: string | null
   approved_at: string | null
@@ -294,7 +296,34 @@ export interface Kyc {
   reviewed_at: string | null
   reject_reason: string | null
   created_at: string
-  user?: Pick<Profile, 'id' | 'full_name' | 'user_code' | 'role'> | null
+  legal_name?: string | null
+  dob?: string | null
+  kyc_address?: string | null
+  bank_doc_path?: string | null
+  nominee_name?: string | null
+  nominee_relation?: string | null
+  nominee_dob?: string | null
+  nominee_phone?: string | null
+  nominee_aadhaar_last4?: string | null
+  nominee_pan?: string | null
+  nominee_address?: string | null
+  nominee_share?: number | null
+  nominee_doc_path?: string | null
+  /** 1 on first submission; more means it came back after a rejection. */
+  submissions?: number
+  user?: (Pick<Profile, 'id' | 'full_name' | 'user_code' | 'role'> & { member_code?: string | null; frozen?: boolean | null; phone?: string | null }) | null
+}
+
+export interface KycEvent {
+  id: string
+  kyc_id: string
+  user_id: string
+  event: 'submitted' | 'resubmitted' | 'updated' | 'verified' | 'rejected' | string
+  from_status: string | null
+  to_status: string | null
+  note: string | null
+  actor_id: string | null
+  created_at: string
 }
 
 export interface MessageThread {

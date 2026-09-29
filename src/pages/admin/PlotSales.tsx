@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertTriangle, BadgeCheck, Check, Clock, IndianRupee, X } from 'lucide-react'
+import { AlertTriangle, BadgeCheck, Check, Clock, Download, IndianRupee, Search, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import {
-  Badge, Button, Card, CardHeader, EmptyState, Field, Modal, PageHeader,
+  Badge, Button, Card, CardHeader, EmptyState, Field, Input, Modal, PageHeader,
   RecordCard, Responsive, Select, StatTile, Table, Td, Textarea, Th, useToast,
 } from '@/components/ui'
 import { SkeletonRows, SkeletonTiles } from '@/components/sponsor'
-import { date, money, moneyShort, num } from '@/lib/format'
+import { date, downloadCsv, money, moneyShort, num } from '@/lib/format'
+import { useMembers } from '@/lib/queries'
 
 /**
  * Plot Sales Verification — the office's side of the member's "Add sale".
@@ -35,6 +36,8 @@ interface PendingSale {
   project: { id: string; name: string } | null
   rep: { id: string; full_name: string; member_code: string | null; rank_id: string | null } | null
 }
+
+interface Upline { id: string; full_name: string; member_code: string | null }
 
 const FILTERS = [
   { key: 'pending', label: 'Awaiting verification' },
@@ -74,6 +77,18 @@ export function AdminPlotSales() {
 
   const [filter, setFilter] = useState<FilterKey>('pending')
   const [rejecting, setRejecting] = useState<PendingSale | null>(null)
+  const [q, setQ] = useState('')
+  const [sponsorId, setSponsorId] = useState('')
+  const [uplineId, setUplineId] = useState('')
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
+  const { data: members = [] } = useMembers()
+  // The seller's own sponsor (upline), who earns level 1 on the sale.
+  const uplineOf = useMemo(() => {
+    const m = new Map<string, Upline | null>()
+    for (const x of members) m.set(x.id, (x as { referrer?: Upline | null }).referrer ?? null)
+    return m
+  }, [members])
 
   const verify = useMutation({
     mutationFn: async (id: string) => {
@@ -120,11 +135,45 @@ export function AdminPlotSales() {
     }
   }, [sales])
 
-  const shown = sales.filter((s) => {
+  const byStatus = sales.filter((s) => {
     if (filter === 'all') return true
     if (filter === 'pending') return PENDING.includes(s.status)
     return s.status === filter
   })
+  const needle = q.trim().toLowerCase()
+  const shown = byStatus.filter((s) => {
+    const day = s.created_at.slice(0, 10)
+    if (sponsorId && s.rep?.id !== sponsorId) return false
+    if (uplineId && uplineOf.get(s.rep?.id ?? '')?.id !== uplineId) return false
+    if (from && day < from) return false
+    if (to && day > to) return false
+    if (!needle) return true
+    return [s.reference, s.customer_name, s.customer_phone, s.plot?.number, s.project?.name, s.rep?.full_name, s.rep?.member_code]
+      .some((v) => String(v ?? '').toLowerCase().includes(needle))
+  })
+  const sponsors = useMemo(() => [...new Map(sales.filter((s) => s.rep).map((s) => [s.rep!.id, s.rep!])).values()]
+    .sort((a, z) => a.full_name.localeCompare(z.full_name)), [sales])
+  const uplines = useMemo(() => {
+    const m = new Map<string, Upline>()
+    for (const r of sponsors) { const u = uplineOf.get(r.id); if (u) m.set(u.id, u) }
+    return [...m.values()].sort((a, z) => a.full_name.localeCompare(z.full_name))
+  }, [sponsors, uplineOf])
+  const filtered = Boolean(needle || sponsorId || uplineId || from || to)
+
+  function exportCsv() {
+    downloadCsv(`plot-sales-${new Date().toISOString().slice(0, 10)}`, shown.map((s) => {
+      const up = uplineOf.get(s.rep?.id ?? '')
+      return {
+        Reference: s.reference, Submitted: s.created_at.slice(0, 10), Status: s.status,
+        Sponsor: s.rep?.full_name ?? 'Office', 'Sponsor ID': s.rep?.member_code ?? '',
+        'Upline sponsor': up?.full_name ?? '', 'Upline ID': up?.member_code ?? '',
+        Project: s.project?.name ?? '', Plot: s.plot?.number ?? '', 'Area (sq yd)': s.plot?.size ?? '',
+        Customer: s.customer_name ?? '', 'Customer phone': s.customer_phone ?? '',
+        'Sale value': Number(s.sale_value ?? 0), 'Booking amount': Number(s.token_amount ?? 0),
+        'Verified on': s.step3_at?.slice(0, 10) ?? '', Remark: s.reject_remark ?? '',
+      }
+    }))
+  }
 
   const canVerify = (s: PendingSale) => PENDING.includes(s.status)
 
@@ -133,6 +182,7 @@ export function AdminPlotSales() {
       <PageHeader
         title="Plot Sales Verification"
         description="Verify sales filed by members. On verification the direct and level income is credited and the sale appears in the member's panel."
+        action={<Button variant="outline" onClick={exportCsv} disabled={!shown.length}><Download className="h-4 w-4" /> Export CSV</Button>}
       />
 
       {counts.pending > 0 && (
@@ -163,14 +213,34 @@ export function AdminPlotSales() {
       )}
 
       <Card>
-        <CardHeader
-          title={`${shown.length} sale${shown.length === 1 ? '' : 's'}`}
-          action={
-            <Select value={filter} onChange={(e) => setFilter(e.target.value as FilterKey)} className="w-56">
-              {FILTERS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
-            </Select>
-          }
-        />
+        <CardHeader title={`${shown.length} sale${shown.length === 1 ? '' : 's'}`} />
+        <div className="grid gap-2 border-b border-brand-gold/15 p-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Select value={filter} onChange={(e) => setFilter(e.target.value as FilterKey)} aria-label="Status">
+            {FILTERS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
+          </Select>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search ref, customer, plot, sponsor" />
+          </div>
+          <Select value={sponsorId} onChange={(e) => setSponsorId(e.target.value)} aria-label="Sponsor">
+            <option value="">All sponsors</option>
+            {sponsors.map((r) => <option key={r.id} value={r.id}>{r.full_name}{r.member_code ? ` (${r.member_code})` : ''}</option>)}
+          </Select>
+          <Select value={uplineId} onChange={(e) => setUplineId(e.target.value)} aria-label="Upline sponsor">
+            <option value="">All upline sponsors</option>
+            {uplines.map((u) => <option key={u.id} value={u.id}>{u.full_name}{u.member_code ? ` (${u.member_code})` : ''}</option>)}
+          </Select>
+          <div className="grid grid-cols-2 gap-1.5 sm:col-span-2">
+            <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} aria-label="From" title="From" />
+            <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} aria-label="To" title="To" />
+          </div>
+          {filtered && (
+            <p className="text-xs text-slate-500 sm:col-span-2 lg:col-span-3">
+              {shown.length} of {byStatus.length} match ·{' '}
+              <button className="font-medium text-brand-700 underline" onClick={() => { setQ(''); setSponsorId(''); setUplineId(''); setFrom(''); setTo('') }}>Reset filters</button>
+            </p>
+          )}
+        </div>
         {isLoading ? (
           <SkeletonRows rows={5} />
         ) : shown.length === 0 ? (
@@ -188,7 +258,7 @@ export function AdminPlotSales() {
               <Table>
                 <thead>
                   <tr>
-                    <Th>Ref</Th><Th>Member</Th><Th>Project / Plot</Th><Th>Customer</Th>
+                    <Th>Ref</Th><Th>Member</Th><Th>Upline</Th><Th>Project / Plot</Th><Th>Customer</Th>
                     <Th>Area</Th><Th>Amount</Th><Th>Status</Th><Th />
                   </tr>
                 </thead>
@@ -202,6 +272,10 @@ export function AdminPlotSales() {
                       <Td>
                         {s.rep?.full_name ?? '—'}
                         <p className="text-xs text-slate-400">{s.rep?.member_code ?? ''}</p>
+                      </Td>
+                      <Td className="text-slate-600">
+                        {uplineOf.get(s.rep?.id ?? '')?.full_name ?? '—'}
+                        <p className="text-xs text-slate-400">{uplineOf.get(s.rep?.id ?? '')?.member_code ?? ''}</p>
                       </Td>
                       <Td>
                         {s.project?.name ?? '—'}

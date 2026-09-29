@@ -202,3 +202,21 @@ export function maskAccount(value: string | null | undefined) {
   if (clean.length <= 4) return clean
   return `•••• ${clean.slice(-4)}`
 }
+
+/**
+ * Sponsor / Placement switch for the team and genealogy views. "Sponsor" is
+ * who referred whom (income follows this line); "Placement" is where the
+ * office placed each member in the tree.
+ */
+export function TreeByToggle({ value, onChange }: { value: 'sponsor' | 'placement'; onChange: (v: 'sponsor' | 'placement') => void }) {
+  return (
+    <div className="inline-flex rounded-xl bg-white p-1 ring-1 ring-brand-gold/25" role="group" aria-label="Tree by">
+      {(['sponsor', 'placement'] as const).map((v) => (
+        <button key={v} type="button" onClick={() => onChange(v)} aria-pressed={value === v}
+          className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${value === v ? 'bg-gold-metal text-brand-darker shadow-sm' : 'text-slate-600 hover:bg-brand-gold/10'}`}>
+          {v === 'sponsor' ? 'Sponsor' : 'Placement'}
+        </button>
+      ))}
+    </div>
+  )
+}

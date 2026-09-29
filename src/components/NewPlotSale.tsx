@@ -4,6 +4,8 @@ import { useAvailablePlots } from '@/lib/sponsor-crm'
 import { previewSchedule, useCreatePlotSale, type Milestone } from '@/lib/plot-sale'
 import { useCustomers } from '@/lib/customers'
 import { useMembers } from '@/lib/queries'
+import { useAuth } from '@/context/AuthContext'
+import { useSponsorRates } from '@/lib/sponsor'
 import { Badge, Button, Field, Input, Modal, Select, Table, Td, Textarea, Th, useToast } from '@/components/ui'
 import { date, money, num } from '@/lib/format'
 
@@ -43,8 +45,21 @@ export function NewPlotSale({ office = false, onClose, onCreated }: {
   const [bookingPaid, setBookingPaid] = useState(false)
 
   const set = (k: keyof typeof f, v: string) => setF((x) => ({ ...x, [k]: v }))
+  const { profile } = useAuth()
+  const { data: rates } = useSponsorRates()
 
   const projects = useMemo(() => [...new Map(plots.map((p) => [p.project_id, p.project_name])).entries()], [plots])
+  // Lowest listed rate per sq yd in each project, for the picker.
+  const fromRate = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const p of plots) {
+      const size = Number(p.size ?? 0)
+      if (!size || !p.price) continue
+      const r = Number(p.price) / size
+      m.set(p.project_id, Math.min(m.get(p.project_id) ?? Infinity, r))
+    }
+    return m
+  }, [plots])
   const inProject = plots.filter((p) => p.project_id === f.projectId)
   const plot = plots.find((p) => p.id === f.plotId)
 
@@ -62,6 +77,11 @@ export function NewPlotSale({ office = false, onClose, onCreated }: {
 
   const autoTotal = Math.round(numOr(f.area) * numOr(f.rate))
   const total = totalTouched ? numOr(f.total) : autoTotal
+  // Direct income as distribute_sale_income() will credit it on verification:
+  // the member's rank rate on the sale value, less TDS and admin charge.
+  const rankRate = Number(profile?.rank?.own_sale_rate ?? 0)
+  const expGross = Math.round((total * rankRate) / 100)
+  const expNet = Math.round(expGross * (1 - ((rates?.tds_pct ?? 5) + (rates?.admin_pct ?? 3)) / 100))
   const ms: Milestone[] = milestones.map((m) => ({ label: m.label, due_date: m.due_date, amount: numOr(m.amount) }))
   const plan = previewSchedule({
     total, bookingAmount: numOr(f.booking), emiCount: numOr(f.emiCount), emiAmount: numOr(f.emiAmount) || null,
@@ -117,7 +137,7 @@ export function NewPlotSale({ office = false, onClose, onCreated }: {
           <Field label="Project" required>
             <Select value={f.projectId} onChange={(e) => setF((x) => ({ ...x, projectId: e.target.value, plotId: '' }))}>
               <option value="">{isLoading ? 'Loading…' : 'Select a project'}</option>
-              {projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+              {projects.map(([id, name]) => <option key={id} value={id}>{name}{fromRate.get(id) ? ` — from ${money(Math.round(fromRate.get(id)!))}/sq yd` : ''}</option>)}
             </Select>
           </Field>
           <Field label="Plot no." required hint={f.projectId ? `${inProject.length} available` : undefined}>
@@ -133,6 +153,14 @@ export function NewPlotSale({ office = false, onClose, onCreated }: {
               onChange={(e) => { setTotalTouched(true); set('total', clean(e.target.value)) }} placeholder="Area × rate" />
           </Field>
           <Field label="Booking amount (₹)"><Input inputMode="numeric" value={f.booking} onChange={(e) => set('booking', clean(e.target.value))} placeholder="0" /></Field>
+          {!office && (
+            <Field label="Expected direct income" hint={rankRate ? `${rankRate}% of the total at your rank (${profile?.rank?.name ?? '—'}); credited when the office verifies the sale.` : 'Your rank has no direct-income rate yet.'}>
+              <div className="flex h-[38px] items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-sm">
+                <b className="text-emerald-700">{money(expGross)}</b>
+                <span className="text-xs text-emerald-800">{money(expNet)} after TDS &amp; admin</span>
+              </div>
+            </Field>
+          )}
           <Field label="Number of EMIs"><Input inputMode="numeric" value={f.emiCount} onChange={(e) => set('emiCount', e.target.value.replace(/\D/g, ''))} placeholder="0 = pay the balance at once" /></Field>
           <Field label="EMI amount (₹)" hint="Leave blank to split the balance evenly."><Input inputMode="numeric" value={f.emiAmount} onChange={(e) => set('emiAmount', clean(e.target.value))} /></Field>
           <Field label="Start / booking date"><Input type="date" value={f.start} onChange={(e) => set('start', e.target.value)} /></Field>

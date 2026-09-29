@@ -15,6 +15,7 @@ import { ReferralQueue } from '@/pages/admin/ReferralQueue'
 import { rankTone, statusTone } from '@/lib/network'
 import type { Profile } from '@/lib/types'
 import { BRAND } from '@/lib/brand'
+import { num } from '@/lib/format'
 
 export function AdminMembers() {
   const navigate = useNavigate()
@@ -28,6 +29,8 @@ export function AdminMembers() {
   const toast = useToast()
 
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(0)
+  const [pageSize, setPageSize] = useState(20)
   const [menuFor, setMenuFor] = useState<string | null>(null)
   const [addOpen, setAddOpen] = useState(false)
   const [pwFor, setPwFor] = useState<Profile | null>(null)
@@ -49,6 +52,10 @@ export function AdminMembers() {
         .some((v) => String(v).toLowerCase().includes(q)),
     )
   }, [members, search])
+
+  const pages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const current = Math.min(page, pages - 1)
+  const paged = filtered.slice(current * pageSize, current * pageSize + pageSize)
 
   return (
     <div>
@@ -97,7 +104,7 @@ export function AdminMembers() {
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setPage(0) }}
               placeholder="Search members…"
               className="pl-9"
             />
@@ -128,7 +135,7 @@ export function AdminMembers() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((m) => (
+              {paged.map((m) => (
                 <tr key={m.id} className="hover:bg-slate-50">
                   <Td className="font-semibold">
                     <Link to={`/admin/members/${m.member_code}`} className="text-brand-700 hover:underline">{m.member_code}</Link>
@@ -195,6 +202,23 @@ export function AdminMembers() {
               ))}
             </tbody>
           </Table>
+        )}
+        {filtered.length > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-brand-gold/15 px-5 py-3 text-sm text-slate-600">
+            <span>Showing {num(current * pageSize + 1)}–{num(Math.min(filtered.length, (current + 1) * pageSize))} of {num(filtered.length)}</span>
+            <div className="flex items-center gap-2">
+              <label className="flex items-center gap-1.5 text-xs">
+                Rows per page
+                <select className="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm" value={pageSize}
+                  onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0) }}>
+                  {[20, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </label>
+              <Button size="sm" variant="outline" disabled={current === 0} onClick={() => setPage(current - 1)}>Previous</Button>
+              <span className="text-xs">{current + 1} / {pages}</span>
+              <Button size="sm" variant="outline" disabled={current >= pages - 1} onClick={() => setPage(current + 1)}>Next</Button>
+            </div>
+          </div>
         )}
       </Card>
 

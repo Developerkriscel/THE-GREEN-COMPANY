@@ -230,12 +230,13 @@ export function useMyWithdrawals(memberId: string | undefined) {
 }
 
 /** The caller's own subtree, levels 1–12. Never anyone else's. */
-export function useMyDownline(memberId: string | undefined) {
+/** The member's downline by who sponsored whom, or by where the office placed them. */
+export function useMyDownline(memberId: string | undefined, by: 'sponsor' | 'placement' = 'sponsor') {
   return useQuery({
-    queryKey: ['sponsor-downline', memberId],
+    queryKey: ['sponsor-downline', memberId, by],
     enabled: Boolean(memberId),
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('my_downline')
+      const { data, error } = await supabase.rpc('my_downline', { p_by: by })
       if (error) throw new Error(error.message)
       return ((data ?? []) as DownlineRow[]).map((d) => ({
         ...d,

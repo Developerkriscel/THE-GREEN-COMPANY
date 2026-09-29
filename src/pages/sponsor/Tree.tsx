@@ -4,7 +4,7 @@ import { ChevronRight, List, Network, Search, X } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { legsOf, useMyDownline, useSponsorProfile, type DownlineRow } from '@/lib/sponsor'
 import { Badge, Card, CardHeader, EmptyState, Input, PageHeader } from '@/components/ui'
-import { MemberStatusBadge, SkeletonRows } from '@/components/sponsor'
+import { MemberStatusBadge, SkeletonRows, TreeByToggle } from '@/components/sponsor'
 import { rankTone } from '@/lib/network'
 import { date, num } from '@/lib/format'
 import { GenealogyChart, type ChartNode } from '@/components/GenealogyChart'
@@ -28,7 +28,8 @@ export function SponsorTree() {
   const me = profile?.id
 
   const { data: member } = useSponsorProfile(me)
-  const { data: downline = [], isLoading } = useMyDownline(me)
+  const [by, setBy] = useState<'sponsor' | 'placement'>('sponsor')
+  const { data: downline = [], isLoading } = useMyDownline(me, by)
   const [search, setSearch] = useState('')
   const [focus, setFocus] = useState<DownlineRow | null>(null)
   const [view, setView] = useState<'tree' | 'list'>('tree')
@@ -109,9 +110,12 @@ export function SponsorTree() {
         title="Genealogy Tree"
         description="Your team as a shape — which leg is growing, and where a branch has stalled."
         action={
-          <Link to="/sponsor/team" className="text-sm font-medium text-brand-700 hover:underline">
-            ← Back to level view
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <TreeByToggle value={by} onChange={setBy} />
+            <Link to="/sponsor/team" className="text-sm font-medium text-brand-700 hover:underline">
+              ← Level view
+            </Link>
+          </div>
         }
       />
 

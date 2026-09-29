@@ -37,7 +37,7 @@ const AuthContext = createContext<AuthState | null>(null)
 
 const PROFILE_SELECT = `
   id, role, status, full_name, email, phone, avatar_path, user_code, rank_id,
-  manager_id, commission_rate, address, city, state, pincode, notes,
+  manager_id, commission_rate, address, city, state, pincode, notes, father_name, spouse_name,
   approved_at, last_login_at, created_at,
   member_code, referrer_id, placement_parent_id, direct_count, team_count, frozen,
   bank_holder, bank_name, bank_account, bank_ifsc, bank_type, upi_id, pan_number, bank_updated_at,

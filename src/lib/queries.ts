@@ -7,6 +7,7 @@ import type {
   DocumentRow,
   Emi,
   Kyc,
+  KycEvent,
   Lead,
   LeadActivity,
   Message,
@@ -351,13 +352,24 @@ export function useMyKyc(userId: string | undefined) {
   })
 }
 
+export function useKycEvents(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['kyc-events', userId],
+    enabled: Boolean(userId),
+    queryFn: async () =>
+      unwrap<KycEvent[]>(
+        await supabase.from('kyc_events').select('*').eq('user_id', userId!).order('created_at', { ascending: false }),
+      ),
+  })
+}
+
 export function useKycQueue(status?: string) {
   return useQuery({
     queryKey: ['kyc-queue', status],
     queryFn: async () => {
       let q = supabase
         .from('kyc')
-        .select('*, user:profiles!kyc_user_id_fkey ( id, full_name, user_code, role )')
+        .select('*, user:profiles!kyc_user_id_fkey ( id, full_name, user_code, role, member_code, frozen, phone )')
         .order('created_at', { ascending: false })
       if (status) q = q.eq('status', status)
       return unwrap<Kyc[]>(await q)

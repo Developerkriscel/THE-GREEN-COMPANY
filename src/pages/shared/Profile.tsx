@@ -60,6 +60,9 @@ export function ProfilePage() {
   if (!profile) return null
 
   const isStaff = profile.role !== 'customer'
+  // Members' and buyers' names are on their ID card, letters and payouts —
+  // the office changes them (profiles_guard enforces it).
+  const nameLocked = profile.role === 'rep' || profile.role === 'customer'
 
   return (
     <>
@@ -82,7 +85,9 @@ export function ProfilePage() {
                 e.preventDefault()
                 const f = new FormData(e.currentTarget)
                 save.mutate({
-                  full_name: String(f.get('full_name')),
+                  ...(nameLocked ? {} : { full_name: String(f.get('full_name')) }),
+                  father_name: String(f.get('father_name') ?? '') || null,
+                  spouse_name: String(f.get('spouse_name') ?? '') || null,
                   phone: String(f.get('phone') ?? '') || null,
                   address: String(f.get('address') ?? '') || null,
                   city: String(f.get('city') ?? '') || null,
@@ -92,11 +97,17 @@ export function ProfilePage() {
               }}
             >
               <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="Full name" required>
-                  <Input name="full_name" required defaultValue={profile.full_name} />
+                <Field label="Full name" required={!nameLocked} hint={nameLocked ? 'Locked — contact the office to change your name.' : undefined}>
+                  <Input name="full_name" required={!nameLocked} defaultValue={profile.full_name} disabled={nameLocked} />
                 </Field>
                 <Field label="Mobile number">
                   <Input name="phone" defaultValue={profile.phone ?? ''} inputMode="tel" />
+                </Field>
+                <Field label="Father / Mother name">
+                  <Input name="father_name" defaultValue={profile.father_name ?? ''} />
+                </Field>
+                <Field label="Wife / Husband name">
+                  <Input name="spouse_name" defaultValue={profile.spouse_name ?? ''} />
                 </Field>
                 <Field label="City">
                   <Input name="city" defaultValue={profile.city ?? ''} />
@@ -123,7 +134,7 @@ export function ProfilePage() {
           <Card>
             <CardHeader title="Account" />
             <CardBody className="space-y-3 text-sm">
-              <Row label="User ID" value={<span className="font-mono text-xs">{profile.user_code ?? '—'}</span>} />
+              <Row label={profile.role === 'rep' ? 'Sponsor ID' : profile.role === 'customer' ? 'Customer ID' : 'User ID'} value={<span className="font-mono text-xs">{(profile.role === 'rep' ? profile.member_code : null) ?? profile.user_code ?? '—'}</span>} />
               <Row label="Role" value={<Badge tone="blue">{ROLE_LABEL[profile.role] ?? profile.role}</Badge>} />
               <Row
                 label="Status"

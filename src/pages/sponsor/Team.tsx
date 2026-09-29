@@ -6,7 +6,7 @@ import { useMyDownline, useMyLedger, levelSummary, type DownlineRow } from '@/li
 import {
   Badge, Card, CardHeader, EmptyState, Input, PageHeader, Select, StatTile, Table, Td, Th,
 } from '@/components/ui'
-import { MemberStatusBadge, SkeletonRows } from '@/components/sponsor'
+import { MemberStatusBadge, SkeletonRows, TreeByToggle } from '@/components/sponsor'
 import { rankTone } from '@/lib/network'
 import { date, money, num } from '@/lib/format'
 
@@ -20,7 +20,8 @@ export function SponsorTeam() {
   const { profile } = useAuth()
   const me = profile?.id
 
-  const { data: downline = [], isLoading } = useMyDownline(me)
+  const [by, setBy] = useState<'sponsor' | 'placement'>('sponsor')
+  const { data: downline = [], isLoading } = useMyDownline(me, by)
   const { data: ledger = [] } = useMyLedger(me)
   const [open, setOpen] = useState<number[]>([1])
 
@@ -41,9 +42,12 @@ export function SponsorTeam() {
         title="My Team"
         description="Your downline, level by level — where your team is growing and which level is earning."
         action={
-          <Link to="/sponsor/tree" className="text-sm font-medium text-brand-700 hover:underline">
-            View as tree →
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <TreeByToggle value={by} onChange={setBy} />
+            <Link to="/sponsor/tree" className="text-sm font-medium text-brand-700 hover:underline">
+              View as tree →
+            </Link>
+          </div>
         }
       />
 
