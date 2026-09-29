@@ -4,8 +4,7 @@ import {
   MoreHorizontal, RefreshCw, UserPlus, Eye, KeyRound, Ban, Trash2, CheckCircle2, Search, Trophy,
 } from 'lucide-react'
 import {
-  Badge, Button, Card, EmptyState, ErrorState, Field, Input, Modal, PageHeader, Select,
-  Spinner, Table, Td, Th, useToast,
+  Badge, Button, Card, EmptyState, ErrorState, Field, Input, Modal, PageHeader, Select, Spinner, Table, Td, Th, useToast, RecordCard, Responsive,
 } from '@/components/ui'
 import {
   useMembers, useRanks, useRecalculateNetwork, useRecalculateMember, useSetMemberStatus,
@@ -56,6 +55,47 @@ export function AdminMembers() {
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize))
   const current = Math.min(page, pages - 1)
   const paged = filtered.slice(current * pageSize, current * pageSize + pageSize)
+
+  // One list of row actions for the table and the phone cards.
+  const rowItems = (m: Profile) => [
+                        { label: 'Open dashboard', icon: <Eye className="h-4 w-4" />, onClick: () => navigate(`/admin/members/${m.member_code}`) },
+                        { label: 'Quick view', icon: <Eye className="h-4 w-4" />, onClick: () => setViewFor(m) },
+                        {
+                          label: 'Recalculate', icon: <RefreshCw className="h-4 w-4" />,
+                          onClick: () => recalcOne.mutate(m.id, {
+                            onSuccess: () => toast.push('success', `${m.member_code} recalculated`),
+                            onError: (e) => toast.push('error', (e as Error).message),
+                          }),
+                        },
+                        { label: 'Change password', icon: <KeyRound className="h-4 w-4" />, onClick: () => setPwFor(m) },
+                        // A sign-up arrives pending and cannot reach the sponsor
+                        // panel until the office approves it, so that is the
+                        // action offered first for a pending account.
+                        m.status === 'pending'
+                          ? {
+                              label: 'Approve sign-up', icon: <CheckCircle2 className="h-4 w-4" />,
+                              onClick: () => setStatus.mutate({ id: m.id, status: 'active' }, {
+                                onSuccess: () => toast.push('success', `${m.full_name} approved — they can sign in now`),
+                                onError: (e) => toast.push('error', (e as Error).message),
+                              }),
+                            }
+                          : m.status === 'suspended'
+                          ? {
+                              label: 'Activate', icon: <CheckCircle2 className="h-4 w-4" />,
+                              onClick: () => setStatus.mutate({ id: m.id, status: 'active' }, {
+                                onSuccess: () => toast.push('success', `${m.full_name} activated`),
+                                onError: (e) => toast.push('error', (e as Error).message),
+                              }),
+                            }
+                          : {
+                              label: 'Suspend', icon: <Ban className="h-4 w-4" />,
+                              onClick: () => setStatus.mutate({ id: m.id, status: 'suspended' }, {
+                                onSuccess: () => toast.push('success', `${m.full_name} suspended`),
+                                onError: (e) => toast.push('error', (e as Error).message),
+                              }),
+                            },
+                        { label: 'Delete', icon: <Trash2 className="h-4 w-4" />, danger: true, onClick: () => setDelFor(m) },
+                      ]
 
   return (
     <div>
@@ -119,7 +159,7 @@ export function AdminMembers() {
         ) : filtered.length === 0 ? (
           <EmptyState title="No members found" description="Try a different search, or add your first member." />
         ) : (
-          <Table>
+          <Responsive table={<Table>
             <thead>
               <tr>
                 <Th>Sponsor ID</Th>
@@ -157,51 +197,28 @@ export function AdminMembers() {
                       open={menuFor === m.id}
                       onToggle={() => setMenuFor(menuFor === m.id ? null : m.id)}
                       onClose={() => setMenuFor(null)}
-                      items={[
-                        { label: 'Open dashboard', icon: <Eye className="h-4 w-4" />, onClick: () => navigate(`/admin/members/${m.member_code}`) },
-                        { label: 'Quick view', icon: <Eye className="h-4 w-4" />, onClick: () => setViewFor(m) },
-                        {
-                          label: 'Recalculate', icon: <RefreshCw className="h-4 w-4" />,
-                          onClick: () => recalcOne.mutate(m.id, {
-                            onSuccess: () => toast.push('success', `${m.member_code} recalculated`),
-                            onError: (e) => toast.push('error', (e as Error).message),
-                          }),
-                        },
-                        { label: 'Change password', icon: <KeyRound className="h-4 w-4" />, onClick: () => setPwFor(m) },
-                        // A sign-up arrives pending and cannot reach the sponsor
-                        // panel until the office approves it, so that is the
-                        // action offered first for a pending account.
-                        m.status === 'pending'
-                          ? {
-                              label: 'Approve sign-up', icon: <CheckCircle2 className="h-4 w-4" />,
-                              onClick: () => setStatus.mutate({ id: m.id, status: 'active' }, {
-                                onSuccess: () => toast.push('success', `${m.full_name} approved — they can sign in now`),
-                                onError: (e) => toast.push('error', (e as Error).message),
-                              }),
-                            }
-                          : m.status === 'suspended'
-                          ? {
-                              label: 'Activate', icon: <CheckCircle2 className="h-4 w-4" />,
-                              onClick: () => setStatus.mutate({ id: m.id, status: 'active' }, {
-                                onSuccess: () => toast.push('success', `${m.full_name} activated`),
-                                onError: (e) => toast.push('error', (e as Error).message),
-                              }),
-                            }
-                          : {
-                              label: 'Suspend', icon: <Ban className="h-4 w-4" />,
-                              onClick: () => setStatus.mutate({ id: m.id, status: 'suspended' }, {
-                                onSuccess: () => toast.push('success', `${m.full_name} suspended`),
-                                onError: (e) => toast.push('error', (e as Error).message),
-                              }),
-                            },
-                        { label: 'Delete', icon: <Trash2 className="h-4 w-4" />, danger: true, onClick: () => setDelFor(m) },
-                      ]}
+                      items={rowItems(m)}
                     />
                   </Td>
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </Table>} cards={
+          <div>
+            {paged.map((m) => (
+              <RecordCard key={m.id} onClick={() => navigate(`/admin/members/${m.member_code}`)}
+                title={<>{m.full_name || '—'} <span className="font-mono text-xs font-normal text-brand-700">{m.member_code}</span></>}
+                subtitle={[m.phone, m.email].filter(Boolean).join(' · ') || undefined}
+                badge={<><Badge tone={rankTone(m.rank?.name)}>{m.rank?.name ?? '—'}</Badge><Badge tone={statusTone(m.status)}>{m.status}</Badge></>}
+                rows={[
+                  { label: 'Sponsor', value: m.referrer?.member_code ?? (m.referrer_id ? codeName.get(m.referrer_id) : '—') },
+                  { label: 'Placement', value: m.placement_parent?.member_code ?? (m.placement_parent_id ? codeName.get(m.placement_parent_id) : '—') },
+                  { label: 'Joined', value: new Date(m.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) },
+                ]}
+                actions={<RowMenu open={menuFor === m.id} onToggle={() => setMenuFor(menuFor === m.id ? null : m.id)} onClose={() => setMenuFor(null)} items={rowItems(m)} />} />
+            ))}
+          </div>
+        } />
         )}
         {filtered.length > 0 && (
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-brand-gold/15 px-5 py-3 text-sm text-slate-600">

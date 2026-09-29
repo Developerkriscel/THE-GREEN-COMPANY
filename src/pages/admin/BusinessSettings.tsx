@@ -12,8 +12,7 @@ import type { Rank } from '@/lib/types'
 import { AdminProjects } from '@/pages/admin/Projects'
 import { AdminPlots } from '@/pages/admin/Plots'
 import {
-  Badge, Button, Card, CardBody, CardHeader, Field, Input, Modal, PageHeader,
-  Select, Spinner, Table, Td, Textarea, Th, useToast,
+  Badge, Button, Card, CardBody, CardHeader, Field, Input, Modal, PageHeader, Select, Spinner, Table, Td, Textarea, Th, useToast, RecordCard, Responsive,
 } from '@/components/ui'
 
 /**
@@ -401,6 +400,19 @@ function RankPlanTab() {
     save.mutate(f)
   }
 
+  // The same row actions for the table and the phone cards.
+  const rankActions = (r: Rank) => (
+    <div className="flex justify-end gap-1">
+                  <Button size="sm" variant="ghost" title="Edit" onClick={() => setEditing(toForm(r, nextLevel))}><Pencil className="h-4 w-4" /></Button>
+                  <Button size="sm" variant="ghost" title={r.active ? 'Switch off' : 'Switch on'} onClick={() => toggle.mutate(r)}><Power className="h-4 w-4" /></Button>
+                  <Button
+                    size="sm" variant="ghost" title="Delete"
+                    disabled={(holders.get(r.id) ?? 0) > 0}
+                    onClick={() => { if (window.confirm(`Delete the rank “${r.name}”? This cannot be undone.`)) remove.mutate(r) }}
+                  ><Trash2 className="h-4 w-4" /></Button>
+                </div>
+  )
+
   if (isLoading) return <Spinner label="Loading the rank plan…" />
   const set = <K extends keyof RankForm>(k: K, v: RankForm[K]) => setEditing((f) => (f ? { ...f, [k]: v } : f))
   const nextLevel = ranks.length ? Math.max(...ranks.map((r) => r.seniority)) + 1 : 1
@@ -417,7 +429,7 @@ function RankPlanTab() {
           </div>
         }
       />
-      <Table>
+      <Responsive table={<Table>
         <thead>
           <tr>
             <Th>Level</Th><Th>Rank</Th><Th className="text-right">Own sale</Th><Th className="text-right">Sponsor</Th>
@@ -440,20 +452,29 @@ function RankPlanTab() {
               <Td className="text-xs text-slate-600">{qualification(r, byLevel)}</Td>
               <Td className="text-right">{num(holders.get(r.id) ?? 0)}</Td>
               <Td>
-                <div className="flex justify-end gap-1">
-                  <Button size="sm" variant="ghost" title="Edit" onClick={() => setEditing(toForm(r, nextLevel))}><Pencil className="h-4 w-4" /></Button>
-                  <Button size="sm" variant="ghost" title={r.active ? 'Switch off' : 'Switch on'} onClick={() => toggle.mutate(r)}><Power className="h-4 w-4" /></Button>
-                  <Button
-                    size="sm" variant="ghost" title="Delete"
-                    disabled={(holders.get(r.id) ?? 0) > 0}
-                    onClick={() => { if (window.confirm(`Delete the rank “${r.name}”? This cannot be undone.`)) remove.mutate(r) }}
-                  ><Trash2 className="h-4 w-4" /></Button>
-                </div>
+                {rankActions(r)}
               </Td>
             </tr>
           ))}
         </tbody>
-      </Table>
+      </Table>} cards={
+        <div>
+          {ranks.map((r) => (
+            <RecordCard key={r.id}
+              title={<>{r.seniority}. {r.name} {!r.active && <Badge tone="neutral">Off</Badge>}</>}
+              subtitle={rankFeatures(r) || undefined}
+              amount={<span className="text-sm font-bold text-brand-darker">{pct(Number(r.own_sale_rate))}</span>}
+              badge={<span className="text-[11px] text-slate-500">{num(holders.get(r.id) ?? 0)} members</span>}
+              rows={[
+                { label: 'Sponsor', value: Number(r.override_pct ?? 0) > 0 ? pct(Number(r.override_pct)) : '—' },
+                { label: 'Salary / mo', value: Number(r.salary ?? 0) > 0 ? money(Number(r.salary)) : '—' },
+                { label: 'Joining', value: joiningLabel(r) },
+                { label: 'To qualify', value: qualification(r, byLevel) },
+              ]}
+              actions={rankActions(r)} />
+          ))}
+        </div>
+      } />
 
       <Modal
         open={Boolean(editing)}

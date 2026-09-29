@@ -4,8 +4,7 @@ import { Ban, Check, CheckCircle2, Eye, X } from 'lucide-react'
 import { supabase, openPrivateFile } from '@/lib/supabase'
 import { useKycEvents, useKycQueue, useSetMemberFrozen } from '@/lib/queries'
 import {
-  Badge, Button, Card, EmptyState, Field, Modal, PageHeader,
-  Spinner, StatTile, Table, Td, Textarea, Th, useToast,
+  Badge, Button, Card, EmptyState, Field, Modal, PageHeader, Spinner, StatTile, Table, Td, Textarea, Th, useToast, RecordCard, Responsive,
 } from '@/components/ui'
 import { KycBadge } from '@/components/status'
 import { HistoryCard } from '@/pages/shared/Kyc'
@@ -73,7 +72,7 @@ export function AdminKyc() {
         {isLoading ? <Spinner /> : rows.length === 0 ? (
           <EmptyState title="No KYC in this view" description="New submissions will appear under Pending." />
         ) : (
-          <Table>
+          <Responsive table={<Table>
             <thead>
               <tr><Th>Member</Th><Th>ID</Th><Th>Nominee</Th><Th>Status</Th><Th>Submitted</Th><Th /></tr>
             </thead>
@@ -95,7 +94,21 @@ export function AdminKyc() {
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </Table>} cards={
+          <div>
+            {rows.map((k) => (
+              <RecordCard key={k.id} onClick={() => setOpen(k)}
+                title={k.user?.full_name ?? '—'}
+                subtitle={`${k.user?.member_code ?? k.user?.user_code ?? ''} · ${titleCase(k.id_type)} ${maskId(k.id_last4)}`}
+                badge={<><KycBadge status={k.status} />{k.status === 'pending' && (k.submissions ?? 1) > 1 && <Badge tone="amber">Re-review</Badge>}{k.user?.frozen && <Badge tone="red">Frozen</Badge>}</>}
+                rows={[
+                  { label: 'Nominee', value: k.nominee_name ? `${k.nominee_name} (${k.nominee_relation ?? '—'})` : 'None' },
+                  { label: 'Submitted', value: date(k.created_at) },
+                ]}
+                actions={<Button size="sm" variant="outline" onClick={() => setOpen(k)}><Eye className="h-3.5 w-3.5" /> Review</Button>} />
+            ))}
+          </div>
+        } />
         )}
       </Card>
 

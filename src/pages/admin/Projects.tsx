@@ -5,8 +5,7 @@ import { Eye, EyeOff, Pencil, Plus, Star, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useProjects } from '@/lib/queries'
 import {
-  Badge, Button, Card, EmptyState, ErrorState, Field, Input, Modal, PageHeader,
-  Select, Spinner, Table, Td, Textarea, Th, useToast,
+  Badge, Button, Card, EmptyState, ErrorState, Field, Input, Modal, PageHeader, Select, Spinner, Table, Td, Textarea, Th, useToast, RecordCard, Responsive,
 } from '@/components/ui'
 import { date, money } from '@/lib/format'
 import type { Project } from '@/lib/types'
@@ -104,6 +103,36 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
     </Button>
   )
 
+  // The same row actions for the table and the phone cards.
+  const projectActions = (p: Project) => (
+    <div className="flex justify-end gap-1">
+                      <IconBtn
+                        title={p.published ? 'Unpublish' : 'Publish'}
+                        onClick={() => toggle.mutate({ id: p.id, field: 'published', value: !p.published })}
+                      >
+                        {p.published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </IconBtn>
+                      <IconBtn
+                        title={p.featured ? 'Remove from featured' : 'Mark featured'}
+                        onClick={() => toggle.mutate({ id: p.id, field: 'featured', value: !p.featured })}
+                      >
+                        <Star className={'h-4 w-4 ' + (p.featured ? 'fill-amber-400 text-amber-500' : '')} />
+                      </IconBtn>
+                      <IconBtn title="Edit" onClick={() => { setCreating(false); setEditing(p) }}>
+                        <Pencil className="h-4 w-4" />
+                      </IconBtn>
+                      <IconBtn
+                        title="Archive"
+                        onClick={() => {
+                          if (confirm(`Archive "${p.name}"? It will be hidden from the website and logged in the audit trail.`))
+                            softDelete.mutate(p.id)
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </IconBtn>
+                    </div>
+  )
+
   return (
     <>
       {embedded ? (
@@ -129,7 +158,7 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
         ) : data.length === 0 ? (
           <EmptyState title="No projects yet" description="Create your first project to start listing plots." />
         ) : (
-          <Table>
+          <Responsive table={<Table>
             <thead>
               <tr>
                 <Th>Project</Th>
@@ -161,37 +190,26 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
                   </Td>
                   <Td className="text-xs">{date(p.created_at)}</Td>
                   <Td>
-                    <div className="flex justify-end gap-1">
-                      <IconBtn
-                        title={p.published ? 'Unpublish' : 'Publish'}
-                        onClick={() => toggle.mutate({ id: p.id, field: 'published', value: !p.published })}
-                      >
-                        {p.published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </IconBtn>
-                      <IconBtn
-                        title={p.featured ? 'Remove from featured' : 'Mark featured'}
-                        onClick={() => toggle.mutate({ id: p.id, field: 'featured', value: !p.featured })}
-                      >
-                        <Star className={'h-4 w-4 ' + (p.featured ? 'fill-amber-400 text-amber-500' : '')} />
-                      </IconBtn>
-                      <IconBtn title="Edit" onClick={() => { setCreating(false); setEditing(p) }}>
-                        <Pencil className="h-4 w-4" />
-                      </IconBtn>
-                      <IconBtn
-                        title="Archive"
-                        onClick={() => {
-                          if (confirm(`Archive "${p.name}"? It will be hidden from the website and logged in the audit trail.`))
-                            softDelete.mutate(p.id)
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </IconBtn>
-                    </div>
+                    {projectActions(p)}
                   </Td>
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </Table>} cards={
+            <div>
+              {data.map((p) => (
+                <RecordCard key={p.id}
+                  title={p.name}
+                  subtitle={[p.location, p.city].filter(Boolean).join(', ') || undefined}
+                  badge={<><Badge tone={p.published ? 'green' : 'neutral'}>{p.published ? 'Published' : 'Draft'}</Badge>{p.featured && <Badge tone="gold">Featured</Badge>}</>}
+                  rows={[
+                    { label: 'Price', value: p.price_from ? `${money(p.price_from)} – ${money(p.price_to ?? p.price_from)}` : '—' },
+                    { label: 'Created', value: date(p.created_at) },
+                  ]}
+                  actions={projectActions(p)} />
+              ))}
+            </div>
+          } />
         )}
       </Card>
 

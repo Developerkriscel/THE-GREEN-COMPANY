@@ -8,8 +8,7 @@ import {
   type CustomerOffer, type GuardianRelation, type NewCustomer,
 } from '@/lib/customers'
 import {
-  Badge, Button, Card, CardHeader, EmptyState, Field, Input, Modal, PageHeader, Select, Spinner, StatTile,
-  Table, Td, Textarea, Th, useToast,
+  Badge, Button, Card, CardHeader, EmptyState, Field, Input, Modal, PageHeader, Select, Spinner, StatTile, Table, Td, Textarea, Th, useToast, RecordCard, Responsive,
 } from '@/components/ui'
 import { date, money, num } from '@/lib/format'
 
@@ -91,7 +90,7 @@ function CustomerList() {
             description={customers.length ? undefined : 'Add a plot buyer to give them their customer panel.'}
             action={!customers.length ? <Button onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> Add customer</Button> : undefined} />
         ) : (
-          <Table>
+          <Responsive table={<Table>
             <thead><tr><Th>Customer</Th><Th>Mobile</Th><Th>Relationship manager</Th><Th className="text-right">Plots</Th><Th className="text-right">Value</Th><Th>Since</Th></tr></thead>
             <tbody>
               {shown.map((c) => (
@@ -108,7 +107,22 @@ function CustomerList() {
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </Table>} cards={
+            <div>
+              {shown.map((c) => (
+                <RecordCard key={c.id} onClick={() => navigate(`/admin/customers/${c.id}`)}
+                  title={c.full_name}
+                  subtitle={`${c.user_code ?? ''}${c.details?.guardian_name ? ` · ${c.details.guardian_relation ?? 'S/O'} ${c.details.guardian_name}` : ''}`}
+                  amount={<span className="text-sm font-semibold">{money(c.bookings.reduce((t, b) => t + Number(b.sale_value ?? 0), 0))}</span>}
+                  badge={c.bookings.length ? <Badge tone="green">{c.bookings.length} plot{c.bookings.length === 1 ? '' : 's'}</Badge> : <Badge tone="amber">No plot</Badge>}
+                  rows={[
+                    { label: 'Mobile', value: c.phone ?? '—' },
+                    { label: 'RM', value: c.details?.rm_name ?? rmName(c.details?.rm_id) ?? 'Not assigned' },
+                    { label: 'Since', value: date(c.created_at) },
+                  ]} />
+              ))}
+            </div>
+          } />
         )}
       </Card>
       {adding && <AddCustomer onClose={() => setAdding(false)} onCreated={(id) => navigate(`/admin/customers/${id}`)} />}
@@ -257,7 +271,7 @@ function OffersTab() {
       <CardHeader title="Offers for customers" subtitle="Shown on every customer's dashboard and Offers page while active and in date."
         action={<Button onClick={() => setEditing({ active: true })}><Plus className="h-4 w-4" /> New offer</Button>} />
       {isLoading ? <Spinner /> : offers.length === 0 ? <EmptyState title="No offers yet" /> : (
-        <Table>
+        <Responsive table={<Table>
           <thead><tr><Th>Offer</Th><Th>For</Th><Th>Valid till</Th><Th>Status</Th><Th /></tr></thead>
           <tbody>
             {offers.map((o) => (
@@ -273,7 +287,20 @@ function OffersTab() {
               </tr>
             ))}
           </tbody>
-        </Table>
+        </Table>} cards={
+          <div>
+            {offers.map((o) => (
+              <RecordCard key={o.id} onClick={() => setEditing(o)}
+                title={o.title} subtitle={o.body ?? undefined}
+                badge={o.active ? <Badge tone="green">Live</Badge> : <Badge tone="neutral">Off</Badge>}
+                rows={[
+                  { label: 'For', value: o.customer_id ? 'One customer' : 'All customers' },
+                  { label: 'Valid till', value: o.valid_until ? date(o.valid_until) : 'No end date' },
+                ]}
+                actions={<Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete "${o.title}"?`)) del.mutate(o.id) }}><Trash2 className="h-4 w-4" /></Button>} />
+            ))}
+          </div>
+        } />
       )}
       {editing && (
         <Modal open onClose={() => setEditing(null)} title={editing.id ? 'Edit offer' : 'New offer'}

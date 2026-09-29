@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Send, Check, X, FileText, Bell, Plus, CalendarClock } from 'lucide-react'
 import { supabase, openPrivateFile } from '@/lib/supabase'
 import {
-  Button, Card, EmptyState, ErrorState, Field, Input, Modal, PageHeader, Select, Spinner,
+  Button, Card, EmptyState, ErrorState, Field, Input, Modal, PageHeader, RecordCard, Responsive, Select, Spinner,
   StatTile, Table, Td, Textarea, Th, Badge, useToast, type Tone,
 } from '@/components/ui'
 import { date, money, moneyShort, num } from '@/lib/format'
@@ -217,7 +217,7 @@ export function AdminPaymentsCrm() {
           ) : queue.length === 0 ? (
             <EmptyState title="Nothing to collect" description="Verified sales and their payment schedules appear here." />
           ) : (
-            <Table>
+            <Responsive table={<Table>
               <thead>
                 <tr>
                   <Th>Booking</Th><Th>Customer</Th><Th>Member</Th><Th>Sale value</Th>
@@ -268,7 +268,33 @@ export function AdminPaymentsCrm() {
                   )
                 })}
               </tbody>
-            </Table>
+            </Table>} cards={
+              <div>
+                {queue.map((r) => {
+                  const pct = Number(r.sale_value) > 0 ? Math.min(100, Math.round((Number(r.collected) / Number(r.sale_value)) * 100)) : 0
+                  return (
+                    <RecordCard
+                      key={r.booking_id}
+                      onClick={() => setScheduleOf(r)}
+                      title={<>{r.reference} <span className="text-xs font-normal text-slate-500">· {r.customer_name ?? '—'}</span></>}
+                      subtitle={`${r.project_name ?? '—'} · Plot ${r.plot_number ?? '—'} · ${r.rep_name ?? 'Office'}`}
+                      amount={<span className="text-sm font-semibold text-emerald-700">{money(r.collected)}</span>}
+                      badge={r.emi_overdue > 0 ? <Badge tone="red">{r.emi_overdue} overdue</Badge> : r.awaiting > 0 ? <Badge tone="amber">{r.awaiting} to verify</Badge> : undefined}
+                      rows={[
+                        { label: 'Sale value', value: money(r.sale_value) },
+                        { label: 'Collected', value: `${pct}%` },
+                        { label: 'Outstanding', value: money(r.outstanding) },
+                        { label: 'Next due', value: r.emi_overdue > 0 ? money(r.overdue_amount) + ' late' : r.next_due ? date(r.next_due) : 'Cleared' },
+                      ]}
+                      actions={<>
+                        <Button size="sm" variant="outline" onClick={() => setScheduleOf(r)}><CalendarClock className="h-3.5 w-3.5" /> Schedule</Button>
+                        <Button size="sm" onClick={() => setPaying(r)}>Record payment</Button>
+                      </>}
+                    />
+                  )
+                })}
+              </div>
+            } />
           )}
         </Card>
       ) : (
@@ -280,7 +306,7 @@ export function AdminPaymentsCrm() {
         ) : rows.length === 0 ? (
           <EmptyState title="Nothing here" description={tab === 'pending' ? 'No receipts waiting for verification.' : 'No schedule items yet.'} />
         ) : (
-          <Table>
+          <Responsive table={<Table>
             <thead>
               <tr>
                 <Th>Customer / Booking</Th><Th>Sponsor</Th><Th>Item</Th>
@@ -319,7 +345,28 @@ export function AdminPaymentsCrm() {
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </Table>} cards={
+            <div>
+              {rows.map((e) => (
+                <RecordCard
+                  key={e.id}
+                  title={<>{buyer(e)} <span className="text-xs font-normal text-slate-500">· {itemLabel(e)}</span></>}
+                  subtitle={`${e.booking?.reference ?? '—'} · ${e.booking?.project?.name ?? '—'}${e.booking?.plot?.number ? ` · Plot ${e.booking.plot.number}` : ''}`}
+                  amount={<span className="text-sm font-semibold text-slate-800">{money(e.amount)}</span>}
+                  badge={<Badge tone={STATUS_TONE[e.status] ?? 'neutral'}>{STATUS_LABEL[e.status] ?? e.status}</Badge>}
+                  rows={[
+                    { label: 'Due', value: date(e.due_date) },
+                    { label: 'Sponsor', value: e.booking?.rep?.full_name ?? 'Office' },
+                    ...(e.status === 'awaiting_verification' ? [
+                      { label: 'Paid by', value: `${modeLabel(e.slip_mode)}${e.slip_paid_on ? ` · ${date(e.slip_paid_on)}` : ''}` },
+                      { label: 'UTR / ref', value: e.reference ?? '—' },
+                    ] : []),
+                  ]}
+                  actions={(e.slip_path || e.status === 'awaiting_verification') ? actions(e) : undefined}
+                />
+              ))}
+            </div>
+          } />
         )}
       </Card>
       )}

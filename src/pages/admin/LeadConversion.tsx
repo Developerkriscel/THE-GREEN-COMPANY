@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Download, Phone, Search, Upload, Users, X } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Badge, Button, Card, EmptyState, ErrorState, Input, PageHeader, Select, Spinner, Table, Td, Th, type Tone } from '@/components/ui'
+import {
+  Badge, Button, Card, EmptyState, ErrorState, Input, PageHeader, Select, Spinner, Table, Td, Th, type Tone, Responsive,
+} from '@/components/ui'
 import { useLeads, useMembers, useProjects } from '@/lib/queries'
 import { LeadImport } from '@/components/LeadImport'
 import { AssignLeads } from '@/components/AssignLeads'
@@ -153,7 +155,7 @@ export function AdminLeadConversion() {
         ) : filtered.length === 0 ? (
           <EmptyState title="No leads match the filter." />
         ) : (
-          <Table>
+          <Responsive table={<Table>
             <thead>
               <tr>
                 <Th className="w-10">
@@ -194,7 +196,26 @@ export function AdminLeadConversion() {
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </Table>} cards={
+          <div>
+            {filtered.map((l) => (
+              <div key={l.id} className={`flex items-start gap-3 border-b border-slate-100 px-4 py-3 last:border-0 ${selected.has(l.id) ? 'bg-brand-gold/[0.07]' : ''}`}>
+                <input type="checkbox" aria-label={`Select ${l.name}`} checked={selected.has(l.id)} disabled={l.status === 'converted'}
+                  onChange={() => toggleOne(l.id)} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-gold-dark focus:ring-brand-gold disabled:opacity-30" />
+                <Link to={`/admin/leads/${l.id}`} className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-slate-900">{l.name}</p>
+                      <p className="text-xs text-slate-500">{l.mobile} · {l.owner?.full_name ?? 'Office pool'}</p>
+                    </div>
+                    <Badge tone={STATUS_TONE[l.status]}>{l.status.replace(/_/g, ' ')}</Badge>
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-500">{l.project?.name ?? '—'} · {money(l.budget)} · {date(l.created_at)}</p>
+                </Link>
+              </div>
+            ))}
+          </div>
+        } />
         )}
       </Card>
       {/* The action bar for the selected leads */}

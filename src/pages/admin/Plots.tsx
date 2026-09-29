@@ -4,8 +4,7 @@ import { Download, Pencil, Plus, Upload } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { usePlots, useProjects } from '@/lib/queries'
 import {
-  Button, Card, CardHeader, EmptyState, Field, Input, Modal, PageHeader, Select,
-  Spinner, Table, Td, Textarea, Th, useToast,
+  Button, Card, CardHeader, EmptyState, Field, Input, Modal, PageHeader, Select, Spinner, Table, Td, Textarea, Th, useToast, RecordCard, Responsive,
 } from '@/components/ui'
 import { IconBtn } from '@/pages/admin/Projects'
 import { PlotBadge } from '@/components/status'
@@ -167,7 +166,7 @@ export function AdminPlots({ embedded = false }: { embedded?: boolean } = {}) {
         ) : filtered.length === 0 ? (
           <EmptyState title="No plots" description="Add plots individually or import a CSV." />
         ) : (
-          <Table>
+          <Responsive table={<Table>
             <thead>
               <tr>
                 <Th>Plot</Th>
@@ -198,7 +197,21 @@ export function AdminPlots({ embedded = false }: { embedded?: boolean } = {}) {
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </Table>} cards={
+            <div>
+              {filtered.map((p) => (
+                <RecordCard key={p.id} onClick={() => { setCreating(false); setEditing(p) }}
+                  title={<>Plot {p.number}</>}
+                  subtitle={p.project?.name ?? undefined}
+                  amount={<span className="text-sm font-semibold">{money(p.price)}</span>}
+                  badge={<PlotBadge status={p.status} />}
+                  rows={[
+                    { label: 'Size', value: `${p.size ? `${num(p.size)} ${p.size_unit}` : '—'}${p.dimensions ? ` · ${p.dimensions}` : ''}` },
+                    { label: 'Facing', value: p.facing ?? '—' },
+                  ]} />
+              ))}
+            </div>
+          } />
         )}
       </Card>
 

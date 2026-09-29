@@ -253,16 +253,24 @@ export function Responsive({ table, cards }: { table: ReactNode; cards: ReactNod
 
 /** One record as a stacked card: a heading line, a figure, then detail rows. */
 export function RecordCard({
-  title, subtitle, amount, rows, badge,
+  title, subtitle, amount, rows, badge, actions, onClick,
 }: {
   title: ReactNode
   subtitle?: ReactNode
   amount?: ReactNode
   rows?: { label: string; value: ReactNode }[]
   badge?: ReactNode
+  /** Buttons along the bottom of the card (a tap on them does not open the card). */
+  actions?: ReactNode
+  /** Tapping the card opens the record. */
+  onClick?: () => void
 }) {
   return (
-    <div className="border-b border-slate-100 px-4 py-3 last:border-0">
+    <div
+      className={`border-b border-slate-100 px-4 py-3 last:border-0 ${onClick ? 'cursor-pointer active:bg-brand-gold/[0.06]' : ''}`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           {/* Wraps rather than truncating: a sale reference cut to "Level 1 …"
@@ -284,6 +292,9 @@ export function RecordCard({
             </div>
           ))}
         </dl>
+      )}
+      {actions && (
+        <div className="mt-2.5 flex flex-wrap justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>{actions}</div>
       )}
     </div>
   )
