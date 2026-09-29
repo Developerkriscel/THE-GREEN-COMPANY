@@ -37,6 +37,7 @@ const OTHER_PASSWORD = process.env.TEST_MEMBER_PASSWORD ?? 'Member@123'
 
 const mk = () => createClient(BASE, ANON, { auth: { persistSession: false, autoRefreshToken: false } })
 const db = new pg.Client({ connectionString: env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
+db.on('error', (e) => console.log(`  db connection error: ${e.message}`))
 await db.connect()
 
 let passed = 0

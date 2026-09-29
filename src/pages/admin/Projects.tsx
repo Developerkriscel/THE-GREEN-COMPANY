@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { DocUpload, ImageUpload, MultiImageUpload } from '@/components/MediaUpload'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Eye, EyeOff, Pencil, Plus, Star, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -266,14 +267,14 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
           <Field label="Amenities" hint="Comma separated.">
             <Input name="amenities" defaultValue={editing?.amenities?.join(', ') ?? ''} placeholder="Gated, Park, 30ft roads" />
           </Field>
-          <Field label="Hero image URL">
-            <Input name="hero_image" defaultValue={editing?.hero_image ?? ''} />
+          <Field label="Main image" hint="Shown on the project card and at the top of the project page.">
+            <ImageUpload key={`hero-${editing?.id ?? 'new'}`} name="hero_image" folder="projects" defaultValue={editing?.hero_image ?? null} />
           </Field>
-          <Field label="Gallery image URLs" hint="One per line.">
-            <Textarea name="gallery" rows={3} defaultValue={editing?.gallery?.join('\n') ?? ''} />
+          <Field label="Gallery images">
+            <MultiImageUpload key={`gal-${editing?.id ?? 'new'}`} name="gallery" folder="projects" defaultValue={editing?.gallery ?? []} />
           </Field>
-          <Field label="Brochure URL">
-            <Input name="brochure_path" defaultValue={editing?.brochure_path ?? ''} />
+          <Field label="Brochure (PDF)">
+            <DocUpload key={`bro-${editing?.id ?? 'new'}`} name="brochure_path" folder="brochures" defaultValue={editing?.brochure_path ?? null} />
           </Field>
           <Field label="Map embed" hint="Paste the <iframe> snippet from your map provider.">
             <Textarea name="map_embed" rows={2} defaultValue={editing?.map_embed ?? ''} />

@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react'
+import { assetUrl } from '@/lib/supabase'
+import { ImageUpload } from '@/components/MediaUpload'
 import { Plus, Pencil, Trash2, Download, Eye, EyeOff } from 'lucide-react'
 import {
   Badge, Button, Card, CardHeader, EmptyState, Field, Input, Modal, Select, Spinner,
@@ -12,7 +14,7 @@ import { num } from '@/lib/format'
 export interface FieldCfg {
   name: string
   label: string
-  type?: 'text' | 'textarea' | 'select'
+  type?: 'text' | 'textarea' | 'select' | 'image'
   options?: { value: string; label: string }[]
   required?: boolean
 }
@@ -97,7 +99,7 @@ export function CmsContentTab({
                   {imageField && (
                     <Td>
                       {r[imageField] ? (
-                        <img src={String(r[imageField])} alt="" className="h-12 w-12 rounded-lg object-cover" loading="lazy" />
+                        <img src={assetUrl(String(r[imageField])) ?? ''} alt="" className="h-12 w-12 rounded-lg object-cover" loading="lazy" />
                       ) : (
                         <div className="h-12 w-12 rounded-lg bg-slate-100" />
                       )}
@@ -167,7 +169,12 @@ export function CmsContentTab({
           }}
         >
           {fields.map((fld) =>
-            fld.type === 'textarea' ? (
+            fld.type === 'image' ? (
+              <Field key={`${fld.name}-${editing?.id ?? 'new'}`} label={fld.label}>
+                <ImageUpload name={fld.name} folder={`cms/${table}`} defaultValue={(editing?.[fld.name] as string | null) ?? null}
+                  aspect={fld.name === 'photo_url' ? 'square' : 'wide'} />
+              </Field>
+            ) : fld.type === 'textarea' ? (
               <Field key={fld.name} label={fld.label} required={fld.required}>
                 <Textarea name={fld.name} rows={3} defaultValue={String(editing?.[fld.name] ?? '')} required={fld.required} />
               </Field>

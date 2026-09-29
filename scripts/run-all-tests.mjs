@@ -53,25 +53,28 @@ function junitCounts(file) {
   return { tests: Number(m[1]), failures: Number(m[2]) }
 }
 
-run('1/8  Type check', 'npx', ['tsc', '--noEmit'])
-run('2/8  Unit tests (Vitest)', 'npx', ['vitest', 'run'], { CI_JUNIT: '1' })
-run('3/8  Integration — server-side rules', 'node', ['scripts/test-sponsor-rules.mjs'], {
+run('1/9  Type check', 'npx', ['tsc', '--noEmit'])
+run('2/9  Unit tests (Vitest)', 'npx', ['vitest', 'run'], { CI_JUNIT: '1' })
+run('3/9  Integration — server-side rules', 'node', ['scripts/test-sponsor-rules.mjs'], {
   JUNIT: path.join(REPORTS, 'rules-junit.xml'),
 })
-run('4/8  Connectivity — module cross-checks', 'node', ['scripts/test-module-connectivity.mjs'], {
+run('4/9  Connectivity — module cross-checks', 'node', ['scripts/test-module-connectivity.mjs'], {
   JUNIT: path.join(REPORTS, 'connectivity-junit.xml'),
 })
-run('5/8  Gateway — REST/auth surface', 'node', ['scripts/gateway-test.mjs'], {
+run('5/9  Gateway — REST/auth surface', 'node', ['scripts/gateway-test.mjs'], {
   JUNIT: path.join(REPORTS, 'gateway-junit.xml'),
 })
-run('6/8  Customer panel — office to buyer, end to end', 'node', ['scripts/test-customer-panel.mjs'], {
+run('6/9  Customer panel — office to buyer, end to end', 'node', ['scripts/test-customer-panel.mjs'], {
   JUNIT: path.join(REPORTS, 'customer-junit.xml'),
 })
-run('7/8  Payments CRM — sale, schedule, receipts, verification', 'node', ['scripts/test-payments-crm.mjs'], {
+run('7/9  Payments CRM — sale, schedule, receipts, verification', 'node', ['scripts/test-payments-crm.mjs'], {
   JUNIT: path.join(REPORTS, 'payments-crm-junit.xml'),
 })
-run('8/8  Audit gaps — KYC nominee & history, profile, placement', 'node', ['scripts/test-audit-gaps.mjs'], {
+run('8/9  Audit gaps — KYC nominee & history, profile, placement', 'node', ['scripts/test-audit-gaps.mjs'], {
   JUNIT: path.join(REPORTS, 'audit-gaps-junit.xml'),
+})
+run('9/9  Rank plan — edits change income, salary, rewards, ranks', 'node', ['scripts/test-rank-plan.mjs'], {
+  JUNIT: path.join(REPORTS, 'rank-plan-junit.xml'),
 })
 
 console.log(`\n${'='.repeat(64)}`)
@@ -88,6 +91,7 @@ for (const [file, name] of [
   ['customer-junit.xml', 'customer'],
   ['payments-crm-junit.xml', 'payments-crm'],
   ['audit-gaps-junit.xml', 'audit-gaps'],
+  ['rank-plan-junit.xml', 'rank-plan'],
 ]) {
   const c = junitCounts(file)
   if (c) console.log(`  reports/${file.padEnd(24)} ${c.tests} tests, ${c.failures} failures`)

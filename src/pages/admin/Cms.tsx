@@ -1,7 +1,9 @@
 import { useRef, useState, type FormEvent } from 'react'
+import { assetUrl } from '@/lib/supabase'
+import { ImageUpload } from '@/components/MediaUpload'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Image, Pencil, Plus, Star, Trash2, Upload } from 'lucide-react'
+import { Image, Pencil, Plus, Star, Trash2, Upload, ImageUp } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useProjects, type Banner } from '@/lib/queries'
 import {
@@ -77,7 +79,7 @@ export function AdminCms() {
             { name: 'name', label: 'Name', required: true },
             { name: 'designation', label: 'Designation', required: true },
             { name: 'category', label: 'Category', type: 'select', options: TEAM_CATEGORIES },
-            { name: 'photo_url', label: 'Photo URL' },
+            { name: 'photo_url', label: 'Photo', type: 'image' },
           ]}
         />
       )}
@@ -95,7 +97,7 @@ export function AdminCms() {
             { name: 'name', label: 'Name', required: true },
             { name: 'rank', label: 'Rank' },
             { name: 'achievement', label: 'Achievement' },
-            { name: 'photo_url', label: 'Photo URL' },
+            { name: 'photo_url', label: 'Photo', type: 'image' },
           ]}
         />
       )}
@@ -113,7 +115,7 @@ export function AdminCms() {
             { name: 'title', label: 'Title', required: true },
             { name: 'joining', label: 'Joining target' },
             { name: 'sales', label: 'Sales target' },
-            { name: 'image_url', label: 'Image URL' },
+            { name: 'image_url', label: 'Image', type: 'image' },
             { name: 'trending', label: 'Trending', type: 'select', options: [{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }] },
           ]}
         />
@@ -158,7 +160,7 @@ export function AdminCms() {
             { name: 'description', label: 'Description', type: 'textarea' },
             { name: 'event_date', label: 'Date' },
             { name: 'location', label: 'Location' },
-            { name: 'image_url', label: 'Image URL' },
+            { name: 'image_url', label: 'Image', type: 'image' },
           ]}
         />
       )}
@@ -175,7 +177,7 @@ export function AdminCms() {
             { name: 'title', label: 'Title', required: true },
             { name: 'description', label: 'Description', type: 'textarea' },
             { name: 'news_date', label: 'Date' },
-            { name: 'image_url', label: 'Image URL' },
+            { name: 'image_url', label: 'Image', type: 'image' },
           ]}
         />
       )}
@@ -561,7 +563,7 @@ function BannersTab() {
           <ul className="divide-y divide-slate-100">
             {data.map((b) => (
               <li key={b.id} className="flex items-center gap-4 px-5 py-3">
-                {b.image_url && <img src={b.image_url} alt="" className="h-12 w-20 rounded object-cover" />}
+                {b.image_url && <img src={assetUrl(b.image_url) ?? ''} alt="" className="h-12 w-20 rounded object-cover" />}
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-slate-900">{b.title}</p>
                   <p className="truncate text-xs text-slate-500">{b.subtitle ?? '—'}</p>
@@ -637,7 +639,7 @@ function BannersTab() {
         >
           <Field label="Title" required><Input name="title" required defaultValue={editing?.title ?? ''} /></Field>
           <Field label="Subtitle"><Input name="subtitle" defaultValue={editing?.subtitle ?? ''} /></Field>
-          <Field label="Image URL"><Input name="image_url" defaultValue={editing?.image_url ?? ''} /></Field>
+          <Field label="Image (optional)"><ImageUpload key={editing?.id ?? 'new'} name="image_url" folder="banners" defaultValue={editing?.image_url ?? null} /></Field>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Button label"><Input name="cta_label" placeholder="Browse projects" defaultValue={editing?.cta_label ?? ''} /></Field>
             <Field label="Button link"><Input name="cta_link" placeholder="/projects" defaultValue={editing?.cta_link ?? ''} /></Field>
@@ -756,6 +758,7 @@ function GalleryTab() {
   const qc = useQueryClient()
   const { push } = useToast()
   const fileRef = useRef<HTMLInputElement>(null)
+  const [picked, setPicked] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [caption, setCaption] = useState('')
 
@@ -791,7 +794,8 @@ function GalleryTab() {
 
   async function handleUpload() {
     const file = fileRef.current?.files?.[0]
-    if (!file) { push('error', 'Select a file first.'); return }
+    if (!file) { push('error', 'Choose a photo first.'); return }
+    if (!/^image\/(png|jpeg|webp|avif)$/.test(file.type)) { push('error', 'Please choose a PNG, JPG, WebP or AVIF image.'); return }
 
     setUploading(true)
     try {
@@ -803,7 +807,8 @@ function GalleryTab() {
         .upload(key, file, { contentType: file.type, upsert: false })
       if (upErr) throw new Error(upErr.message)
 
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/gallery/${key}`
+      // Relative, like every other upload: local and live share one database.
+      const url = `/storage/v1/object/public/gallery/${key}`
 
       const maxOrder = data.length ? Math.max(...data.map(p => p.sort_order)) : 0
       const { error: dbErr } = await supabase.from('gallery_photos').insert({
@@ -817,6 +822,7 @@ function GalleryTab() {
       push('success', 'Photo uploaded.')
       setCaption('')
       if (fileRef.current) fileRef.current.value = ''
+      setPicked(null)
       void qc.invalidateQueries({ queryKey: ['gallery-photos-admin'] })
     } catch (e) {
       push('error', (e as Error).message)
@@ -832,13 +838,14 @@ function GalleryTab() {
         <CardHeader title="Upload new photo" subtitle="Photos are stored in Cloudflare R2 and shown on the public gallery page." />
         <CardBody>
           <div className="flex flex-col sm:flex-row gap-3 items-end">
-            <div className="flex-1"><Field label="Photo file">
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                className="block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-700 hover:file:bg-brand-100 cursor-pointer"
-              />
+            <div className="flex-1"><Field label="Photo">
+              <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/avif" className="hidden"
+                onChange={(e) => setPicked(e.target.files?.[0]?.name ?? null)} />
+              <button type="button" onClick={() => fileRef.current?.click()}
+                className="flex w-full items-center gap-2 rounded-lg border-2 border-dashed border-brand-gold/40 px-3 py-2 text-left text-sm text-slate-600 hover:bg-brand-gold/10">
+                <ImageUp className="h-4 w-4 shrink-0 text-brand-gold-dark" />
+                <span className="truncate">{picked ?? 'Choose a photo (PNG, JPG, WebP)'}</span>
+              </button>
             </Field></div>
             <div className="flex-1"><Field label="Caption (optional)">
               <Input value={caption} onChange={e => setCaption(e.target.value)} placeholder="e.g. Award ceremony 2025" />
@@ -861,7 +868,7 @@ function GalleryTab() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-5">
             {data.map((photo) => (
               <div key={photo.id} className="group relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
-                <img src={photo.url} alt={photo.caption ?? ''} className="h-32 w-full object-cover" loading="lazy" />
+                <img src={assetUrl(photo.url) ?? ''} alt={photo.caption ?? ''} className="h-32 w-full object-cover" loading="lazy" />
                 {!photo.is_active && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <span className="text-xs text-white font-bold">Hidden</span>

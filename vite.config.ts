@@ -7,7 +7,13 @@ export default defineConfig({
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
   },
-  server: { port: 5173 },
+  // Uploaded images are saved as relative /storage/... paths (local and live
+  // share one database). The live gateway serves them on the same origin; in
+  // development the gateway is on another port, so forward them to it.
+  server: {
+    port: 5173,
+    proxy: { '/storage': { target: process.env.GATEWAY_URL ?? 'http://localhost:54321', changeOrigin: true } },
+  },
   build: {
     rollupOptions: {
       output: {

@@ -9,6 +9,7 @@ import {
   usePayoutBatch, useUpdateWithdrawal, useWithdrawalQueue, type QueuedWithdrawal,
 } from '@/lib/queries'
 import { SkeletonRows, WithdrawalBadge, maskAccount } from '@/components/sponsor'
+import { SalaryRun } from '@/components/SalaryRun'
 import { date, dateTime, downloadCsv, money, num } from '@/lib/format'
 
 /**
@@ -61,6 +62,8 @@ export function AdminPayouts() {
         title="Payouts"
         description="Every withdrawal request across the network, in one queue."
         action={
+          <div className="flex flex-wrap gap-2">
+          <SalaryRun />
           <Button
             variant="outline"
             size="sm"
@@ -80,6 +83,7 @@ export function AdminPayouts() {
           >
             <Download className="h-4 w-4" /> Export
           </Button>
+          </div>
         }
       />
 

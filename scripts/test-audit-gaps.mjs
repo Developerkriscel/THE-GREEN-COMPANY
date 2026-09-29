@@ -29,6 +29,7 @@ const ADMIN = { email: process.env.TEST_ADMIN_EMAIL ?? 'admin@rgc.local', passwo
 const MEMBER_PASSWORD = process.env.TEST_MEMBER_PASSWORD ?? 'Member@123'
 const mk = () => createClient(BASE, env.VITE_SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
 const db = new pg.Client({ connectionString: env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
+db.on('error', (e) => console.log(`  db connection error: ${e.message}`))
 await db.connect()
 
 let passed = 0

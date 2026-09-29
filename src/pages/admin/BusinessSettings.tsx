@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Building2, ExternalLink, FileText, ImageUp, LandPlot, MapPinned, Pencil, Plus, Power, Receipt, Trash2, Trophy } from 'lucide-react'
 import { assetUrl, supabase } from '@/lib/supabase'
-import { useRanks, useSiteSetting } from '@/lib/queries'
+import { useRankReview, useRanks, useSiteSetting } from '@/lib/queries'
+import { SalaryRun } from '@/components/SalaryRun'
 import { BRAND, BRAND_DEFAULTS, applyBrand, resolveBrand, type BrandSettings } from '@/lib/brand'
 import { rankFeatures, joiningLabel } from '@/lib/plan'
 import { money, num, pct } from '@/lib/format'
@@ -303,11 +304,21 @@ function RankPlanTab() {
   })
 
   const byLevel = useMemo(() => new Map(ranks.map((r) => [r.seniority, r.name])), [ranks])
+  const review = useRankReview()
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ['ranks'] })
     void qc.invalidateQueries({ queryKey: ['rank-ladder'] })
     void qc.invalidateQueries({ queryKey: ['rank-holders'] })
   }
+  // A changed requirement (or a rank switched on) applies to everyone at
+  // once: re-check the whole network against the plan as saved.
+  const rerank = () => review.mutate(undefined, {
+    onSuccess: (n) => {
+      if (Number(n) > 0) push('success', `${n} member${Number(n) === 1 ? '' : 's'} moved up under the new plan.`)
+      refresh()
+    },
+    onError: (e) => push('error', `Saved, but the rank review failed: ${(e as Error).message}`),
+  })
 
   const save = useMutation({
     mutationFn: async (f: RankForm) => {
@@ -345,6 +356,7 @@ function RankPlanTab() {
       push('success', 'Rank saved. The website plan and income calculations now use the new figures.')
       setEditing(null)
       refresh()
+      rerank()
     },
     onError: (e: Error) => push('error', e.message),
   })
@@ -354,7 +366,7 @@ function RankPlanTab() {
       const { error } = await supabase.from('ranks').update({ active: !r.active }).eq('id', r.id)
       if (error) throw new Error(error.message)
     },
-    onSuccess: refresh,
+    onSuccess: () => { refresh(); rerank() },
     onError: (e: Error) => push('error', e.message),
   })
 
@@ -398,7 +410,12 @@ function RankPlanTab() {
       <CardHeader
         title="Rank plan"
         subtitle="The income engine pays on these figures, and the public Plans and Home pages show them. Switch a rank off to hide it; a rank members hold cannot be deleted."
-        action={<Button size="sm" onClick={() => setEditing(toForm(null, nextLevel))}><Plus className="h-4 w-4" /> Add rank</Button>}
+        action={
+          <div className="flex flex-wrap gap-2">
+            <SalaryRun />
+            <Button size="sm" onClick={() => setEditing(toForm(null, nextLevel))}><Plus className="h-4 w-4" /> Add rank</Button>
+          </div>
+        }
       />
       <Table>
         <thead>
@@ -469,16 +486,16 @@ function RankPlanTab() {
               <Field label="Own sale %" hint="Paid on the member's own sales (direct slab)." required>
                 <Input type="number" min={0} max={100} step="0.01" value={editing.own_sale_rate} onChange={(e) => set('own_sale_rate', e.target.value)} />
               </Field>
-              <Field label="Sponsor %" hint="Paid on a direct recruit's sale (sponsor slab).">
+              <Field label="Sponsor %" hint="Shown on the plan only — not paid automatically. The upline is paid by level income on every sale.">
                 <Input type="number" min={0} max={100} step="0.01" value={editing.override_pct} onChange={(e) => set('override_pct', e.target.value)} />
               </Field>
-              <Field label="Monthly salary (₹)">
+              <Field label="Monthly salary (₹)" hint="Credited when the office presses “Credit salary” (here or on Payouts), once per month.">
                 <Input type="number" min={0} step="1" value={editing.salary} onChange={(e) => set('salary', e.target.value)} />
               </Field>
             </Section>
 
             <Section title="Joining & training">
-              <Field label="Joining fee (₹)" hint="0 shows as “Free”.">
+              <Field label="Joining fee (₹)" hint="Shown on the plan (0 shows as “Free”). Not charged automatically.">
                 <Input type="number" min={0} step="1" value={editing.joining_fee} onChange={(e) => set('joining_fee', e.target.value)} />
               </Field>
               <Field label="Training fee (₹)">

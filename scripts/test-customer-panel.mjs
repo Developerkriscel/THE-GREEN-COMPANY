@@ -36,6 +36,7 @@ const REP = { email: process.env.TEST_REP_EMAIL ?? 'rep@rgc.local', password: pr
 
 const mk = () => createClient(BASE, ANON, { auth: { persistSession: false, autoRefreshToken: false } })
 const db = new pg.Client({ connectionString: env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
+db.on('error', (e) => console.log(`  db connection error: ${e.message}`))
 await db.connect()
 
 let passed = 0

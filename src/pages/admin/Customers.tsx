@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
+import { ImageUpload } from '@/components/MediaUpload'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Gift, KeyRound, MessageSquareHeart, Pencil, Plus, Search, Trash2, UserRound, Users } from 'lucide-react'
 import { useMembers } from '@/lib/queries'
@@ -7,7 +8,7 @@ import {
   type CustomerOffer, type GuardianRelation, type NewCustomer,
 } from '@/lib/customers'
 import {
-  Badge, Button, Card, CardBody, CardHeader, EmptyState, Field, Input, Modal, PageHeader, Select, Spinner, StatTile,
+  Badge, Button, Card, CardHeader, EmptyState, Field, Input, Modal, PageHeader, Select, Spinner, StatTile,
   Table, Td, Textarea, Th, useToast,
 } from '@/components/ui'
 import { date, money, num } from '@/lib/format'
@@ -283,7 +284,7 @@ function OffersTab() {
           <div className="space-y-3">
             <Field label="Title" required><Input value={editing.title ?? ''} onChange={(e) => setEditing({ ...editing, title: e.target.value })} placeholder="e.g. Festive offer: 5% off on a second plot" /></Field>
             <Field label="Details"><Textarea rows={4} value={editing.body ?? ''} onChange={(e) => setEditing({ ...editing, body: e.target.value })} /></Field>
-            <Field label="Image link (optional)"><Input value={editing.image_url ?? ''} onChange={(e) => setEditing({ ...editing, image_url: e.target.value || null })} placeholder="https://…" /></Field>
+            <Field label="Image (optional)"><ImageUpload folder="offers" value={editing.image_url ?? null} onChange={(p) => setEditing({ ...editing, image_url: p })} /></Field>
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Button text"><Input value={editing.cta_label ?? ''} onChange={(e) => setEditing({ ...editing, cta_label: e.target.value || null })} placeholder="Know more" /></Field>
               <Field label="Button link"><Input value={editing.cta_link ?? ''} onChange={(e) => setEditing({ ...editing, cta_link: e.target.value || null })} placeholder="https://… or a WhatsApp link" /></Field>
