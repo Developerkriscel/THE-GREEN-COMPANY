@@ -60,6 +60,11 @@ try {
                              where booking_id = $1 and source = 'direct_income' and member_id = $2`, [bookingId, member.id])
   check('a verified sale pays the NEW own-sale rate (6.5% of ₹10,00,000 = ₹65,000 gross)',
     direct && Number(direct.rate_applied) === 6.5 && Number(direct.gross) === 65000, JSON.stringify(direct))
+  const [lvl1] = await q(`select rate_applied, area_sqyd, gross from public.member_ledger
+                           where booking_id = $1 and source = 'level_income' and level = 1`, [bookingId])
+  check('level income is paid per sq yd (Level 1 rate × plot area)',
+    !lvl1 || Number(lvl1.gross) === Number(lvl1.rate_applied) * Number(lvl1.area_sqyd),
+    lvl1 ? `${lvl1.rate_applied} × ${lvl1.area_sqyd} sq yd = ₹${lvl1.gross}` : 'seller has no upline')
   const [rates] = await q(`select value from public.site_settings where key = 'sponsor.rates'`)
   const tds = Number(rates?.value?.tds_pct ?? 5)
   const adm = Number(rates?.value?.admin_pct ?? 3)

@@ -227,7 +227,11 @@ function IncomeRow({
             ? '—'
             : tab === 'Direct'
               ? pct(row.rate_applied)
-              : `${money(row.rate_applied)}/100 sq yd`}
+              : // Before 29 Sep 2026 level income was paid per 100 sq yd; the
+                // stored gross says which basis a row was paid on.
+                Math.abs(Number(row.gross) - (Number(row.rate_applied) * Number(row.area_sqyd ?? 0)) / 100) < 0.01 && Number(row.area_sqyd ?? 0) > 0
+                  ? `${money(row.rate_applied)}/100 sq yd`
+                  : `${money(row.rate_applied)}/sq yd`}
         </Td>
       )}
 
@@ -318,7 +322,7 @@ function LevelBreakdown({ summary, ledger, nameOf, codeOf, memberCode }: {
       const XLSX = await import('xlsx')
       const wb = XLSX.utils.book_new()
       const sheet1 = XLSX.utils.json_to_sheet(rows.map((r) => ({
-        Level: r.level, 'Rate (₹ per 100 sq yd)': r.rate, Members: r.members, Active: r.active,
+        Level: r.level, 'Rate (₹ per sq yd)': r.rate, Members: r.members, Active: r.active,
         'Downline sq yd': r.area, 'Level income (net ₹)': Math.round(r.income * 100) / 100,
       })))
       XLSX.utils.book_append_sheet(wb, sheet1, 'Level-wise')
@@ -343,7 +347,7 @@ function LevelBreakdown({ summary, ledger, nameOf, codeOf, memberCode }: {
       />
       <Table>
         <thead>
-          <tr><Th>Level</Th><Th className="text-right">Rate (₹ / 100 sq yd)</Th><Th className="text-right">Members</Th><Th className="text-right">Downline sq yd</Th><Th className="text-right">Level income (net)</Th></tr>
+          <tr><Th>Level</Th><Th className="text-right">Rate (₹ / sq yd)</Th><Th className="text-right">Members</Th><Th className="text-right">Downline sq yd</Th><Th className="text-right">Level income (net)</Th></tr>
         </thead>
         <tbody>
           {rows.map((r) => (
