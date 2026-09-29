@@ -282,7 +282,7 @@ export function App() {
 
       {/* -------------------------------------------------- sponsor panel */}
       <Route element={<RequireAuth roles={['rep']} />}>
-        <Route path="/sponsor" element={<AppShell nav={sponsorNav} area="Sponsor" banner={<AnnouncementBar />} quick={['/sponsor', '/sponsor/wallet', '/sponsor/tree', '/sponsor/leads']} />}>
+        <Route path="/sponsor" element={<AppShell nav={sponsorNav} area="Sponsor" announce="sponsor" banner={<AnnouncementBar />} quick={['/sponsor', '/sponsor/wallet', '/sponsor/tree', '/sponsor/leads']} />}>
           <Route index element={<SponsorDashboard />} />
           <Route path="wallet" element={<SponsorWallet />} />
           <Route path="income" element={<SponsorIncome />} />
@@ -320,7 +320,7 @@ export function App() {
 
       {/* ------------------------------------------------- customer panel */}
       <Route element={<RequireAuth roles={['customer']} />}>
-        <Route path="/customer" element={<AppShell nav={customerNav} area="Customer" quick={['/customer', '/customer/plots', '/customer/payments', '/customer/documents']} />}>
+        <Route path="/customer" element={<AppShell nav={customerNav} area="Customer" announce="customer" quick={['/customer', '/customer/plots', '/customer/payments', '/customer/documents']} />}>
           <Route index element={<CustomerDashboard />} />
           <Route path="plots" element={<CustomerPlots />} />
           <Route path="payments" element={<CustomerPayments />} />

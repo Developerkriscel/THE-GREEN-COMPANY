@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { AnnouncementTicker } from '@/components/AnnouncementTicker'
 import { BrandLockup } from '@/components/BrandLockup'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { ChevronRight, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
@@ -49,6 +50,8 @@ export function PublicLayout() {
     return () => { window.clearTimeout(t); io.disconnect() }
   }, [pathname])
 
+  const [barH, setBarH] = useState(0)
+
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       {/* ── Navbar ── */}
@@ -59,6 +62,7 @@ export function PublicLayout() {
             : 'bg-brand-darker'
         }`}
       >
+        <AnnouncementTicker place="website" onHeight={setBarH} />
         <div className="gold-hairline absolute inset-x-0 bottom-0" aria-hidden />
         <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
           <div className="flex h-16 items-center justify-between">
@@ -157,6 +161,8 @@ export function PublicLayout() {
           </div>
         )}
       </header>
+      {/* The bar sits inside the fixed header; push the page down by its height. */}
+      <div style={{ height: barH }} aria-hidden />
 
       {/* ── Page content ── */}
       <main className="pt-16"><Outlet /></main>

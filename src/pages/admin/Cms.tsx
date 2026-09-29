@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react'
+import { AnnouncementsTab } from '@/pages/admin/AnnouncementsTab'
 import { assetUrl } from '@/lib/supabase'
 import { ImageUpload } from '@/components/MediaUpload'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -21,10 +22,10 @@ import { BRAND } from '@/lib/brand'
 interface CmsPageRow { id: string; slug: string; title: string; body: string; published: boolean; updated_at: string }
 interface GalleryPhoto { id: string; url: string; caption: string | null; sort_order: number; is_active: boolean; created_at: string }
 
-type Tab = 'hero' | 'featured' | 'plots' | 'team' | 'gallery' | 'achievers' | 'rewards' | 'plans' | 'events' | 'news' | 'banners' | 'welcome' | 'pages' | 'contact'
+type Tab = 'announce' | 'hero' | 'featured' | 'plots' | 'team' | 'gallery' | 'achievers' | 'rewards' | 'plans' | 'events' | 'news' | 'banners' | 'welcome' | 'pages' | 'contact'
 
 export function AdminCms() {
-  const [tab, setTab] = useState<Tab>('hero')
+  const [tab, setTab] = useState<Tab>('announce')
 
   return (
     <>
@@ -35,6 +36,7 @@ export function AdminCms() {
 
       <div className="mb-5 flex flex-wrap gap-1 rounded-lg border border-slate-200 bg-white p-1">
         {([
+          ['announce', 'Announcement bar'],
           ['hero', 'Home / Hero'],
           ['featured', 'Projects'],
           ['plots', 'Plots'],
@@ -182,6 +184,7 @@ export function AdminCms() {
         />
       )}
       {tab === 'banners' && <BannersTab />}
+      {tab === 'announce' && <AnnouncementsTab />}
       {tab === 'welcome' && <WelcomeLetterTab />}
       {tab === 'pages' && <PagesTab />}
       {tab === 'contact' && <ContactTab />}

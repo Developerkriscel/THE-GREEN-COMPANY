@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from 'react'
+import type { AnnouncementPlace } from '@/lib/announcements'
+import { AnnouncementTicker } from '@/components/AnnouncementTicker'
 import { BrandLockup } from '@/components/BrandLockup'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import clsx from 'clsx'
@@ -25,6 +27,7 @@ export function AppShell({
   nav,
   area,
   banner,
+  announce,
   quick,
   children,
 }: {
@@ -35,6 +38,8 @@ export function AppShell({
   /** Rendered above the page, inside the scroll area. The sponsor panel passes
    *  its announcement strip here; the admin console passes nothing. */
   banner?: ReactNode
+  /** Show the offers bar for this audience (sponsor / customer panel). */
+  announce?: AnnouncementPlace
   children?: ReactNode
 }) {
   const [open, setOpen] = useState(false)
@@ -116,6 +121,7 @@ export function AppShell({
 
       {/* Main */}
       <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
+        {announce && <div className="shrink-0"><AnnouncementTicker place={announce} /></div>}
         <header className="glass-bar relative flex h-16 shrink-0 items-center justify-between gap-3 px-4 sm:px-6">
           <div className="gold-hairline absolute inset-x-0 bottom-0" aria-hidden />
           <div className="flex items-center gap-3">

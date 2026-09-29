@@ -161,8 +161,19 @@ body {
   50% { transform: translateY(-12px) rotate(2deg); }
 }
 .coin-float { animation: coin-float 6s ease-in-out infinite; }
+/* Announcement bar: a slow-moving gradient, a light sweep, a pulsing badge
+   and each item sliding in. */
+@keyframes ann-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes ann-shine { 0% { left: -40%; } 60%, 100% { left: 120%; } }
+@keyframes ann-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+@keyframes ann-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.ann-bar { animation: ann-shift 9s ease-in-out infinite; }
+.ann-shine { left: -40%; background: linear-gradient(100deg, transparent, rgb(255 255 255 / .28), transparent); animation: ann-shine 4.5s ease-in-out infinite; }
+.ann-pulse { animation: ann-pulse 1.8s ease-in-out infinite; }
+.ann-in { animation: ann-in .45s ease-out both; }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
+  .ann-bar, .ann-shine, .ann-pulse, .ann-in { animation: none; }
   .coin-float { animation: none; }
   .btn-gold::after { display: none; }
 }
