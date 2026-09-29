@@ -1,10 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { AuthLayout } from './AuthLayout'
 import { BRAND } from '@/lib/brand'
 
 export function StaffLogin() {
+  // Keep the private admin sign-in out of search results.
+  useEffect(() => {
+    const m = document.createElement('meta')
+    m.name = 'robots'
+    m.content = 'noindex, nofollow'
+    document.head.appendChild(m)
+    return () => { m.remove() }
+  }, [])
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

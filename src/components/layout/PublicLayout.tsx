@@ -220,9 +220,6 @@ export function PublicLayout() {
                 <li>
                   <Link to="/customer-login" className="text-sm text-white/50 hover:text-white transition-colors">Customer Login</Link>
                 </li>
-                <li>
-                  <Link to="/admin-login" className="text-sm text-white/50 hover:text-white transition-colors">Admin Login</Link>
-                </li>
               </ul>
             </div>
 

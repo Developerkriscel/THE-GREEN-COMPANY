@@ -354,9 +354,9 @@ export function CustomerLogin() {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500">
-          Admin?{' '}
-          <Link to="/admin-login" className="font-semibold text-brand-primary-dark hover:text-brand-primary">
-            Admin Login →
+          Bought a plot?{' '}
+          <Link to="/customer-login" className="font-semibold text-brand-primary-dark hover:text-brand-primary">
+            Customer Login →
           </Link>
         </p>
       </div>

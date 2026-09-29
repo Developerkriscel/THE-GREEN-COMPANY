@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { ADMIN_LOGIN_PATH } from '@/lib/adminPath'
 import {
   BadgeCheck,
   Banknote,
@@ -226,14 +227,13 @@ export function App() {
       {/* --------------------------------------------------- auth pages */}
       <Route element={<RedirectIfAuthed />}>
         {/* The paths the live site uses. */}
-        <Route path="/admin-login" element={<StaffLogin />} />
+        <Route path={ADMIN_LOGIN_PATH} element={<StaffLogin />} />
         <Route path="/sponsor-login" element={<CustomerLogin />} />
         <Route path="/customer-login" element={<CustomerSignIn />} />
         <Route path="/join" element={<RegisterRep />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Earlier paths, kept so links already sent out still work. */}
-        <Route path="/login" element={<Navigate to="/admin-login" replace />} />
         <Route path="/portal/login" element={<Navigate to="/customer-login" replace />} />
         <Route path="/register" element={<Navigate to="/join" replace />} />
       </Route>

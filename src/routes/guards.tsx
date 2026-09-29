@@ -16,8 +16,10 @@ export function RequireAuth({ roles }: { roles?: AppRole[] }) {
   if (loading) return <Spinner label="Checking your session…" />
 
   if (!session) {
-    // The office signs in at one door, members at the other.
-    const to = roles?.includes('admin') ? '/admin-login' : roles?.includes('customer') ? '/customer-login' : '/sponsor-login'
+    // Members and buyers are sent to their sign-in. The office's sign-in is a
+    // private address (lib/adminPath) and must not be revealed to whoever
+    // types /admin, so an admin page without a session just goes home.
+    const to = roles?.includes('admin') ? '/' : roles?.includes('customer') ? '/customer-login' : '/sponsor-login'
     return <Navigate to={to} state={{ from: location.pathname }} replace />
   }
 
