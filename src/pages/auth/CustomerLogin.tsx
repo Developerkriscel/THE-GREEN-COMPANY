@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { homeRouteFor } from '../../context/AuthContext'
 import type { AppRole } from '../../lib/types'
@@ -11,7 +11,10 @@ type Tab = 'login' | 'signup'
 
 export function CustomerLogin() {
   const navigate = useNavigate()
-  const [tab, setTab] = useState<Tab>('login')
+  // /join and /register (every "Join Now" button and every referral link)
+  // land here with ?signup=1, and a referral link carries the sponsor as ?ref=.
+  const [params] = useSearchParams()
+  const [tab, setTab] = useState<Tab>(params.get('signup') ? 'signup' : 'login')
 
   // Login state
   const [userId, setUserId] = useState('')
@@ -26,7 +29,7 @@ export function CustomerLogin() {
   // Signup state
   const [signupName, setSignupName] = useState('')
   const [signupPhone, setSignupPhone] = useState('')
-  const [signupSponsorId, setSignupSponsorId] = useState('')
+  const [signupSponsorId, setSignupSponsorId] = useState(() => (params.get('ref') ?? '').trim().toUpperCase())
   const [signupLoading, setSignupLoading] = useState(false)
   const [signupError, setSignupError] = useState<string | null>(null)
   const [signupSuccess, setSignupSuccess] = useState(false)

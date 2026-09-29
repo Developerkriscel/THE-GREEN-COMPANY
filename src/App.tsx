@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ADMIN_LOGIN_PATH } from '@/lib/adminPath'
 import {
   BadgeCheck,
@@ -59,7 +59,6 @@ import { NotFound } from '@/pages/public/NotFound'
 import { StaffLogin } from '@/pages/auth/StaffLogin'
 import { CustomerLogin } from '@/pages/auth/CustomerLogin'
 import { CustomerSignIn } from '@/pages/auth/CustomerSignIn'
-import { RegisterRep } from '@/pages/auth/RegisterRep'
 import { ForgotPassword } from '@/pages/auth/ForgotPassword'
 import { ResetPassword } from '@/pages/auth/ResetPassword'
 
@@ -205,6 +204,11 @@ const customerNav: NavItem[] = [
   { to: '/customer/password', label: 'Change Password', icon: <KeyRound className={ico} /> },
 ]
 
+function JoinRedirect() {
+  const ref = new URLSearchParams(useLocation().search).get('ref')?.trim()
+  return <Navigate to={`/sponsor-login?signup=1${ref ? `&ref=${encodeURIComponent(ref)}` : ''}`} replace />
+}
+
 export function App() {
   return (
     <Routes>
@@ -230,12 +234,14 @@ export function App() {
         <Route path={ADMIN_LOGIN_PATH} element={<StaffLogin />} />
         <Route path="/sponsor-login" element={<CustomerLogin />} />
         <Route path="/customer-login" element={<CustomerSignIn />} />
-        <Route path="/join" element={<RegisterRep />} />
+        {/* "Join Now" and referral links (/join?ref=CODE): the Sign Up tab,
+            which files a request the office approves (no email needed). */}
+        <Route path="/join" element={<JoinRedirect />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Earlier paths, kept so links already sent out still work. */}
         <Route path="/portal/login" element={<Navigate to="/customer-login" replace />} />
-        <Route path="/register" element={<Navigate to="/join" replace />} />
+        <Route path="/register" element={<JoinRedirect />} />
       </Route>
       <Route path="/reset-password" element={<ResetPassword />} />
 
