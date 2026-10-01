@@ -202,8 +202,8 @@ const HERO_DEFAULTS = {
   subtitle: "India's trusted Royal Symo Green City network. Earn direct sponsor income, level commissions and lifetime rewards — all the way up to Crown Diamond.",
   primary_cta_label: 'Join as Sponsor',
   primary_cta_link: '/register',
-  secondary_cta_label: 'Explore Plans',
-  secondary_cta_link: '/plans',
+  secondary_cta_label: 'Explore Projects',
+  secondary_cta_link: '/projects',
 }
 
 function HomeHeroTab() {

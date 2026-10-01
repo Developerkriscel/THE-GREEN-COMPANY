@@ -264,8 +264,8 @@ export function AboutPage() {
             <a href="/register" className="btn-gold rounded-xl px-8 py-3.5 text-sm">
               Join Today — Free
             </a>
-            <a href="/plans" className="rounded-xl border border-white/40 px-8 py-3.5 text-sm font-bold text-white hover:bg-white/10 transition-all">
-              View Income Plan
+            <a href="/projects" className="rounded-xl border border-white/40 px-8 py-3.5 text-sm font-bold text-white hover:bg-white/10 transition-all">
+              Explore Projects
             </a>
           </div>
         </div>

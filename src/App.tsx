@@ -47,7 +47,6 @@ import { ProjectsPage } from '@/pages/public/Projects'
 import { ProjectDetail } from '@/pages/public/ProjectDetail'
 import { ContactPage } from '@/pages/public/Contact'
 import { AboutPage } from '@/pages/public/About'
-import { PlansPage } from '@/pages/public/Plans'
 import { RewardsPage } from '@/pages/public/Rewards'
 import { GalleryPage } from '@/pages/public/Gallery'
 import { EventsPage } from '@/pages/public/Events'
@@ -225,7 +224,8 @@ export function App() {
         <Route path="projects/:slug" element={<ProjectDetail />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="about" element={<AboutPage />} />
-        <Route path="plans" element={<PlansPage />} />
+        {/* The Plans page was taken off the site on 2026-10-01; old links land on Home. */}
+        <Route path="plans" element={<Navigate to="/" replace />} />
         <Route path="rewards" element={<RewardsPage />} />
         <Route path="gallery" element={<GalleryPage />} />
         <Route path="events" element={<EventsPage />} />

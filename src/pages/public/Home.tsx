@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useProjects, useSiteSetting, useCmsContent, useBanners, useRanks } from '@/lib/queries'
 import { BRAND } from '@/lib/brand'
 import { planRows } from '@/lib/plan'
-import { RANKS as PLAN_FALLBACK } from '@/pages/public/Plans'
+import { RANKS as PLAN_FALLBACK } from '@/lib/plan-data'
 
 const HERO_DEFAULTS = {
   badge: 'Mission 90 Days — Registrations Open',
@@ -12,8 +12,8 @@ const HERO_DEFAULTS = {
   subtitle: `India's trusted ${BRAND.short} network. Earn direct sponsor income, level commissions and lifetime rewards.`,
   primary_cta_label: 'Join as Sponsor',
   primary_cta_link: '/register',
-  secondary_cta_label: 'View Plans',
-  secondary_cta_link: '/plans',
+  secondary_cta_label: 'Explore Projects',
+  secondary_cta_link: '/projects',
 }
 
 /* ── Real image URLs scraped from royalgreencompany.com ── */
@@ -261,6 +261,11 @@ export function Home() {
   const freeCount = ranks.filter((r) => r.joining === 'Free').length
   const { data: heroCfg } = useSiteSetting('home.hero')
   const hero = { ...HERO_DEFAULTS, ...(heroCfg ?? {}) }
+  // A saved button still pointing at the retired Plans page goes to Projects.
+  if (/^\/plans/.test(hero.secondary_cta_link ?? '')) {
+    hero.secondary_cta_link = HERO_DEFAULTS.secondary_cta_link
+    hero.secondary_cta_label = HERO_DEFAULTS.secondary_cta_label
+  }
   const { data: achieverRows = [] } = useCmsContent<{ name: string; rank: string; photo_url: string }>('achievers', { activeOnly: true })
   const topAchiever = achieverRows[0]
     ? { name: achieverRows[0].name, rank: achieverRows[0].rank, img: achieverRows[0].photo_url }
@@ -575,17 +580,6 @@ export function Home() {
             </table>
           </div>
 
-          <div className="mt-6 text-center">
-            <Link
-              to="/plans"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary-dark hover:text-brand-primary transition-colors"
-            >
-              See all {ranks.length} ranks
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
-          </div>
         </div>
       </section>
 

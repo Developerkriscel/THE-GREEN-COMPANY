@@ -8,7 +8,7 @@ import { ACHIEVERS } from '@/pages/public/Home'
 import { EVENTS } from '@/pages/public/Events'
 import { NEWS } from '@/pages/public/News'
 import { REWARDS } from '@/pages/public/Rewards'
-import { LEVELS } from '@/pages/public/Plans'
+import { LEVELS } from '@/lib/plan-data'
 
 export interface TeamRow { [k: string]: unknown; name: string; designation: string; category: string; photo_url: string; sort_order: number }
 export interface AchieverRow { [k: string]: unknown; name: string; rank: string; photo_url: string; sort_order: number }

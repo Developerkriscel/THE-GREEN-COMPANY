@@ -8,7 +8,6 @@ import { BRAND, copyright } from '@/lib/brand'
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Plans', href: '/plans' },
   { label: 'Projects', href: '/projects' },
   { label: 'Rewards', href: '/rewards' },
   { label: 'Gallery', href: '/gallery' },
