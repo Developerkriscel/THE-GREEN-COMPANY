@@ -53,31 +53,34 @@ function junitCounts(file) {
   return { tests: Number(m[1]), failures: Number(m[2]) }
 }
 
-run('1/10  Type check', 'npx', ['tsc', '--noEmit'])
-run('2/10  Unit tests (Vitest)', 'npx', ['vitest', 'run'], { CI_JUNIT: '1' })
-run('3/10  Integration — server-side rules', 'node', ['scripts/test-sponsor-rules.mjs'], {
+run('1/11  Type check', 'npx', ['tsc', '--noEmit'])
+run('2/11  Unit tests (Vitest)', 'npx', ['vitest', 'run'], { CI_JUNIT: '1' })
+run('3/11  Integration — server-side rules', 'node', ['scripts/test-sponsor-rules.mjs'], {
   JUNIT: path.join(REPORTS, 'rules-junit.xml'),
 })
-run('4/10  Connectivity — module cross-checks', 'node', ['scripts/test-module-connectivity.mjs'], {
+run('4/11  Connectivity — module cross-checks', 'node', ['scripts/test-module-connectivity.mjs'], {
   JUNIT: path.join(REPORTS, 'connectivity-junit.xml'),
 })
-run('5/10  Gateway — REST/auth surface', 'node', ['scripts/gateway-test.mjs'], {
+run('5/11  Gateway — REST/auth surface', 'node', ['scripts/gateway-test.mjs'], {
   JUNIT: path.join(REPORTS, 'gateway-junit.xml'),
 })
-run('6/10  Customer panel — office to buyer, end to end', 'node', ['scripts/test-customer-panel.mjs'], {
+run('6/11  Customer panel — office to buyer, end to end', 'node', ['scripts/test-customer-panel.mjs'], {
   JUNIT: path.join(REPORTS, 'customer-junit.xml'),
 })
-run('7/10  Payments CRM — sale, schedule, receipts, verification', 'node', ['scripts/test-payments-crm.mjs'], {
+run('7/11  Payments CRM — sale, schedule, receipts, verification', 'node', ['scripts/test-payments-crm.mjs'], {
   JUNIT: path.join(REPORTS, 'payments-crm-junit.xml'),
 })
-run('8/10  Audit gaps — KYC nominee & history, profile, placement', 'node', ['scripts/test-audit-gaps.mjs'], {
+run('8/11  Audit gaps — KYC nominee & history, profile, placement', 'node', ['scripts/test-audit-gaps.mjs'], {
   JUNIT: path.join(REPORTS, 'audit-gaps-junit.xml'),
 })
-run('9/10  Rank plan — edits change income, salary, rewards, ranks', 'node', ['scripts/test-rank-plan.mjs'], {
+run('9/11  Rank plan — edits change income, salary, rewards, ranks', 'node', ['scripts/test-rank-plan.mjs'], {
   JUNIT: path.join(REPORTS, 'rank-plan-junit.xml'),
 })
-run('10/10 Sponsor sign-up — website request to the office queue', 'node', ['scripts/test-sponsor-signup.mjs'], {
+run('10/11 Sponsor sign-up — website request to the office queue', 'node', ['scripts/test-sponsor-signup.mjs'], {
   JUNIT: path.join(REPORTS, 'sponsor-signup-junit.xml'),
+})
+run('11/11 Employees — HR records, privacy, ID-card check, exit', 'node', ['scripts/test-employees.mjs'], {
+  JUNIT: path.join(REPORTS, 'employees-junit.xml'),
 })
 
 console.log(`\n${'='.repeat(64)}`)
@@ -96,6 +99,7 @@ for (const [file, name] of [
   ['audit-gaps-junit.xml', 'audit-gaps'],
   ['rank-plan-junit.xml', 'rank-plan'],
   ['sponsor-signup-junit.xml', 'sponsor-signup'],
+  ['employees-junit.xml', 'employees'],
 ]) {
   const c = junitCounts(file)
   if (c) console.log(`  reports/${file.padEnd(24)} ${c.tests} tests, ${c.failures} failures`)

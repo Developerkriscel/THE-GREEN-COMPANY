@@ -45,7 +45,7 @@ export function useAvatarUrl(path: string | null | undefined) {
  * JPEG brings it to ~50 KB, strips the EXIF (which can carry the GPS position
  * the picture was taken at), and makes every later view of it fast.
  */
-async function shrink(file: File): Promise<Blob> {
+export async function shrink(file: File): Promise<Blob> {
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
     throw new Error('Please choose a JPG, PNG or WebP photo.')
   }

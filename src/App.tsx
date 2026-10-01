@@ -27,6 +27,7 @@ import {
   TrendingUp,
   Gift,
   Headphones,
+  IdCard,
   LandPlot,
   MessageSquareHeart,
   UserCircle,
@@ -54,6 +55,7 @@ import { NewsPage } from '@/pages/public/News'
 import { TeamPage } from '@/pages/public/Team'
 import { CmsPage } from '@/pages/public/CmsPage'
 import { NotFound } from '@/pages/public/NotFound'
+import { VerifyEmployee } from '@/pages/public/VerifyEmployee'
 
 /* auth */
 import { StaffLogin } from '@/pages/auth/StaffLogin'
@@ -86,6 +88,9 @@ import { AdminAudit } from '@/pages/admin/Audit'
 import { AdminCms } from '@/pages/admin/Cms'
 import { AdminReports } from '@/pages/admin/Reports'
 import { AdminCustomers } from '@/pages/admin/Customers'
+import { AdminEmployees } from '@/pages/admin/Employees'
+import { AdminEmployeeDetail } from '@/pages/admin/EmployeeDetail'
+import { AdminEmployeeEditor } from '@/pages/admin/EmployeeEditor'
 import { AdminCustomerDetail } from '@/pages/admin/CustomerDetail'
 
 /* customer (plot buyer) panel */
@@ -134,6 +139,7 @@ const adminNav: NavItem[] = [
   { to: '/admin/settings', label: 'Business Settings', icon: <Settings className={ico} /> },
   { to: '/admin/members', label: 'Members', icon: <Users className={ico} /> },
   { to: '/admin/customers', label: 'Customers', icon: <UserCircle className={ico} /> },
+  { to: '/admin/employees', label: 'Employees', icon: <IdCard className={ico} /> },
   { to: '/admin/tree', label: 'Member Tree', icon: <Network className={ico} /> },
   { to: '/admin/genealogy', label: 'Genealogy', icon: <GitBranch className={ico} /> },
   { to: '/admin/sales', label: 'Plot Sales', short: 'Sales', icon: <BadgeCheck className={ico} /> },
@@ -244,6 +250,8 @@ export function App() {
         <Route path="/register" element={<JoinRedirect />} />
       </Route>
       <Route path="/reset-password" element={<ResetPassword />} />
+      {/* What the QR on an employee's ID card opens: public, minimal, not indexed. */}
+      <Route path="/verify/employee/:token" element={<VerifyEmployee />} />
 
       {/* -------------------------------------------------------- admin */}
       <Route element={<RequireAuth roles={['admin']} />}>
@@ -254,6 +262,10 @@ export function App() {
           <Route path="members/:code" element={<AdminMemberDetail />} />
           <Route path="customers" element={<AdminCustomers />} />
           <Route path="customers/:id" element={<AdminCustomerDetail />} />
+          <Route path="employees" element={<AdminEmployees />} />
+          <Route path="employees/new" element={<AdminEmployeeEditor />} />
+          <Route path="employees/:id" element={<AdminEmployeeDetail />} />
+          <Route path="employees/:id/edit" element={<AdminEmployeeEditor />} />
           <Route path="tree" element={<AdminMemberTree />} />
           <Route path="genealogy" element={<AdminGenealogy />} />
           <Route path="sales" element={<AdminPlotSales />} />
