@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
-import { CheckCircle2, Circle, Download, ExternalLink, FileText, Globe, Image as ImageIcon, Loader2, Mail, MapPin, MessageCircle, Phone, UserRound } from 'lucide-react'
+import { CheckCircle2, Circle, Download, ExternalLink, FileText, Globe, Image as ImageIcon, Loader2, Mail, MapPin, MessageCircle, Phone, PhoneCall, UserRound } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import {
   DOC_LABEL, STAGE_LABEL, bookingMoney, docBucket, useBookingDocuments, useBookingEmis, useBookingPayments,
@@ -159,6 +159,7 @@ export function ContactCards() {
         <CardHeader title={BRAND.legalName} subtitle="Company contact" />
         <CardBody className="space-y-2.5 text-sm">
           <a href={BRAND.phoneHref} className="flex items-center gap-2.5 text-brand-darker hover:underline"><Phone className="h-4 w-4 text-brand-gold-dark" /> +91 {BRAND.phone}</a>
+          {BRAND.landline && <a href={BRAND.landlineHref} className="flex items-center gap-2.5 text-brand-darker hover:underline"><PhoneCall className="h-4 w-4 text-brand-gold-dark" /> {BRAND.landline} (Landline)</a>}
           <a href={waLink(BRAND.whatsapp)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-brand-darker hover:underline"><MessageCircle className="h-4 w-4 text-brand-gold-dark" /> WhatsApp {BRAND.whatsapp}</a>
           <a href={`mailto:${BRAND.email}`} className="flex items-center gap-2.5 text-brand-darker hover:underline"><Mail className="h-4 w-4 text-brand-gold-dark" /> {BRAND.email}</a>
           <a href={BRAND.websiteUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-brand-darker hover:underline"><Globe className="h-4 w-4 text-brand-gold-dark" /> {BRAND.website} <ExternalLink className="h-3 w-3" /></a>

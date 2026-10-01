@@ -86,6 +86,7 @@ const COMPANY_FIELDS: { key: keyof BrandSettings; label: string; hint?: string; 
   { key: 'websiteUrl', label: 'Website link', hint: 'Full address, e.g. https://symocity.com' },
   { key: 'email', label: 'Contact email' },
   { key: 'phone', label: 'Contact phone' },
+  { key: 'landline', label: 'Landline', hint: 'With the STD code, e.g. 0124-3168769. Shown on the website footer and Contact page.' },
   { key: 'whatsapp', label: 'WhatsApp number', hint: 'Digits only — used for the WhatsApp chat button.' },
   { key: 'compliance', label: 'Compliance line', hint: 'e.g. RERA Compliant · Premium Real Estate Developer' },
 ]

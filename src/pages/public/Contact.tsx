@@ -26,6 +26,7 @@ export function ContactPage() {
   const waDigits = (c.whatsapp || c.phone).replace(/\D/g, '')
   const infoItems = [
     { icon: '📞', label: 'Phone / WhatsApp', value: c.phone, href: `tel:${c.phone.replace(/\s/g, '')}` },
+    ...(BRAND.landline ? [{ icon: '☎️', label: 'Landline (Office)', value: BRAND.landline, href: BRAND.landlineHref }] : []),
     { icon: '✉️', label: 'Email', value: c.email, href: `mailto:${c.email}` },
     { icon: '📍', label: 'Head Office', value: c.address, href: '#' },
   ]

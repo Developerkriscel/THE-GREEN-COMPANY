@@ -26,6 +26,8 @@ export interface BrandSettings {
   websiteUrl: string
   email: string
   phone: string
+  /** Office landline with its STD code, as printed (e.g. 0124-3168769). */
+  landline: string
   /** Digits only; the WhatsApp chat link and the "WhatsApp" line. */
   whatsapp: string
   /** Head office address, on the footer, Contact page, ID card and documents. */
@@ -46,6 +48,7 @@ export const BRAND_DEFAULTS: BrandSettings = {
   websiteUrl: 'https://symocity.com',
   email: 'symocitydevelopers@gmail.com',
   phone: '9211809636',
+  landline: '0124-3168769',
   whatsapp: '9211809636',
   address: 'Office No. 325, 3rd Floor, Universal Trade Tower, Sector 49, Sohna Road, Gurgaon, Haryana',
   logoUrl: null,
@@ -60,6 +63,13 @@ export const BRAND = {
   markSquare: '/brand-mark-512.png',
   guidelines: '/brand-guidelines.jpg',
   phoneHref: 'tel:+919211809636',
+  landlineHref: 'tel:+911243168769',
+}
+
+/** A landline as a dialable link: 0124-3168769 -> tel:+911243168769. */
+export function landlineHref(v: string) {
+  const d = v.replace(/\D/g, '').replace(/^0/, '')
+  return `tel:+${d.startsWith('91') && d.length > 10 ? d : `91${d}`}`
 }
 
 /** Merge saved settings over the defaults, ignoring blanks. */
@@ -83,6 +93,7 @@ export function applyBrand(stored: Partial<BrandSettings> | null | undefined) {
   BRAND.markSquare = logo || '/brand-mark-512.png'
   const digits = b.phone.replace(/\D/g, '')
   BRAND.phoneHref = `tel:+${digits.length === 10 ? `91${digits}` : digits}`
+  BRAND.landlineHref = landlineHref(b.landline)
 
   if (typeof document !== 'undefined') {
     document.title = `${b.name} — Plots, Projects & Ownership`

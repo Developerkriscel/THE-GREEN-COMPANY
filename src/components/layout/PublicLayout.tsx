@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { AnnouncementTicker } from '@/components/AnnouncementTicker'
 import { BrandLockup } from '@/components/BrandLockup'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { ChevronRight, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
+import { ChevronRight, Mail, MapPin, MessageCircle, Phone, PhoneCall } from 'lucide-react'
 import { BRAND, copyright } from '@/lib/brand'
 
 const NAV_LINKS = [
@@ -156,6 +156,11 @@ export function PublicLayout() {
               <a href={`https://wa.me/91${BRAND.whatsapp.replace(/\D/g, '').slice(-10)}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] py-2.5 text-sm font-medium text-white/85 ring-1 ring-white/10">
                 <MessageCircle className="h-4 w-4 text-brand-gold" aria-hidden /> WhatsApp
               </a>
+              {BRAND.landline && (
+                <a href={BRAND.landlineHref} className="col-span-2 flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] py-2.5 text-sm font-medium text-white/85 ring-1 ring-white/10">
+                  <PhoneCall className="h-4 w-4 text-brand-gold" aria-hidden /> Landline {BRAND.landline}
+                </a>
+              )}
             </div>
             <p className="text-gold-metal mt-5 text-center text-sm font-semibold italic">{BRAND.tagline}</p>
           </div>
@@ -233,8 +238,14 @@ export function PublicLayout() {
                 </li>
                 <li className="flex gap-2">
                   <Phone className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-gold" aria-hidden />
-                  +91 {BRAND.phone}
+                  <a href={BRAND.phoneHref} className="hover:text-white transition-colors">+91 {BRAND.phone}</a>
                 </li>
+                {BRAND.landline && (
+                  <li className="flex gap-2">
+                    <PhoneCall className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-gold" aria-hidden />
+                    <a href={BRAND.landlineHref} className="hover:text-white transition-colors">{BRAND.landline} <span className="text-white/30">(Landline)</span></a>
+                  </li>
+                )}
                 <li className="flex gap-2">
                   <Mail className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-gold" aria-hidden />
                   {BRAND.email}
