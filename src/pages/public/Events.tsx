@@ -2,6 +2,7 @@ import { useCmsContent } from '@/lib/queries'
 
 const SB = 'https://dvocohgawbllsboocytf.supabase.co/storage/v1/object/sign/cms-gallery'
 
+/** Seed rows for the CMS "load defaults" button; the page shows only published events. */
 export const EVENTS = [
   {
     date: 'Sep 24, 2026',
@@ -53,9 +54,8 @@ const SCHEDULE = [
 
 export function EventsPage() {
   const { data: rows = [] } = useCmsContent<{ title: string; description: string; event_date: string; location: string; image_url: string }>('events', { activeOnly: true })
-  const events = rows.length
-    ? rows.map((r) => ({ date: r.event_date, location: r.location, title: r.title, desc: r.description, img: r.image_url }))
-    : EVENTS
+  // Only what the office publishes in Website CMS → Events; no stand-in events.
+  const events = rows.map((r) => ({ date: r.event_date, location: r.location, title: r.title, desc: r.description, img: r.image_url }))
   return (
     <>
       {/* Hero */}
@@ -78,6 +78,9 @@ export function EventsPage() {
       <section className="py-16 bg-white">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <p className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary mb-8">Company Events</p>
+          {events.length === 0 && (
+            <p className="py-10 text-center text-gray-500">No events scheduled right now. Follow us on WhatsApp to hear about the next one.</p>
+          )}
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((ev) => (
               <div key={ev.title} className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-elegant transition-all overflow-hidden group">
@@ -99,7 +102,8 @@ export function EventsPage() {
         </div>
       </section>
 
-      {/* Ceremony Schedule */}
+      {/* Ceremony Schedule — only while an event is published */}
+      {events.length > 0 && (
       <section className="py-16 bg-gray-50">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <p className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary mb-2">Ceremony Schedule</p>
@@ -128,6 +132,7 @@ export function EventsPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* WhatsApp CTA */}
       <section className="py-12 bg-white text-center">

@@ -1,7 +1,10 @@
-import { useCmsContent } from '@/lib/queries'
+import { useCmsContent, useRanks } from '@/lib/queries'
+import { RewardArt } from '@/components/RewardArt'
+import { num } from '@/lib/format'
 
 const RGA = 'https://royalgreencompany.com/assets'
 
+/** Seed rows for the CMS "load defaults" button (the page reads the rank plan). */
 export const REWARDS = [
   { level: 1, title: 'Darjeeling / GOA', img: `${RGA}/reward-darjeeling-goa-DqX05LnR.jpg`, joining: '3 Fresh Joining', sales: '5 Sales', trending: true },
   { level: 2, title: 'Thailand / iPhone', img: `${RGA}/reward-thailand-iphone-CNLheiAV.jpg`, joining: '6 Fresh Joining', sales: '10 Sales', trending: true },
@@ -15,10 +18,11 @@ export const REWARDS = [
 ]
 
 export function RewardsPage() {
-  const { data: rows = [] } = useCmsContent<{ level: number; title: string; joining: string; sales: string; image_url: string; trending: boolean }>('rewards', { activeOnly: true })
-  const rewards = rows.length
-    ? rows.map((r) => ({ level: r.level, title: r.title, img: r.image_url, joining: r.joining, sales: r.sales, trending: r.trending }))
-    : REWARDS
+  const { data: ranks = [] } = useRanks()
+  // Optional photos from Website CMS → Rewards, matched to a reward by its title.
+  const { data: photos = [] } = useCmsContent<{ title: string; image_url: string | null }>('rewards', { activeOnly: true })
+  const photoFor = (title: string) => photos.find((p) => p.image_url && p.title.trim().toLowerCase() === title.trim().toLowerCase())?.image_url ?? null
+  const rewards = [...ranks].filter((r) => r.active && r.reward_title).sort((a, b) => a.seniority - b.seniority)
   return (
     <>
       {/* Hero */}
@@ -37,43 +41,47 @@ export function RewardsPage() {
         </div>
       </section>
 
-      {/* Rewards Grid */}
+      {/* Rewards Grid — Business Settings → Rank plan */}
       <section className="py-20 bg-white">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {rewards.map(r => (
-              <div key={r.level} className="group rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant transition-all duration-300 overflow-hidden">
+          {rewards.length === 0 ? (
+            <p className="py-10 text-center text-gray-500">The reward list is being updated. Please check back soon.</p>
+          ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {rewards.map((r) => {
+              const photo = photoFor(r.reward_title ?? '')
+              return (
+              <div key={r.id} className="group rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant transition-all duration-300 overflow-hidden">
                 <div className="relative h-52 overflow-hidden">
-                  <img src={r.img} alt={r.title}
-                    className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute top-3 left-3 flex gap-2">
-                    <span className="rounded-full bg-brand-darker/80 px-3 py-1 text-xs font-bold text-white uppercase tracking-wider backdrop-blur">
-                      Level {r.level}
-                    </span>
-                    {r.trending && (
-                      <span className="rounded-full bg-gold-metal px-3 py-1 text-xs font-bold text-brand-darker shadow">
-                        🔥 Trending
-                      </span>
-                    )}
-                  </div>
-                  <p className="absolute bottom-3 left-3 text-lg font-extrabold text-white">{r.title}</p>
+                  {photo ? (
+                    <img src={photo} alt={r.reward_title ?? ''}
+                      className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <RewardArt title={r.reward_title ?? ''} className="h-52" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
+                  <span className="absolute top-3 left-3 rounded-full bg-gold-metal px-3 py-1 text-xs font-bold text-brand-darker uppercase tracking-wider shadow">
+                    {r.name}
+                  </span>
+                  <p className="absolute bottom-3 left-3 text-lg font-extrabold text-white drop-shadow">{r.reward_title}</p>
                 </div>
                 <div className="p-5">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-xl bg-brand-primary/10 p-3 text-center">
-                      <p className="text-xs font-bold uppercase tracking-wider text-brand-primary mb-1">Joining</p>
-                      <p className="text-sm font-bold text-brand-darker">{r.joining}</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-brand-primary mb-1">Rank</p>
+                      <p className="text-sm font-bold text-brand-darker">{r.name}</p>
                     </div>
                     <div className="rounded-xl bg-brand-darker/5 p-3 text-center">
-                      <p className="text-xs font-bold uppercase tracking-wider text-brand-darker mb-1">Sales</p>
-                      <p className="text-sm font-bold text-brand-darker">{r.sales}</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-brand-darker mb-1">Sales target</p>
+                      <p className="text-sm font-bold text-brand-darker">{Number(r.reward_sqyd ?? 0) > 0 ? `${num(Number(r.reward_sqyd))} sq yd` : '—'}</p>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
+          )}
 
           {/* Disclaimer */}
           <div className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-center">

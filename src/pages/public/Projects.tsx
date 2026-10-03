@@ -4,6 +4,7 @@ import { Search } from 'lucide-react'
 import { useProjects } from '@/lib/queries'
 import { EmptyState, ErrorState, Input, Select, Spinner } from '@/components/ui'
 import { BRAND } from '@/lib/brand'
+import { ProjectRates } from '@/pages/public/Home'
 
 export function ProjectsPage() {
   const { data = [], isLoading, error } = useProjects({ publishedOnly: true })
@@ -144,15 +145,8 @@ function ProjectCard({ project }: { project: Record<string, any> }) {
         </h3>
         <p className="mt-1 text-sm text-gray-500 flex-1 line-clamp-2">{project.location}</p>
 
-        <div className="mt-4 flex items-center justify-between border-t border-gray-50 pt-3">
-          <div>
-            <p className="text-xs text-gray-400">From</p>
-            <p className="text-sm font-bold text-brand-primary-dark">
-              {project.price_from
-                ? `₹${Number(project.price_from).toLocaleString('en-IN')} / sq yd`
-                : 'Contact for price'}
-            </p>
-          </div>
+        <div className="mt-4 space-y-3 border-t border-gray-50 pt-3">
+          <ProjectRates project={project} />
           <div className="text-right">
             <p className="text-xs text-gray-400">Size</p>
             <p className="text-sm font-semibold text-gray-700">

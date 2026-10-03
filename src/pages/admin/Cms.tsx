@@ -72,7 +72,7 @@ export function AdminCms() {
         <CmsContentTab
           table="team_members"
           title="Team members"
-          subtitle="Directors, managing directors, branch managers and rank achievers on the public Team page."
+          subtitle="Directors, managing directors, branch managers and rank achievers on the public Team page. Directors and managing directors also scroll in Board of Members on the home page."
           imageField="photo_url"
           titleField="name"
           subtitleField="designation"
@@ -90,7 +90,7 @@ export function AdminCms() {
         <CmsContentTab
           table="achievers"
           title="Achievers"
-          subtitle="Top achievers featured on the home page."
+          subtitle="The “Real leaders. Real rewards.” cards on the home page, in this order."
           imageField="photo_url"
           titleField="name"
           subtitleField="rank"
@@ -98,7 +98,8 @@ export function AdminCms() {
           fields={[
             { name: 'name', label: 'Name', required: true },
             { name: 'rank', label: 'Rank' },
-            { name: 'achievement', label: 'Achievement' },
+            { name: 'direct_team', label: 'Direct team' },
+            { name: 'total_sales', label: 'Total sales' },
             { name: 'photo_url', label: 'Photo', type: 'image' },
           ]}
         />
@@ -107,7 +108,7 @@ export function AdminCms() {
         <CmsContentTab
           table="rewards"
           title="Rewards"
-          subtitle="Milestone rewards shown on the public Rewards page."
+          subtitle="Optional photos for the rewards. The rewards themselves (what, which rank, how many sq yd) come from Business Settings → Rank plan; a photo here replaces the drawing of the reward with the same title."
           imageField="image_url"
           titleField="title"
           subtitleField="joining"
@@ -195,7 +196,7 @@ export function AdminCms() {
 /* --------------------------------------------------------------- home/hero */
 
 const HERO_DEFAULTS = {
-  badge: 'Mission 90 Days Training',
+  badge: '90 Days Training — Registrations Open',
   title_lead: 'Build Your',
   title_accent: 'Financial Future',
   title_tail: `with ${BRAND.short}`,

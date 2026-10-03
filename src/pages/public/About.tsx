@@ -197,7 +197,7 @@ export function AboutPage() {
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-14 items-start">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Mission 90 Days</span>
+              <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">90 Days Training</span>
               <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">90-Day Success Mission</h2>
               <p className="mt-4 text-gray-500 leading-relaxed">
                 A structured 90-day training program that equips every new associate with the skills, mindset, and network to succeed fast.

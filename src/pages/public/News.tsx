@@ -3,6 +3,7 @@ import { BRAND } from '@/lib/brand'
 
 const SB = 'https://dvocohgawbllsboocytf.supabase.co/storage/v1/object/sign/cms-gallery'
 
+/** Seed rows for the CMS "load defaults" button; the page shows only published news. */
 export const NEWS = [
   {
     date: 'Aug 24, 2026',
@@ -26,9 +27,8 @@ export const NEWS = [
 
 export function NewsPage() {
   const { data: rows = [] } = useCmsContent<{ title: string; description: string; news_date: string; image_url: string }>('news_posts', { activeOnly: true })
-  const news = rows.length
-    ? rows.map((r) => ({ date: r.news_date, title: r.title, desc: r.description, img: r.image_url }))
-    : NEWS
+  // Only what the office publishes in Website CMS → News; no stand-in stories.
+  const news = rows.map((r) => ({ date: r.news_date, title: r.title, desc: r.description, img: r.image_url }))
   return (
     <>
       {/* Hero */}
@@ -50,6 +50,9 @@ export function NewsPage() {
       {/* News grid */}
       <section className="py-16 bg-white">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
+          {news.length === 0 && (
+            <p className="py-10 text-center text-gray-500">No news to share right now. Follow us on WhatsApp for the latest updates.</p>
+          )}
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {news.map((item) => (
               <article key={item.title} className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-elegant transition-all overflow-hidden group">

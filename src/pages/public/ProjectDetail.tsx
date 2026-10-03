@@ -52,7 +52,14 @@ export function ProjectDetail() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <Stat label="Price from" value={project.price_from ? money(project.price_from) : '—'} />
+            {project.price_to && Number(project.price_to) !== Number(project.price_from) ? (
+              <>
+                <Stat label="Pre-launch rate" value={`${money(project.price_from)} / sq yd`} />
+                <Stat label="Launch rate" value={`${money(project.price_to)} / sq yd`} />
+              </>
+            ) : (
+              <Stat label="Rate" value={project.price_from ? `${money(project.price_from)} / sq yd` : '—'} />
+            )}
             <Stat
               label="Plot sizes"
               value={

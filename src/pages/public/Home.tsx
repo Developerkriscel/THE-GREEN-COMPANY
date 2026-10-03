@@ -1,11 +1,15 @@
 import { Link } from 'react-router-dom'
+import { Crown, Gift, Handshake, Ruler, TrendingUp, Users, Wallet } from 'lucide-react'
 import { useProjects, useSiteSetting, useCmsContent, useBanners, useRanks } from '@/lib/queries'
 import { BRAND } from '@/lib/brand'
 import { planRows } from '@/lib/plan'
 import { RANKS as PLAN_FALLBACK } from '@/lib/plan-data'
+import { money, num } from '@/lib/format'
+import { RewardArt } from '@/components/RewardArt'
+import type { Rank } from '@/lib/types'
 
 const HERO_DEFAULTS = {
-  badge: 'Mission 90 Days — Registrations Open',
+  badge: '90 Days Training — Registrations Open',
   title_lead: 'Build Your',
   title_accent: 'Financial Future',
   title_tail: `with ${BRAND.short}`,
@@ -21,6 +25,7 @@ const HERO_IMG = 'https://royalgreencompany.com/assets/hero-Cw3CXUiu.jpg'
 
 const SB = 'https://dvocohgawbllsboocytf.supabase.co/storage/v1/object/sign/cms-gallery'
 
+/** Seed rows for the CMS "load defaults" button; the home page reads the Achievers CMS table. */
 export const ACHIEVERS = [
   {
     name: 'NEETA SINGH',
@@ -59,88 +64,95 @@ export const ACHIEVERS = [
   },
 ]
 
-const REWARDS = [
-  {
-    img: 'https://royalgreencompany.com/assets/reward-darjeeling-goa-DqX05LnR.jpg',
-    alt: 'Darjeeling / GOA',
-    title: 'Darjeeling / GOA Trip',
-    joining: 3,
-    sales: 5,
-    tag: 'Channel Partner+',
-  },
-  {
-    img: 'https://royalgreencompany.com/assets/reward-thailand-iphone-CNLheiAV.jpg',
-    alt: 'Thailand / iPhone',
-    title: 'Thailand Trip + iPhone',
-    joining: 6,
-    sales: 10,
-    tag: 'Manager+',
-  },
-  {
-    img: 'https://royalgreencompany.com/assets/reward-bullet-laptop-BKH-6qrv.jpg',
-    alt: 'Bullet / Laptop',
-    title: 'Royal Enfield + Laptop',
-    joining: 9,
-    sales: 15,
-    tag: 'Vice President+',
-  },
-  {
-    img: 'https://royalgreencompany.com/assets/reward-car-down-payment-BOm0GFjW.jpg',
-    alt: 'Car Down Payment',
-    title: 'Car Down Payment',
-    joining: 12,
-    sales: 25,
-    tag: 'Core Manager+',
-  },
-]
-
 const STATS = [
   { value: '12', label: 'RANK LEVELS' },
-  { value: '25,000+', label: 'PARTNERS' },
-  { value: '2,500+', label: 'ACTIVE PARTNERS' },
-  { value: '120+', label: 'CITIES REACHED' },
-  { value: '₹50+', label: 'PAYOUTS (₹ CR)' },
+  { value: '250+', label: 'PARTNERS' },
+  { value: '75+', label: 'ACTIVE PARTNERS' },
+  { value: '5+', label: 'CITIES' },
+  { value: '₹55+ Lac', label: 'PAYOUTS' },
 ]
 
-const WHY_ITEMS = [
-  {
-    icon: (
-      <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    title: 'Direct Sponsor Income',
-    desc: 'Earn up to ₹15,00,000 per direct sponsorship at top ranks.',
-  },
-  {
-    icon: (
-      <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-    title: 'Level Income',
-    desc: 'Deep level commissions across 12 levels, paid weekly.',
-  },
-  {
-    icon: (
-      <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-      </svg>
-    ),
-    title: 'Rewards',
-    desc: 'Smartphone, bike, car, international trips and house fund.',
-  },
-  {
-    icon: (
-      <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
-    title: 'Transparent Plan',
-    desc: 'Verified payouts, live dashboard, instant withdrawal requests.',
-  },
-]
+/**
+ * The six income streams. Where the rank plan carries the figure (direct
+ * income, salary) it is read from it, so the office's edits in Business
+ * Settings show here too.
+ */
+function incomeStreams(ranks: Rank[]) {
+  const active = ranks.filter((r) => r.active).sort((a, b) => a.seniority - b.seniority)
+  const rates = active.map((r) => Number(r.own_sale_rate)).filter((v) => v > 0)
+  const salaried = active.filter((r) => Number(r.salary ?? 0) > 0)
+  const firstSalary = salaried[0]
+  const topSalary = salaried.length ? Math.max(...salaried.map((r) => Number(r.salary))) : 0
+  return [
+    {
+      icon: <TrendingUp className="h-6 w-6" />,
+      title: 'Direct Income',
+      desc: rates.length
+        ? `${num(Math.min(...rates))}% to ${num(Math.max(...rates))}% of every plot you sell, rising with your rank.`
+        : 'A share of every plot you sell, rising with your rank.',
+    },
+    { icon: <Handshake className="h-6 w-6" />, title: 'Sponsor Income', desc: 'Earn on the plots sold by the partners you sponsor into your team.' },
+    { icon: <Users className="h-6 w-6" />, title: 'Referral Income', desc: 'Earn when the customers and partners you refer book their plots.' },
+    {
+      icon: <Gift className="h-6 w-6" />,
+      title: 'Reward Income',
+      desc: 'Juicer, mixer, mobile phone, laptop and cars — Brezza, Ertiga — as your sales in sq yd grow.',
+    },
+    {
+      icon: <Wallet className="h-6 w-6" />,
+      title: 'Salary Income',
+      desc: firstSalary
+        ? `A fixed monthly salary from ${firstSalary.name} upward — ${money(Number(firstSalary.salary))} to ${money(topSalary)} a month.`
+        : 'A fixed monthly salary at the senior ranks.',
+    },
+    { icon: <Crown className="h-6 w-6" />, title: 'Board of Member Income', desc: "An extra share for the partners who reach the company's Board of Members." },
+  ]
+}
 
+/** The company's name, motto and logo, set large: a section heading on its own. */
+function CompanyHeading({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
+  const short = BRAND.short || BRAND.name
+  const rest = BRAND.name.toUpperCase().startsWith(short.toUpperCase()) ? BRAND.name.slice(short.length).trim() : ''
+  return (
+    <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left">
+      <img src={BRAND.markSquare} alt="" className="h-20 w-20 shrink-0 object-contain drop-shadow-lg sm:h-24 sm:w-24" />
+      <div className="leading-tight">
+        <p className={`text-2xl font-extrabold uppercase tracking-wide sm:text-3xl lg:text-4xl ${tone === 'dark' ? 'text-gold-metal' : 'text-brand-darker'}`}>{short}</p>
+        {rest && <p className={`mt-1 text-xs font-bold uppercase tracking-[0.3em] sm:text-sm ${tone === 'dark' ? 'text-white/60' : 'text-brand-gold-deep'}`}>{rest}</p>}
+        {BRAND.tagline && <p className={`mt-1.5 text-base font-semibold italic sm:text-lg ${tone === 'dark' ? 'text-brand-gold-light' : 'text-brand-gold-deep'}`}>{BRAND.tagline}</p>}
+      </div>
+    </div>
+  )
+}
+
+function initialsOf(name: string) {
+  return name.replace(/^(dr|mr|mrs|ms)\.?\s+/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+}
+
+/** A rate per sq yd, e.g. ₹14,500. */
+const rate = (v: unknown) => `₹${Number(v).toLocaleString('en-IN')}`
+
+/**
+ * A project's rate: pre-launch and launch side by side when both are set
+ * (Admin → Projects), otherwise the one rate.
+ */
+export function ProjectRates({ project }: { project: Record<string, any> }) {
+  if (!project.price_from) return <span className="text-sm font-bold text-brand-primary-dark">Contact for price</span>
+  const launch = project.price_to && Number(project.price_to) !== Number(project.price_from) ? project.price_to : null
+  if (!launch) return <span className="text-sm font-bold text-brand-primary-dark">{rate(project.price_from)} / sq yd</span>
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <div className="rounded-lg bg-brand-gold/10 px-2.5 py-1.5 ring-1 ring-brand-gold/30">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-brand-gold-deep">Pre-launch</p>
+        <p className="text-sm font-extrabold text-brand-darker">{rate(project.price_from)}<span className="text-[10px] font-semibold text-gray-500"> /sq yd</span></p>
+      </div>
+      <div className="rounded-lg bg-gray-50 px-2.5 py-1.5 ring-1 ring-gray-200">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Launch</p>
+        <p className="text-sm font-extrabold text-brand-darker">{rate(launch)}<span className="text-[10px] font-semibold text-gray-500"> /sq yd</span></p>
+      </div>
+    </div>
+  )
+}
 
 /** Exported so ProjectsPage can reuse it. */
 export function ProjectCard({ project }: { project: Record<string, any> }) {
@@ -166,11 +178,9 @@ export function ProjectCard({ project }: { project: Record<string, any> }) {
         <p className="text-xs font-bold uppercase tracking-widest text-brand-primary mb-1">{project.city ?? 'India'}</p>
         <h3 className="text-base font-bold text-brand-darker group-hover:text-brand-primary-dark transition-colors">{project.name}</h3>
         <p className="mt-1 text-sm text-gray-500 flex-1 line-clamp-2">{project.location}</p>
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-sm font-bold text-brand-primary-dark">
-            {project.price_from ? `₹${Number(project.price_from).toLocaleString('en-IN')} / sq yd` : 'Contact for price'}
-          </span>
-          <span className="text-xs text-brand-primary font-semibold">View →</span>
+        <div className="mt-4 space-y-3">
+          <ProjectRates project={project} />
+          <p className="text-right text-xs text-brand-primary font-semibold">View →</p>
         </div>
       </div>
     </Link>
@@ -179,7 +189,8 @@ export function ProjectCard({ project }: { project: Record<string, any> }) {
 
 function FeaturedProjects() {
   const { data = [], isLoading } = useProjects({ publishedOnly: true })
-  const featured = data.filter((p) => p.featured).slice(0, 3)
+  // In the office's order (Admin → Projects → sort order): Symo City, Manglam City, Anjani Kunj.
+  const featured = data.filter((p) => p.featured).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).slice(0, 3)
   if (isLoading || featured.length === 0) return null
   return (
     <section className="py-20 bg-gray-50">
@@ -259,17 +270,20 @@ export function Home() {
   const liveRanks = planRows(rankData)
   const ranks = liveRanks.length ? liveRanks : PLAN_FALLBACK
   const freeCount = ranks.filter((r) => r.joining === 'Free').length
+  const streams = incomeStreams(rankData)
+  const rewards = [...rankData].filter((r) => r.active && r.reward_title).sort((a, b) => a.seniority - b.seniority)
   const { data: heroCfg } = useSiteSetting('home.hero')
   const hero = { ...HERO_DEFAULTS, ...(heroCfg ?? {}) }
   // A saved button still pointing at the retired Plans page goes to Projects.
-  if (/^\/plans/.test(hero.secondary_cta_link ?? '')) {
+  if (/^\/plans/.test(hero.secondary_cta_link ?? '')) {
     hero.secondary_cta_link = HERO_DEFAULTS.secondary_cta_link
     hero.secondary_cta_label = HERO_DEFAULTS.secondary_cta_label
   }
-  const { data: achieverRows = [] } = useCmsContent<{ name: string; rank: string; photo_url: string }>('achievers', { activeOnly: true })
-  const topAchiever = achieverRows[0]
-    ? { name: achieverRows[0].name, rank: achieverRows[0].rank, img: achieverRows[0].photo_url }
-    : ACHIEVERS[0]
+  const { data: leaders = [] } = useCmsContent<{ id: string; name: string; rank: string; photo_url: string; direct_team: string | null; total_sales: string | null }>('achievers', { activeOnly: true })
+  const { data: team = [] } = useCmsContent<{ id: string; name: string; designation: string; category: string; photo_url: string }>('team_members', { activeOnly: true })
+  const board = team.filter((m) => m.category === 'director' || m.category === 'managing_director')
+  // Enough cards to fill a wide screen; the strip is then doubled for a seamless loop.
+  const boardLoop = board.length ? Array.from({ length: Math.ceil(8 / board.length) }, () => board).flat() : []
   return (
     <>
       {/* ══════════════════════ HERO ══════════════════════ */}
@@ -336,7 +350,7 @@ export function Home() {
             </div>
 
             <div className="mt-10 flex flex-wrap gap-5 animate-fade-up" style={{ animationDelay: '.3s' }}>
-              {['Verified Plan', `${ranks.length} Rank Levels`, '25,000+ Partners'].map((t) => (
+              {['Verified Plan', `${ranks.length} Rank Levels`, '250+ Partners'].map((t) => (
                 <div key={t} className="flex items-center gap-2 text-sm font-medium text-white/80">
                   <span className="h-2 w-2 rotate-45 bg-brand-gold" aria-hidden />{t}
                 </div>
@@ -378,27 +392,28 @@ export function Home() {
       {/* ══════════════════════ PROMO BANNERS ══════════════════════ */}
       <PromoBanners />
 
-      {/* ══════════════════════ WHY US ══════════════════════ */}
+      {/* ══════════════════════ INCOME STREAMS ══════════════════════ */}
       <section className="py-20 bg-white">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Why {BRAND.name}</span>
+            <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">90 Days Training</span>
             <h2 className="mt-3 text-3xl font-extrabold text-brand-darker sm:text-4xl">
               A plan built for serious earners
             </h2>
             <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
-              Six income streams, transparent ranks and rewards that match real effort.
+              Six ways to earn with {BRAND.short} — each one explained in your 90 Days Training.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {WHY_ITEMS.map((item) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {streams.map((item, i) => (
               <div
                 key={item.title}
-                className="card-luxe group rounded-2xl border border-gray-100 p-6"
+                className="card-luxe group relative rounded-2xl border border-gray-100 p-6"
                 style={{ background: 'linear-gradient(oklch(1 0 0) 0%, oklch(0.985 0.02 60) 100%)' }}
               >
+                <span className="absolute right-5 top-4 text-3xl font-black text-brand-gold/25" aria-hidden>{String(i + 1).padStart(2, '0')}</span>
                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl text-brand-darker transition-all bg-gold-metal shadow-elegant">
                   {item.icon}
                 </div>
@@ -410,129 +425,94 @@ export function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════ TOP ACHIEVER ══════════════════════ */}
-      <section
-        className="py-24 relative overflow-hidden"
-        style={{ background: 'radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .2), transparent 45%), linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)) 100%)' }}
-      >
-        <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
-          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-
-        <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-            {/* Text */}
-            <div className="lg:w-1/2 text-center lg:text-left">
-              <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Meet Our Top Achiever</span>
+      {/* ══════════════════════ REAL LEADERS (Website CMS → Achievers) ══════════════════════ */}
+      {leaders.length > 0 && (
+        <section
+          className="py-20 relative overflow-hidden"
+          style={{ background: 'radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .2), transparent 45%), linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)) 100%)' }}
+        >
+          <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
+            style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+          <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Meet Our Top Achievers</span>
               <h2 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl lg:text-5xl leading-tight">
-                Real leaders.<br />
-                <span className="text-brand-primary-glow">Real rewards.</span>
+                Real leaders. <span className="text-brand-primary-glow">Real rewards.</span>
               </h2>
               <div className="gold-rule" aria-hidden><i /></div>
-              <p className="mt-4 text-white/60 leading-relaxed max-w-md">
-                Celebrating the champions who turned Mission 90 Days into a lifetime achievement.
-              </p>
-
-              {/* Achiever stats */}
-              <div className="mt-8 grid grid-cols-3 gap-4 max-w-sm">
-                <div className="text-center lg:text-left">
-                  <p className="text-2xl font-extrabold text-brand-primary-glow">1,240+</p>
-                  <p className="mt-1 text-xs text-white/50 uppercase tracking-wider">Direct Team</p>
-                </div>
-                <div className="text-center lg:text-left">
-                  <p className="text-2xl font-extrabold text-brand-primary-glow">₹42 Cr</p>
-                  <p className="mt-1 text-xs text-white/50 uppercase tracking-wider">Total Sales</p>
-                </div>
-                <div className="text-center lg:text-left">
-                  <p className="text-2xl font-extrabold text-brand-primary-glow">Crown</p>
-                  <p className="mt-1 text-xs text-white/50 uppercase tracking-wider">Rank</p>
-                </div>
-              </div>
-
-              {/* Achiever badge */}
-              <div className="mt-8 inline-flex items-center gap-4 rounded-2xl border border-brand-primary-glow/20 bg-white/5 backdrop-blur px-6 py-4">
-                <img
-                  src={topAchiever.img}
-                  alt={topAchiever.name}
-                  className="h-14 w-14 rounded-full object-cover border-2 border-brand-primary-glow/50"
-                />
-                <div className="text-left">
-                  <p className="text-xs font-bold uppercase tracking-widest text-brand-primary-glow">🏆 Champion of the Season</p>
-                  <p className="text-white font-bold text-lg">{topAchiever.name}</p>
-                  <p className="text-white/50 text-sm">{topAchiever.rank}</p>
-                </div>
-              </div>
-
-              {/* Chase the Crown CTA */}
-              <div className="mt-6">
-                <Link
-                  to="/register"
-                  className="btn-gold rounded-xl px-7 py-3 text-sm"
-                >
-                  Chase the Crown
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </Link>
-              </div>
             </div>
 
-            {/* Champion portrait circle */}
-            <div className="lg:w-1/2 flex justify-center">
-              <div className="relative">
-                {/* Glow ring */}
-                <div className="absolute inset-0 rounded-full blur-2xl"
-                  style={{ background: 'rgb(var(--c-primary-glow) / .25)', transform: 'scale(1.15)' }} />
-                {/* Photo circle */}
-                <div className="relative h-56 w-56 sm:h-72 sm:w-72 rounded-full border-4 border-brand-primary-glow/40 overflow-hidden shadow-glow">
-                  <img
-                    src={topAchiever.img}
-                    alt={topAchiever.name}
-                    className="h-full w-full object-cover object-top"
-                  />
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+              {leaders.map((l, i) => (
+                <div key={l.id ?? l.name} className="group relative overflow-hidden rounded-2xl border border-brand-gold/25 bg-white/[0.06] backdrop-blur transition hover:-translate-y-1 hover:border-brand-gold/60">
+                  <div className="relative h-72 overflow-hidden bg-brand-dark sm:h-64 lg:h-56">
+                    {l.photo_url ? (
+                      <img src={l.photo_url} alt={l.name} loading="lazy" className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-5xl font-black text-white/25">{initialsOf(l.name)}</div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                    <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-gold-metal text-sm font-black text-brand-darker shadow">{i + 1}</span>
+                    <div className="absolute inset-x-3 bottom-3">
+                      <p className="text-lg font-extrabold leading-tight text-white">{l.name}</p>
+                      {l.rank && <span className="mt-1 inline-block rounded-full bg-gold-metal px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-brand-darker">{l.rank}</span>}
+                    </div>
+                  </div>
+                  <dl className="grid grid-cols-2 divide-x divide-white/10 text-center">
+                    <div className="px-2 py-3">
+                      <dt className="text-[10px] font-semibold uppercase tracking-wider text-white/50">Direct team</dt>
+                      <dd className="mt-0.5 text-lg font-extrabold text-brand-primary-glow">{l.direct_team || '—'}</dd>
+                    </div>
+                    <div className="px-2 py-3">
+                      <dt className="text-[10px] font-semibold uppercase tracking-wider text-white/50">Total sales</dt>
+                      <dd className="mt-0.5 text-lg font-extrabold text-brand-primary-glow">{l.total_sales || '—'}</dd>
+                    </div>
+                  </dl>
                 </div>
-                {/* Name badge */}
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-6 py-2 text-xs font-bold uppercase tracking-widest text-brand-darker shadow-elegant bg-gold-metal">
-                  {topAchiever.rank}
-                </div>
-              </div>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <Link to="/register" className="btn-gold rounded-xl px-7 py-3 text-sm">
+                Chase the Crown
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* ══════════════════════ HALL OF FAME MARQUEE ══════════════════════ */}
-      <section className="py-16 bg-gray-50 overflow-hidden">
-        <div className="mx-auto max-w-screen-xl px-6 lg:px-8 mb-10 text-center">
-          <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Award Achievers Gallery</span>
-          <h2 className="mt-2 text-2xl font-extrabold text-brand-darker">HALL OF FAME</h2>
-          <p className="mt-2 text-sm text-gray-500 max-w-lg mx-auto">
-            Real leaders. Real rewards. Celebrating the champions who turned Mission 90 Days into a lifetime achievement.
-          </p>
-        </div>
-
-        {/* Marquee of portrait cards */}
-        <div className="relative flex gap-5 overflow-hidden">
-          <div className="flex min-w-max gap-5 animate-marquee">
-            {[...ACHIEVERS, ...ACHIEVERS].map((a, i) => (
-              <div
-                key={i}
-                className="relative w-[220px] h-[300px] flex-shrink-0 rounded-2xl overflow-hidden shadow-md group"
-              >
-                <img
-                  src={a.img}
-                  alt={a.name}
-                  className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                />
-                {/* Bottom overlay */}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-brand-primary-glow">{a.rank}</p>
-                  <p className="text-sm font-bold text-white">{a.name}</p>
-                </div>
-              </div>
-            ))}
+      {/* ══════════════════════ BOARD OF MEMBERS (Website CMS → Team: directors) ══════════════════════ */}
+      {board.length > 0 && (
+        <section className="py-16 bg-gray-50 overflow-hidden">
+          <div className="mx-auto max-w-screen-xl px-6 lg:px-8 mb-10 text-center">
+            <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Award Achievers Gallery</span>
+            <h2 className="mt-2 text-3xl font-extrabold text-brand-darker sm:text-4xl">Board of Members</h2>
+            <div className="gold-rule" aria-hidden><i /></div>
+            <div className="mt-6 flex justify-center"><CompanyHeading tone="light" /></div>
           </div>
-        </div>
-      </section>
+
+          <div className="relative flex overflow-hidden">
+            <div className="flex min-w-max gap-5 animate-marquee hover:[animation-play-state:paused]">
+              {[...boardLoop, ...boardLoop].map((m, i) => (
+                <div key={i} className="group relative h-[320px] w-[240px] flex-shrink-0 overflow-hidden rounded-2xl shadow-md ring-1 ring-brand-gold/30">
+                  {m.photo_url ? (
+                    <img src={m.photo_url} alt={m.name} className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+                  ) : (
+                    <div className="bg-leaf-deep absolute inset-0 flex items-center justify-center text-6xl font-black text-white/25">{initialsOf(m.name)}</div>
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4">
+                    <p className="text-xs font-bold uppercase tracking-widest text-brand-primary-glow">{m.designation}</p>
+                    <p className="text-base font-bold text-white">{m.name}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ══════════════════════ RANKS TABLE ══════════════════════ */}
       <section className="py-20 bg-white">
@@ -546,7 +526,7 @@ export function Home() {
             <p className="mt-3 mx-auto max-w-xl text-base text-gray-500">
               {ranks.length} career milestones.{' '}
               {freeCount > 0 && `${freeCount === 1 ? `${ranks[0]?.rank} joins` : `The first ${freeCount} ranks join`} free; `}
-              {ranks.length > 1 && `your own sale percentage rises from ${ranks[0]?.pct} to ${ranks[ranks.length - 1]?.pct}.`}
+              {ranks.length > 1 && `your direct income rises from ${ranks[0]?.pct} to ${ranks[ranks.length - 1]?.pct}.`}
             </p>
           </div>
 
@@ -557,12 +537,12 @@ export function Home() {
                   <th className="py-4 pl-6 pr-4 text-left text-xs font-bold uppercase tracking-wider">#</th>
                   <th className="py-4 px-4 text-left text-xs font-bold uppercase tracking-wider">Rank</th>
                   <th className="py-4 px-4 text-right text-xs font-bold uppercase tracking-wider">Joining</th>
-                  <th className="py-4 pl-4 pr-6 text-right text-xs font-bold uppercase tracking-wider">Own Sale %</th>
+                  <th className="py-4 pl-4 pr-6 text-right text-xs font-bold uppercase tracking-wider">Direct Income</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {ranks.slice(0, 7).map((r, i) => (
-                  <tr key={r.rank} className="hover:bg-brand-primary/5 transition-colors">
+                {ranks.map((r, i) => (
+                  <tr key={r.rank} className={`transition-colors hover:bg-brand-primary/5 ${r.elite ? 'bg-brand-gold/[0.06]' : ''}`}>
                     <td className="py-3.5 pl-6 pr-4 text-gray-400 font-medium">{String(i + 1).padStart(2, '0')}</td>
                     <td className="py-3.5 px-4 font-semibold text-brand-darker">
                       {r.rank}
@@ -579,52 +559,43 @@ export function Home() {
               </tbody>
             </table>
           </div>
-
         </div>
       </section>
 
-      {/* ══════════════════════ REWARDS — real photos ══════════════════════ */}
+      {/* ══════════════════════ REWARDS (Business Settings → Rank plan) ══════════════════════ */}
       <section className="py-20 bg-brand-darker">
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Exclusive Benefits</span>
-            <h2 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">From smartphone to a house fund</h2>
+            <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Rewards</span>
+            <div className="mt-5 flex justify-center"><CompanyHeading /></div>
             <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 mx-auto max-w-xl text-base text-white/50">
-              Beyond commissions — unlock experiences and assets that celebrate your success.
+              Beyond commissions — every rank brings a reward once your sales reach its target in square yards.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {REWARDS.map((r) => (
-              <div key={r.title} className="group rounded-2xl overflow-hidden border border-white/10 hover:border-brand-primary-glow/30 transition-all duration-300">
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={r.img}
-                    alt={r.alt}
-                    className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span className="absolute top-3 left-3 rounded-full bg-gold-metal px-3 py-1 text-xs font-bold text-brand-darker uppercase tracking-wider shadow">
-                    {r.tag}
-                  </span>
-                </div>
-                <div className="p-5 bg-white/5">
-                  <h3 className="text-base font-bold text-white mb-2">{r.title}</h3>
-                  <div className="flex gap-3 text-xs text-white/60 mb-3">
-                    <span className="inline-flex items-center gap-1">
-                      <span className="text-brand-primary-glow">●</span>
-                      {r.joining} Fresh Joining
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <span className="text-brand-primary-glow">●</span>
-                      {r.sales} Sales
+          {rewards.length > 0 && (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {rewards.map((r) => (
+                <div key={r.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition-all duration-300 hover:border-brand-primary-glow/40">
+                  <div className="relative">
+                    <RewardArt title={r.reward_title ?? ''} className="h-28" />
+                    <span className="absolute left-2 top-2 rounded-full bg-gold-metal px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-darker shadow">
+                      {r.name}
                     </span>
                   </div>
+                  <div className="p-4">
+                    <h3 className="text-sm font-bold text-white sm:text-base">{r.reward_title}</h3>
+                    {Number(r.reward_sqyd ?? 0) > 0 && (
+                      <p className="mt-1 inline-flex items-center gap-1 text-xs text-white/60">
+                        <Ruler className="h-3 w-3 text-brand-primary-glow" /> Sell {num(Number(r.reward_sqyd))} sq yd
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-8 text-center">
             <Link
@@ -649,7 +620,7 @@ export function Home() {
           <div
             className="bg-leaf-deep rounded-3xl px-8 py-14 text-center shadow-elegant ring-1 ring-brand-gold/30"
           >
-            <h2 className="text-3xl font-extrabold text-white sm:text-4xl">Start your Mission 90 Days Training</h2>
+            <h2 className="text-3xl font-extrabold text-white sm:text-4xl">Start your 90 Days Training</h2>
             <p className="mt-4 mx-auto max-w-lg text-lg text-white/70">
               Get your sponsor ID in minutes and unlock direct income, level commissions, and lifetime rewards.
             </p>

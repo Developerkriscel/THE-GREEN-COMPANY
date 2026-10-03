@@ -246,10 +246,10 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
           </Field>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Price from (₹)">
+            <Field label="Pre-launch rate (₹ per sq yd)">
               <Input name="price_from" type="number" defaultValue={editing?.price_from ?? ''} />
             </Field>
-            <Field label="Price to (₹)">
+            <Field label="Launch rate (₹ per sq yd)" hint="Leave blank if there is only one rate. The website shows both side by side.">
               <Input name="price_to" type="number" defaultValue={editing?.price_to ?? ''} />
             </Field>
             <Field label="Size from">
