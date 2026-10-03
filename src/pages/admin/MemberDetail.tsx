@@ -17,10 +17,11 @@ import {
 import { buildForest, findNode, rankTone, statusTone } from '@/lib/network'
 import {
   useRankLadder, useSponsorRates, downlineFromMembers, isCounted, levelSummary,
-  netOf, rankProgress, rewardTiers, walletFrom,
+  netOf, rankProgress, rewardTarget, rewardTiers, walletFrom,
   type LedgerRow, type WithdrawalRow,
 } from '@/lib/sponsor'
-import { rewardReference, useAwardReward, useIssuedRewards, useMyRewardArea } from '@/lib/sponsor-crm'
+import { rewardReference, useAwardReward, useIssuedRewards, useMyRewardProgress } from '@/lib/sponsor-crm'
+import { TwoBars } from '@/pages/sponsor/Rewards'
 import { RewardArt } from '@/components/RewardArt'
 import { Avatar } from '@/components/Avatar'
 import { ProgressBar, RequirementRow, WithdrawalBadge } from '@/components/sponsor'
@@ -694,19 +695,14 @@ function RewardsTab({ member }: { member: Profile }) {
   const { data: sales = [] } = useSales({ repId: member.id })
   const { data: cms = [] } = useCmsContent<{ id: string; title: string; image_url: string }>('rewards', { activeOnly: true })
 
-  // Reward area is NOT simply confirmed area: a sale only counts once at
-  // least half its value has been received (plan deck slide 7). This used to
-  // total every confirmed booking, so the office saw more tiers earned than
-  // the member did -- exactly the argument this screen exists to settle.
-  // my_reward_area() is the one definition, and admins may call it for anyone.
-  const { data: area = 0 } = useMyRewardArea(member.id)
-  const { data: bookings = [] } = useBookings({ repId: member.id })
-  const confirmedOnly = bookings
-    .filter((b) => b.status === 'confirmed')
-    .reduce((t, b) => t + Number(b.plot?.size ?? 0), 0)
+  // The member's own Rewards screen and this one read the same function:
+  // own (direct) and team (group) sales in the reward period, half paid.
+  const { data: prog } = useMyRewardProgress(member.id)
+  const direct = prog?.direct ?? 0
+  const group = prog?.group ?? 0
   void sales
 
-  const tiers = rewardTiers(ladder, area)
+  const tiers = rewardTiers(ladder, direct, group)
   const earned = tiers.filter((t) => t.earned)
   const next = tiers.find((t) => !t.earned)
   const imageFor = (title: string) =>
@@ -718,17 +714,18 @@ function RewardsTab({ member }: { member: Profile }) {
         <CardHeader
           title="Reward progress"
           subtitle={
-            `${num(area)} sq yd counting · ${earned.length} of ${tiers.length} tiers earned` +
-            (confirmedOnly > area ? ` · ${num(confirmedOnly - area)} sq yd awaiting payment` : '')
+            `Own ${num(direct)} sq yd · team ${num(group)} sq yd counting · ${earned.length} of ${tiers.length} earned` +
+            (prog?.periodStart ? ` · period ${date(prog.periodStart)} – ${date(prog.periodEnd)}` : '') +
+            ((prog?.directPending ?? 0) + (prog?.groupPending ?? 0) > 0 ? ` · ${num((prog?.directPending ?? 0) + (prog?.groupPending ?? 0))} sq yd awaiting payment` : '')
           }
         />
         <div className="p-5">
           {next ? (
             <>
               <p className="text-sm text-slate-700">
-                Next: <strong>{next.title}</strong> — {num(next.targetSqyd - area)} sq yd to go
+                Next: <strong>{next.title}</strong> ({next.rankName}) — needs {rewardTarget(next)}
               </p>
-              <div className="mt-3"><ProgressBar percent={next.progress} /></div>
+              <TwoBars tier={next} direct={direct} group={group} />
             </>
           ) : tiers.length ? (
             <p className="text-sm text-emerald-700">Every reward tier has been earned.</p>
@@ -748,8 +745,8 @@ function RewardsTab({ member }: { member: Profile }) {
                 : <RewardArt title={t.title} className="h-24" />}
               <div className="p-4">
                 <p className="text-sm font-bold text-slate-800">{t.title}</p>
-                <p className="mt-1 text-xs text-slate-500">{num(t.targetSqyd)} sq yd</p>
-                <div className="mt-3"><ProgressBar percent={t.progress} tone={t.earned ? 'green' : 'brand'} /></div>
+                <p className="mt-1 text-xs text-slate-500">{t.rankName} · {rewardTarget(t)}</p>
+                <TwoBars tier={t} direct={direct} group={group} compact />
                 {(() => {
                   const on = issuedAt.get(rewardReference(t.title, t.targetSqyd))
                   return (

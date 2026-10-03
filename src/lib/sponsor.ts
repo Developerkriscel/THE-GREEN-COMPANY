@@ -405,7 +405,7 @@ export function useSponsorProfile(memberId: string | undefined) {
       const { data, error } = await supabase
         .from('profiles')
         .select(`*, rank:ranks!profiles_rank_id_fkey ( id, name, seniority, own_sale_rate, active, description, salary, override_pct,
-                 joining_fee, req_direct, req_team, req_legs, req_rank_sen, req_rank_count, reward_title, reward_sqyd ),
+                 joining_fee, req_direct, req_team, req_legs, req_rank_sen, req_rank_count, reward_title, reward_sqyd, reward_group_sqyd ),
                  plan_rank:ranks!profiles_plan_rank_id_fkey ( id, name, seniority, own_sale_rate, salary, joining_fee, training_fee ),
                  referrer:profiles!profiles_referrer_id_fkey ( id, full_name, member_code )`)
         .eq('id', memberId!)
@@ -581,25 +581,55 @@ export interface RewardTier {
   seniority: number
   /** The rank this tier hangs off; award_reward() needs it to issue the goods. */
   rankId: string
+  rankName: string
   title: string
+  /** Direct target: sq yd of the member's own sales. */
   targetSqyd: number
+  /** Group target: sq yd of the team's sales (0 = none). */
+  targetGroup: number
   earned: boolean
+  /** Toward the direct and the group target, 0-100 each. */
+  directProgress: number
+  groupProgress: number
+  /** The weaker of the two: a reward needs both. */
   progress: number
 }
 
-/** Reward ladder from the rank plan, measured in cumulative confirmed area. */
-export function rewardTiers(ladder: Rank[], areaSold: number): RewardTier[] {
+const pctOf = (have: number, need: number) => (need <= 0 ? 100 : Math.min(100, Math.round((have / need) * 100)))
+
+/**
+ * Reward ladder from the rank plan (deck slide 8): each reward needs D sq yd
+ * of the member's own sales AND G sq yd of their team's, counted in the
+ * reward period once half paid (my_reward_progress()).
+ */
+export function rewardTiers(ladder: Rank[], directSqyd: number, groupSqyd = 0): RewardTier[] {
   return ladder
-    .filter((r) => (r.reward_sqyd ?? 0) > 0 && r.reward_title)
-    .map((r) => ({
-      seniority: r.seniority,
-      rankId: r.id,
-      title: r.reward_title as string,
-      targetSqyd: Number(r.reward_sqyd),
-      earned: areaSold >= Number(r.reward_sqyd),
-      progress: Math.min(100, Math.round((areaSold / Number(r.reward_sqyd)) * 100)),
-    }))
-    .sort((a, b) => a.targetSqyd - b.targetSqyd)
+    .filter((r) => r.reward_title && (Number(r.reward_sqyd ?? 0) > 0 || Number(r.reward_group_sqyd ?? 0) > 0))
+    .map((r) => {
+      const d = Number(r.reward_sqyd ?? 0)
+      const g = Number(r.reward_group_sqyd ?? 0)
+      const directProgress = pctOf(directSqyd, d)
+      const groupProgress = pctOf(groupSqyd, g)
+      return {
+        seniority: r.seniority,
+        rankId: r.id,
+        rankName: r.name,
+        title: r.reward_title as string,
+        targetSqyd: d,
+        targetGroup: g,
+        earned: directSqyd >= d && groupSqyd >= g,
+        directProgress,
+        groupProgress,
+        progress: Math.min(directProgress, groupProgress),
+      }
+    })
+    .sort((a, b) => a.seniority - b.seniority)
+}
+
+/** "50 sq yd direct + 100 sq yd group", as the deck writes 50D+100G. */
+export function rewardTarget(t: Pick<RewardTier, 'targetSqyd' | 'targetGroup'>) {
+  const fmt = (n: number) => new Intl.NumberFormat('en-IN').format(n)
+  return t.targetGroup > 0 ? `${fmt(t.targetSqyd)} sq yd direct + ${fmt(t.targetGroup)} sq yd group` : `${fmt(t.targetSqyd)} sq yd direct`
 }
 
 /**

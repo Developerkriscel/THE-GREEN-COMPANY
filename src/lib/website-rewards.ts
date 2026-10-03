@@ -32,7 +32,9 @@ export function useWebsiteRewards(): WebsiteReward[] {
       key: r.id,
       rank: r.name,
       title: r.reward_title ?? '',
-      target: Number(r.reward_sqyd ?? 0) > 0 ? `${num(Number(r.reward_sqyd))} sq yd` : null,
+      target: Number(r.reward_sqyd ?? 0) > 0
+        ? `${num(Number(r.reward_sqyd))} sq yd direct${Number(r.reward_group_sqyd ?? 0) > 0 ? ` + ${num(Number(r.reward_group_sqyd))} sq yd group` : ''}`
+        : null,
       slab: null,
       img: null,
     }))

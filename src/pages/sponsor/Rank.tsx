@@ -184,7 +184,9 @@ export function SponsorRank() {
                     {(r.salary ?? 0) > 0 ? money(r.salary ?? 0) : '—'}
                   </Td>
                   <Td className="text-xs text-slate-600">
-                    {r.reward_title ? `${r.reward_title} · ${num(r.reward_sqyd ?? 0)} sq yd` : '—'}
+                    {r.reward_title
+                      ? `${r.reward_title} · ${num(r.reward_sqyd ?? 0)} sq yd direct${Number(r.reward_group_sqyd ?? 0) > 0 ? ` + ${num(r.reward_group_sqyd ?? 0)} group` : ''}`
+                      : '—'}
                   </Td>
                   <Td>
                     {isCurrent ? (

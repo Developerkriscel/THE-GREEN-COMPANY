@@ -33,8 +33,10 @@ export function rankFeatures(r: Rank): string {
   const salary = Number(r.salary ?? 0)
   if (salary > 0) parts.push(`${money(salary)} monthly salary`)
   if (r.reward_title) {
-    const at = Number(r.reward_sqyd ?? 0)
-    parts.push(at > 0 ? `${r.reward_title} at ${num(at)} sq yd` : r.reward_title)
+    const d = Number(r.reward_sqyd ?? 0)
+    const g = Number(r.reward_group_sqyd ?? 0)
+    const target = [d > 0 && `${num(d)} sq yd direct`, g > 0 && `${num(g)} sq yd group`].filter(Boolean).join(' + ')
+    parts.push(target ? `${r.reward_title} at ${target}` : r.reward_title)
   }
   return parts.join(' · ')
 }

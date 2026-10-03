@@ -244,6 +244,7 @@ type RankForm = {
   training_note: string
   reward_title: string
   reward_sqyd: string
+  reward_group_sqyd: string
   req_direct: string
   req_team: string
   req_legs: string
@@ -268,6 +269,7 @@ function toForm(r: Rank | null, nextSeniority: number): RankForm {
     training_note: r?.training_note ?? '',
     reward_title: r?.reward_title ?? '',
     reward_sqyd: s(r?.reward_sqyd ?? 0),
+    reward_group_sqyd: s(r?.reward_group_sqyd ?? 0),
     req_direct: s(r?.req_direct ?? 0),
     req_team: s(r?.req_team ?? 0),
     req_legs: s(r?.req_legs ?? 0),
@@ -336,6 +338,7 @@ function RankPlanTab() {
         training_note: f.training_note.trim() || null,
         reward_title: f.reward_title.trim() || null,
         reward_sqyd: n(f.reward_sqyd),
+        reward_group_sqyd: n(f.reward_group_sqyd),
         req_direct: n(f.req_direct),
         req_team: n(f.req_team),
         req_legs: n(f.req_legs),
@@ -392,7 +395,7 @@ function RankPlanTab() {
     }
     for (const [label, v] of [
       ['Monthly salary', f.salary], ['Joining fee', f.joining_fee], ['Training fee', f.training_fee],
-      ['Reward sq yd', f.reward_sqyd], ['Direct members', f.req_direct], ['Team size', f.req_team],
+      ['Reward direct sq yd', f.reward_sqyd], ['Reward group sq yd', f.reward_group_sqyd], ['Direct members', f.req_direct], ['Team size', f.req_team],
       ['Legs', f.req_legs], ['Rank holders needed', f.req_rank_count],
     ] as const) {
       const x = Number(v || 0)
@@ -419,6 +422,8 @@ function RankPlanTab() {
   const nextLevel = ranks.length ? Math.max(...ranks.map((r) => r.seniority)) + 1 : 1
 
   return (
+    <>
+    <RewardPeriodCard />
     <Card>
       <CardHeader
         title="Rank plan"
@@ -532,8 +537,11 @@ function RankPlanTab() {
               <Field label="Reward" hint="e.g. Laptop, Car — Ertiga">
                 <Input value={editing.reward_title} onChange={(e) => set('reward_title', e.target.value)} />
               </Field>
-              <Field label="Earned at (sq yd sold)">
+              <Field label="Own sales needed (sq yd direct)" hint="The deck's D, e.g. 50">
                 <Input type="number" min={0} step="1" value={editing.reward_sqyd} onChange={(e) => set('reward_sqyd', e.target.value)} />
+              </Field>
+              <Field label="Team sales needed (sq yd group)" hint="The deck's G, e.g. 100 — 0 if none">
+                <Input type="number" min={0} step="1" value={editing.reward_group_sqyd} onChange={(e) => set('reward_group_sqyd', e.target.value)} />
               </Field>
             </Section>
 
@@ -556,6 +564,53 @@ function RankPlanTab() {
           </form>
         )}
       </Modal>
+    </Card>
+    </>
+  )
+}
+
+/**
+ * The reward period (deck slide 8: "Reward count 4 months wise, effective
+ * 1 Sep 2026 to 31 Dec 2026"). Only sales booked inside it count toward
+ * rewards, once at least the given share of the sale value is received.
+ * Move it on when a cycle ends.
+ */
+function RewardPeriodCard() {
+  const { data: stored } = useSiteSetting('sponsor.rewards')
+  const [form, setForm] = useState({ start: '', end: '', min_paid_pct: '50' })
+  const qc = useQueryClient()
+  const { push } = useToast()
+  useEffect(() => {
+    if (stored) setForm({ start: String(stored.start ?? ''), end: String(stored.end ?? ''), min_paid_pct: String(stored.min_paid_pct ?? 50) })
+  }, [stored])
+  const save = useMutation({
+    mutationFn: async () => {
+      const pctPaid = Number(form.min_paid_pct)
+      if (!Number.isFinite(pctPaid) || pctPaid < 0 || pctPaid > 100) throw new Error('Payment received must be between 0 and 100%.')
+      if (form.start && form.end && form.end < form.start) throw new Error('The period ends before it starts.')
+      const { error } = await supabase.from('site_settings').upsert(
+        { key: 'sponsor.rewards', value: { start: form.start || null, end: form.end || null, min_paid_pct: pctPaid }, updated_at: new Date().toISOString() },
+        { onConflict: 'key' },
+      )
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      push('success', 'Reward period saved. Members see their progress for it straight away.')
+      void qc.invalidateQueries({ queryKey: ['site-settings', 'sponsor.rewards'] })
+      void qc.invalidateQueries({ queryKey: ['sponsor-reward-progress'] })
+    },
+    onError: (e: Error) => push('error', e.message),
+  })
+  return (
+    <Card className="mb-6">
+      <CardHeader title="Reward period"
+        subtitle="Rewards count the member's own (direct) and team (group) sales booked in this period, once enough of each sale is paid. The deck runs 4-month cycles." />
+      <div className="grid gap-4 p-5 sm:grid-cols-4">
+        <Field label="From"><Input type="date" value={form.start} onChange={(e) => setForm({ ...form, start: e.target.value })} /></Field>
+        <Field label="To"><Input type="date" value={form.end} onChange={(e) => setForm({ ...form, end: e.target.value })} /></Field>
+        <Field label="Payment received (%)" hint="Deck: 50%"><Input type="number" min={0} max={100} value={form.min_paid_pct} onChange={(e) => setForm({ ...form, min_paid_pct: e.target.value })} /></Field>
+        <div className="flex items-end"><Button onClick={() => save.mutate()} loading={save.isPending} className="w-full">Save period</Button></div>
+      </div>
     </Card>
   )
 }

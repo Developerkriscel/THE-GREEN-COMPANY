@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   confirmedArea, inFinancialYear, inMonth, isCounted, legsOf, levelSummary,
-  netOf, rankProgress, rewardTiers, walletFrom,
+  netOf, rankProgress, rewardTarget, rewardTiers, walletFrom,
   type DownlineRow, type LedgerRow, type SaleRow, type WithdrawalRow,
 } from '@/lib/sponsor'
 import type { Profile, Rank } from '@/lib/types'
@@ -211,6 +211,44 @@ describe('rewardTiers', () => {
     const t = rewardTiers(ladder, 0)
     const hundreds = t.filter((x) => x.targetSqyd === 100)
     expect(new Set(hundreds.map((x) => x.seniority)).size).toBe(2)
+  })
+})
+
+describe('rewardTiers - direct + group targets (deck slide 8)', () => {
+  const ladder = [
+    rank({ seniority: 1, reward_title: 'Induction', reward_sqyd: 50, reward_group_sqyd: 0 }),
+    rank({ seniority: 2, reward_title: 'Juicer', reward_sqyd: 50, reward_group_sqyd: 100 }),
+    rank({ seniority: 8, reward_title: 'Laptop', reward_sqyd: 200, reward_group_sqyd: 700 }),
+  ]
+
+  it('needs BOTH own and team sales', () => {
+    const t = rewardTiers(ladder, 50, 99)
+    expect(t.find((x) => x.title === 'Juicer')?.earned).toBe(false)
+    expect(rewardTiers(ladder, 50, 100).find((x) => x.title === 'Juicer')?.earned).toBe(true)
+    // plenty of team sales cannot make up for own sales
+    expect(rewardTiers(ladder, 49, 5000).find((x) => x.title === 'Juicer')?.earned).toBe(false)
+  })
+
+  it('a reward with no group target needs own sales only', () => {
+    expect(rewardTiers(ladder, 50, 0).find((x) => x.title === 'Induction')?.earned).toBe(true)
+  })
+
+  it('progress is the weaker of the two bars', () => {
+    const j = rewardTiers(ladder, 50, 50).find((x) => x.title === 'Juicer')!
+    expect(j.directProgress).toBe(100)
+    expect(j.groupProgress).toBe(50)
+    expect(j.progress).toBe(50)
+  })
+
+  it('runs in rank order, so the next reward is the lowest rank not earned', () => {
+    const t = rewardTiers(ladder, 50, 0)
+    expect(t.map((x) => x.seniority)).toEqual([1, 2, 8])
+    expect(t.find((x) => !x.earned)?.title).toBe('Juicer')
+  })
+
+  it('states the target as the deck does', () => {
+    const j = rewardTiers(ladder, 0, 0).find((x) => x.title === 'Juicer')!
+    expect(rewardTarget(j)).toBe('50 sq yd direct + 100 sq yd group')
   })
 })
 

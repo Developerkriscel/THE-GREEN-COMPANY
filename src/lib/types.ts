@@ -36,7 +36,10 @@ export interface Rank {
   req_rank_sen?: number | null
   req_rank_count?: number
   reward_title?: string | null
+  /** Reward target: sq yd of the member's OWN sales (deck slide 8, "D"). */
   reward_sqyd?: number
+  /** Reward target: sq yd of the TEAM's sales (deck slide 8, "G"). */
+  reward_group_sqyd?: number
 }
 
 export interface Profile {

@@ -458,6 +458,41 @@ export function collectionTotals(rows: CollectionRow[]): CollectionTotals {
  * definition shared with any report is worth more than a faster round trip.
  * ===================================================================== */
 
+export interface RewardProgress {
+  /** Own sales counting toward rewards (half paid, inside the period). */
+  direct: number
+  /** The team's sales counting toward rewards. */
+  group: number
+  /** Confirmed in the period but short of the payment threshold. */
+  directPending: number
+  groupPending: number
+  periodStart: string | null
+  periodEnd: string | null
+  minPaidPct: number
+}
+
+/** Direct and group reward area in the reward period: my_reward_progress(). */
+export function useMyRewardProgress(memberId: string | undefined) {
+  return useQuery({
+    queryKey: ['sponsor-reward-progress', memberId],
+    enabled: Boolean(memberId),
+    queryFn: async (): Promise<RewardProgress> => {
+      const { data, error } = await supabase.rpc('my_reward_progress', { p_member: memberId })
+      if (error) throw new Error(error.message)
+      const r = (Array.isArray(data) ? data[0] : data) ?? {}
+      return {
+        direct: Number(r.direct_sqyd ?? 0),
+        group: Number(r.group_sqyd ?? 0),
+        directPending: Number(r.direct_pending ?? 0),
+        groupPending: Number(r.group_pending ?? 0),
+        periodStart: r.period_start ?? null,
+        periodEnd: r.period_end ?? null,
+        minPaidPct: Number(r.min_paid_pct ?? 50),
+      }
+    },
+  })
+}
+
 export function useMyRewardArea(memberId: string | undefined) {
   return useQuery({
     queryKey: ['sponsor-reward-area', memberId],
