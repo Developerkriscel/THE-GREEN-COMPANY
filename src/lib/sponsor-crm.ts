@@ -471,6 +471,20 @@ export interface RewardProgress {
   minPaidPct: number
 }
 
+/** Own and team sales in one month (the monthly bonus test): member_month_sales(). */
+export function useMonthSales(memberId: string | undefined, month?: string) {
+  return useQuery({
+    queryKey: ['member-month-sales', memberId, month ?? 'current'],
+    enabled: Boolean(memberId),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('member_month_sales', { p_member: memberId, ...(month ? { p_month: month } : {}) })
+      if (error) throw new Error(error.message)
+      const r = (Array.isArray(data) ? data[0] : data) ?? {}
+      return { direct: Number(r.direct_sqyd ?? 0), group: Number(r.group_sqyd ?? 0), start: r.month_start as string | null, end: r.month_end as string | null }
+    },
+  })
+}
+
 /** Direct and group reward area in the reward period: my_reward_progress(). */
 export function useMyRewardProgress(memberId: string | undefined) {
   return useQuery({

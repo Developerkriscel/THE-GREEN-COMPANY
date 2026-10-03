@@ -43,7 +43,7 @@ const PROFILE_SELECT = `
   bank_holder, bank_name, bank_account, bank_ifsc, bank_type, upi_id, pan_number, bank_updated_at,
   rank:ranks!profiles_rank_id_fkey ( id, name, seniority, own_sale_rate, description, active,
                override_pct, salary, joining_fee, req_direct, req_team, req_legs,
-               req_rank_sen, req_rank_count, reward_title, reward_sqyd, reward_group_sqyd ),
+               req_rank_sen, req_rank_count, reward_title, reward_sqyd, reward_group_sqyd, bonus_direct_sqyd, bonus_group_sqyd ),
   manager:profiles!profiles_manager_id_fkey ( id, full_name ),
   referrer:profiles!profiles_referrer_id_fkey ( id, full_name, member_code )
 `

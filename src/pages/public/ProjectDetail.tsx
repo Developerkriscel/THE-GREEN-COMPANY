@@ -40,7 +40,10 @@ export function ProjectDetail() {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
         <div className="absolute bottom-0 w-full">
           <div className="mx-auto max-w-7xl px-4 pb-6 sm:px-6">
-            <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">{project.name}</h1>
+            <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">
+              {project.name}
+              {project.sold_out && <span className="ml-3 rounded-full bg-red-600 px-3 py-1 align-middle text-xs font-bold uppercase tracking-wider text-white">Sold out</span>}
+            </h1>
             <p className="mt-1 flex items-center gap-1.5 text-sm text-white/85">
               <MapPin className="h-4 w-4" /> {project.location}
               {project.city ? `, ${project.city}` : ''}

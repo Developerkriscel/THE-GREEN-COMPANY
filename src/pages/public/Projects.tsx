@@ -95,15 +95,12 @@ export function ProjectsPage() {
 }
 
 function ProjectCard({ project }: { project: Record<string, any> }) {
-  const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-    'manglam-city-block-a': { label: 'Booking Open', color: 'text-green-700 bg-green-50' },
-    'manglam-city-block-b': { label: 'Booking Open', color: 'text-green-700 bg-green-50' },
-    'anjani-kunj': { label: 'Booking Open', color: 'text-green-700 bg-green-50' },
-    'anjani-homes': { label: 'Booking Open', color: 'text-green-700 bg-green-50' },
-    'symo-city-ayodhya': { label: 'Pre Booking', color: 'text-amber-700 bg-amber-50' },
-    'royal-green-farm': { label: 'Pre Booking', color: 'text-amber-700 bg-amber-50' },
-  }
-  const status = STATUS_LABELS[project.slug]
+  // From the project itself (Admin -> Projects): sold out, a pre-launch rate, or open.
+  const status = project.sold_out
+    ? { label: 'Sold out', color: 'text-red-700 bg-red-50' }
+    : project.price_to && Number(project.price_to) > Number(project.price_from)
+      ? { label: 'Pre-launch', color: 'text-amber-700 bg-amber-50' }
+      : { label: 'Booking open', color: 'text-green-700 bg-green-50' }
 
   return (
     <Link

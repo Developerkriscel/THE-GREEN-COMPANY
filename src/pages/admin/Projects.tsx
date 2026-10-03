@@ -90,6 +90,7 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
       sort_order: Number(f.get('sort_order') ?? 0),
       published: f.get('published') === 'true',
       featured: f.get('featured') === 'true',
+      sold_out: f.get('sold_out') === 'true',
     })
   }
 
@@ -184,6 +185,7 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
                         {p.published ? 'Published' : 'Draft'}
                       </Badge>
                       {p.featured && <Badge tone="gold">Featured</Badge>}
+                      {p.sold_out && <Badge tone="red">Sold out</Badge>}
                     </div>
                   </Td>
                   <Td className="text-xs">{date(p.created_at)}</Td>
@@ -276,6 +278,12 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
               <Select name="featured" defaultValue={String(editing?.featured ?? false)}>
                 <option value="false">No</option>
                 <option value="true">Yes — show in carousel</option>
+              </Select>
+            </Field>
+            <Field label="Sold out" hint="Shows a “Sold out” badge on the website.">
+              <Select name="sold_out" defaultValue={String(editing?.sold_out ?? false)}>
+                <option value="false">No — booking open</option>
+                <option value="true">Yes — sold out</option>
               </Select>
             </Field>
           </div>

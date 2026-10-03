@@ -7,6 +7,8 @@ import {
 import { Badge, Card, CardHeader, PageHeader, Table, Td, Th } from '@/components/ui'
 import { ProgressBar, RequirementRow, SkeletonRows } from '@/components/sponsor'
 import { date, money, num, pct } from '@/lib/format'
+import { useMonthSales } from '@/lib/sponsor-crm'
+import { PLAN_RULES, bonusCondition } from '@/lib/plan'
 
 /**
  * Module 7 — "what do I need for the next rank?", answered without a phone call.
@@ -24,6 +26,7 @@ export function SponsorRank() {
   const { data: ladder = [], isLoading: ladderLoading } = useRankLadder()
   const { data: sales = [] } = useMySales(me)
   const { data: history = [] } = useRankHistory(me)
+  const { data: month } = useMonthSales(me)
 
   const progress = rankProgress(member, ladder, downline)
   const current = member?.rank
@@ -62,13 +65,24 @@ export function SponsorRank() {
             <Unlock label="Direct commission" value={pct(current?.own_sale_rate ?? 0)} />
             <Unlock label="Level income" value="To level 12" />
             <Unlock
-              label="Monthly salary"
+              label="Monthly bonus"
               value={(current?.salary ?? 0) > 0 ? money(current?.salary ?? 0) : 'Not yet'}
             />
             <Unlock label="Reward tier" value={current?.reward_title ?? 'None yet'} />
           </div>
         </div>
       </Card>
+
+      {/* --- this month's bonus (deck slide 9) ------------------------------ */}
+      {(current?.salary ?? 0) > 0 && (
+        <BonusCard
+          amount={Number(current?.salary ?? 0)}
+          needGroup={Number(current?.bonus_group_sqyd ?? 0)}
+          needDirect={Number(current?.bonus_direct_sqyd ?? 0)}
+          group={month?.group ?? 0}
+          direct={month?.direct ?? 0}
+        />
+      )}
 
       {/* --- next-rank checklist ------------------------------------------ */}
       {!progress.next ? (
@@ -233,6 +247,7 @@ export function SponsorRank() {
         These counts come from the same records as My Team and My Sales — {num(downline.length)} team
         members and {num(area)} sq yd of confirmed personal sales. Your rank is set by the company.
       </p>
+      <PlanRules />
     </>
   )
 }
@@ -245,3 +260,52 @@ function Unlock({ label, value }: { label: string; value: string }) {
     </div>
   )
 }
+
+/** "Do I get my bonus this month?" — the month's own and team sales against the rank's targets. */
+function BonusCard({ amount, needGroup, needDirect, group, direct }: { amount: number; needGroup: number; needDirect: number; group: number; direct: number }) {
+  const monthName = new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+  const met = group >= needGroup && direct >= needDirect
+  const bar = (have: number, need: number) => (need <= 0 ? 100 : Math.min(100, Math.round((have * 100) / need)))
+  return (
+    <Card className="mb-5">
+      <CardHeader title={`Monthly bonus · ${money(amount)}`}
+        subtitle={needGroup || needDirect
+          ? `Paid for a month when that month's sales reach ${bonusCondition({ bonus_group_sqyd: needGroup, bonus_direct_sqyd: needDirect })}.`
+          : 'Paid every month for your rank.'} />
+      {(needGroup > 0 || needDirect > 0) && (
+        <div className="grid gap-4 p-5 sm:grid-cols-2">
+          {needGroup > 0 && (
+            <div>
+              <p className="text-sm text-slate-700">Team sales in {monthName}: <strong>{num(group)}</strong> of {num(needGroup)} sq yd</p>
+              <div className="mt-2"><ProgressBar percent={bar(group, needGroup)} tone={group >= needGroup ? 'green' : 'brand'} /></div>
+            </div>
+          )}
+          {needDirect > 0 && (
+            <div>
+              <p className="text-sm text-slate-700">Your own sales in {monthName}: <strong>{num(direct)}</strong> of {num(needDirect)} sq yd</p>
+              <div className="mt-2"><ProgressBar percent={bar(direct, needDirect)} tone={direct >= needDirect ? 'green' : 'brand'} /></div>
+            </div>
+          )}
+          <p className={`text-sm sm:col-span-2 ${met ? 'text-emerald-700' : 'text-slate-600'}`}>
+            {met
+              ? `Target met — your ${monthName} bonus will be credited after the month ends.`
+              : `Reach both targets by the end of ${monthName} to earn this month's bonus.`}
+          </p>
+        </div>
+      )}
+    </Card>
+  )
+}
+
+/** The plan's rules in the deck's words. */
+export function PlanRules() {
+  return (
+    <Card className="mt-5">
+      <CardHeader title="Plan rules" subtitle="From the company's business plan" />
+      <ul className="list-disc space-y-1.5 p-5 pl-9 text-sm text-slate-700">
+        {PLAN_RULES.map((r) => <li key={r}>{r}</li>)}
+      </ul>
+    </Card>
+  )
+}
+

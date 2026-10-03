@@ -177,7 +177,10 @@ export function ProjectCard({ project }: { project: Record<string, any> }) {
         </div>
       )}
       <div className="p-5 flex flex-col flex-1">
-        <p className="text-xs font-bold uppercase tracking-widest text-brand-primary mb-1">{project.city ?? 'India'}</p>
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-brand-primary">{project.city ?? 'India'}</p>
+          {project.sold_out && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-700">Sold out</span>}
+        </div>
         <h3 className="text-base font-bold text-brand-darker group-hover:text-brand-primary-dark transition-colors">{project.name}</h3>
         <p className="mt-1 text-sm text-gray-500 flex-1 line-clamp-2">{project.location}</p>
         <div className="mt-4 space-y-3">

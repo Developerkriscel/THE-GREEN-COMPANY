@@ -40,6 +40,9 @@ export interface Rank {
   reward_sqyd?: number
   /** Reward target: sq yd of the TEAM's sales (deck slide 8, "G"). */
   reward_group_sqyd?: number
+  /** Monthly bonus needs this much own / team sales that month (deck slide 9). */
+  bonus_direct_sqyd?: number
+  bonus_group_sqyd?: number
 }
 
 export interface Profile {
@@ -127,6 +130,8 @@ export interface Project {
   size_unit: string
   published: boolean
   featured: boolean
+  /** Every plot sold (deck slide 5: Manglam City Block-B). */
+  sold_out?: boolean
   sort_order: number
   launch_date: string | null
   created_at: string

@@ -30,10 +30,11 @@ export function AboutPage() {
     'Leadership', 'Customer Satisfaction', 'Teamwork', 'Continuous Learning',
   ]
 
+  // Deck slide 4 "WHY CHOOSE US ?": Security, Transparency, Team Support.
   const WHY = [
-    'Experienced Leadership', 'Transparent Business Model', 'Premium Real Estate Projects',
-    'Professional Training & Support', 'Attractive Rewards & Recognition', 'Multiple Income Opportunities',
-    'Long-Term Career Growth', 'Ethical & Sustainable Business',
+    { title: 'Security', desc: 'Clear-title plots, and every payment valid only against the company’s original slip.' },
+    { title: 'Transparency', desc: 'Published rates, rank plan and income rules — every sale, payment and income visible in your panel.' },
+    { title: 'Team Support', desc: '90 Days Training, mentors and a team that grows with you, rank by rank.' },
   ]
 
   const MISSION = [
@@ -44,11 +45,12 @@ export function AboutPage() {
     'Build a strong community based on honesty, commitment, and success.',
   ]
 
+  // The same figures as the home page.
   const STATS = [
-    { value: '2,500+', label: 'Active Partners across India' },
-    { value: '120+', label: 'Cities Reached nationwide' },
-    { value: '₹50+', label: 'Payouts distributed (₹ Cr)' },
-    { value: '12', label: 'Rank Levels to grow through' },
+    { value: '250+', label: 'Partners' },
+    { value: '75+', label: 'Active partners' },
+    { value: '5+', label: 'Cities' },
+    { value: '₹55+ Lac', label: 'Payouts' },
   ]
 
   return (
@@ -88,10 +90,13 @@ export function AboutPage() {
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Our Journey</span>
-              <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">Trusted Since 2010</h2>
+              <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">About Us</span>
+              <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">A leading real estate company in Haryana</h2>
+              {/* Deck slide 3 "ABOUT US" */}
               <p className="mt-4 text-gray-600 leading-relaxed">
-                With years of experience in the real estate sector, {BRAND.name} has earned the confidence of thousands of customers and partners. Our commitment is to deliver genuine investment opportunities, professional guidance, and long-term wealth creation through ethical business practices.
+                {BRAND.name} is a leading real estate company in Haryana — the king of Sohna to Mandkola on the
+                Sohna–Gurgaon road, with the maximum land bank near NH-48. 50+ channel partners are associated
+                with {BRAND.name}.
               </p>
               <div className="mt-8">
                 <p className="font-bold text-brand-darker mb-3">Our Vision</p>
@@ -177,15 +182,16 @@ export function AboutPage() {
             <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">Why Choose {BRAND.name}?</h2>
             <div className="gold-rule" aria-hidden><i /></div>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid gap-5 sm:grid-cols-3">
             {WHY.map(w => (
-              <div key={w} className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-4 hover:border-brand-primary/30 hover:shadow-elegant transition-all">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg flex items-center justify-center bg-gold-metal shadow-elegant">
-                  <svg className="h-4 w-4 text-brand-darker" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <div key={w.title} className="rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center hover:border-brand-primary/30 hover:shadow-elegant transition-all">
+                <div className="mx-auto mb-4 h-12 w-12 rounded-xl flex items-center justify-center bg-gold-metal shadow-elegant">
+                  <svg className="h-6 w-6 text-brand-darker" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <p className="text-sm font-semibold text-brand-darker">{w}</p>
+                <p className="text-lg font-bold text-brand-darker">{w.title}</p>
+                <p className="mt-2 text-sm text-gray-500 leading-relaxed">{w.desc}</p>
               </div>
             ))}
           </div>

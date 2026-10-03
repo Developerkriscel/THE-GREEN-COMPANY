@@ -245,6 +245,8 @@ type RankForm = {
   reward_title: string
   reward_sqyd: string
   reward_group_sqyd: string
+  bonus_direct_sqyd: string
+  bonus_group_sqyd: string
   req_direct: string
   req_team: string
   req_legs: string
@@ -270,6 +272,8 @@ function toForm(r: Rank | null, nextSeniority: number): RankForm {
     reward_title: r?.reward_title ?? '',
     reward_sqyd: s(r?.reward_sqyd ?? 0),
     reward_group_sqyd: s(r?.reward_group_sqyd ?? 0),
+    bonus_direct_sqyd: s(r?.bonus_direct_sqyd ?? 0),
+    bonus_group_sqyd: s(r?.bonus_group_sqyd ?? 0),
     req_direct: s(r?.req_direct ?? 0),
     req_team: s(r?.req_team ?? 0),
     req_legs: s(r?.req_legs ?? 0),
@@ -339,6 +343,8 @@ function RankPlanTab() {
         reward_title: f.reward_title.trim() || null,
         reward_sqyd: n(f.reward_sqyd),
         reward_group_sqyd: n(f.reward_group_sqyd),
+        bonus_direct_sqyd: n(f.bonus_direct_sqyd),
+        bonus_group_sqyd: n(f.bonus_group_sqyd),
         req_direct: n(f.req_direct),
         req_team: n(f.req_team),
         req_legs: n(f.req_legs),
@@ -394,7 +400,7 @@ function RankPlanTab() {
       if (!Number.isFinite(x) || x < 0 || x > 100) return push('error', `${label} must be between 0 and 100.`)
     }
     for (const [label, v] of [
-      ['Monthly salary', f.salary], ['Joining fee', f.joining_fee], ['Training fee', f.training_fee],
+      ['Monthly bonus', f.salary], ['Bonus group sq yd', f.bonus_group_sqyd], ['Bonus direct sq yd', f.bonus_direct_sqyd], ['Joining fee', f.joining_fee], ['Training fee', f.training_fee],
       ['Reward direct sq yd', f.reward_sqyd], ['Reward group sq yd', f.reward_group_sqyd], ['Direct members', f.req_direct], ['Team size', f.req_team],
       ['Legs', f.req_legs], ['Rank holders needed', f.req_rank_count],
     ] as const) {
@@ -516,8 +522,14 @@ function RankPlanTab() {
               <Field label="Sponsor %" hint="Shown on the plan only — not paid automatically. The upline is paid by level income on every sale.">
                 <Input type="number" min={0} max={100} step="0.01" value={editing.override_pct} onChange={(e) => set('override_pct', e.target.value)} />
               </Field>
-              <Field label="Monthly salary (₹)" hint="Credited when the office presses “Credit salary” (here or on Payouts), once per month.">
+              <Field label="Monthly bonus / incentive (₹)" hint="Credited for a month when the office presses “Credit bonus”, to members whose sales that month met the targets below.">
                 <Input type="number" min={0} step="1" value={editing.salary} onChange={(e) => set('salary', e.target.value)} />
+              </Field>
+              <Field label="Bonus needs: team sales a month (sq yd group)" hint="Deck slide 9, e.g. AGM 50">
+                <Input type="number" min={0} step="1" value={editing.bonus_group_sqyd} onChange={(e) => set('bonus_group_sqyd', e.target.value)} />
+              </Field>
+              <Field label="Bonus needs: own sales a month (sq yd direct)" hint="Deck slide 9, e.g. AGM 50">
+                <Input type="number" min={0} step="1" value={editing.bonus_direct_sqyd} onChange={(e) => set('bonus_direct_sqyd', e.target.value)} />
               </Field>
             </Section>
 

@@ -405,7 +405,7 @@ export function useSponsorProfile(memberId: string | undefined) {
       const { data, error } = await supabase
         .from('profiles')
         .select(`*, rank:ranks!profiles_rank_id_fkey ( id, name, seniority, own_sale_rate, active, description, salary, override_pct,
-                 joining_fee, req_direct, req_team, req_legs, req_rank_sen, req_rank_count, reward_title, reward_sqyd, reward_group_sqyd ),
+                 joining_fee, req_direct, req_team, req_legs, req_rank_sen, req_rank_count, reward_title, reward_sqyd, reward_group_sqyd, bonus_direct_sqyd, bonus_group_sqyd ),
                  plan_rank:ranks!profiles_plan_rank_id_fkey ( id, name, seniority, own_sale_rate, salary, joining_fee, training_fee ),
                  referrer:profiles!profiles_referrer_id_fkey ( id, full_name, member_code )`)
         .eq('id', memberId!)

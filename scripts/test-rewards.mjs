@@ -44,6 +44,15 @@ async function as(userId, fn) {
     await db.query('rollback to savepoint s')
   }
 }
+/** Act as a user and KEEP the changes (still inside the outer, rolled-back transaction). */
+async function asKeep(userId, fn) {
+  await db.query(`select set_config('request.jwt.claims', $1, true)`, [JSON.stringify({ sub: userId, role: 'authenticated' })])
+  await db.query('set local role authenticated')
+  try { return await fn() } finally {
+    await db.query('reset role')
+    await db.query(`select set_config('request.jwt.claims', '', true)`)
+  }
+}
 const progress = (who, member) => as(who, async () => (await q(`select * from public.my_reward_progress($1)`, [member]))[0])
 
 /** The rule, written independently of the function. */
@@ -123,6 +132,44 @@ try {
   await q(`update public.site_settings set value = value || '{"start":"2099-01-01","end":"2099-04-30"}' where key = 'sponsor.rewards'`)
   const none = await progress(lead.id, lead.id)
   check('sales outside the reward period do not count', Number(none.direct_sqyd) === 0 && Number(none.group_sqyd) === 0, JSON.stringify(none))
+
+  console.log('\nMonthly bonus (deck slide 9)')
+  const bonusLadder = await q(`select seniority, salary::numeric sal, bonus_group_sqyd::numeric g, bonus_direct_sqyd::numeric d from public.ranks where seniority in (5, 8, 12) order by seniority`)
+  check('bonus targets follow the deck (AGM 50/50, VP 900/50, Crown 2000/300)',
+    bonusLadder.map((r) => `${r.sal}:${r.g}/${r.d}`).join(' ') === '1000.00:50.00/50.00 9000.00:900.00/50.00 100000.00:2000.00/300.00',
+    bonusLadder.map((r) => `${r.sal}:${r.g}/${r.d}`).join(' '))
+  const [agm] = await q(`select id from public.ranks where seniority = 5`)
+  // The office changes the rank (profiles_guard allows only the office to).
+  await db.query(`select set_config('request.jwt.claims', $1, true)`, [JSON.stringify({ sub: admin.id, role: 'authenticated' })])
+  await q(`update public.profiles set rank_id = $2 where id = $1`, [lead.id, agm.id])
+  await db.query(`select set_config('request.jwt.claims', '', true)`)
+  const paidFor = async (month) => (await q(`select gross::numeric, note from public.member_ledger where member_id = $1 and source = 'salary' and reference = $2`, [lead.id, 'SALARY-' + month.slice(0, 7)]))[0]
+  // A month with no sales: an AGM is not paid.
+  await asKeep(admin.id, () => q(`select public.credit_monthly_salary('2031-01-01'::date)`))
+  check("no bonus when the month's sales miss the target", !(await paidFor('2031-01-01')))
+  // Put the member's own and the team's confirmed sales into Feb 2031.
+  await q(`update public.bookings set booking_date = '2031-02-10' where rep_id = $1 and status = 'confirmed' and deleted_at is null`, [lead.id])
+  await q(`
+    with recursive team as (
+      select id from public.profiles where referrer_id = $1 union select p.id from public.profiles p join team t on p.referrer_id = t.id)
+    update public.bookings set booking_date = '2031-02-12' where rep_id in (select id from team) and status = 'confirmed' and deleted_at is null`, [lead.id])
+  const feb = await as(lead.id, async () => (await q(`select * from public.member_month_sales($1, '2031-02-01'::date)`, [lead.id]))[0])
+  check("the member sees that month's own and team sales", Number(feb.direct_sqyd) > 0 && Number(feb.group_sqyd) > 0, JSON.stringify(feb))
+  const qualifies = Number(feb.direct_sqyd) >= 50 && Number(feb.group_sqyd) >= 50
+  await asKeep(admin.id, () => q(`select public.credit_monthly_salary('2031-02-01'::date)`))
+  const febPay = await paidFor('2031-02-01')
+  check(qualifies ? 'targets met: the AGM bonus (Rs 1,000) is credited' : 'targets not met: no bonus', qualifies ? Number(febPay?.gross) === 1000 : !febPay,
+    `own ${feb.direct_sqyd}, team ${feb.group_sqyd}, paid ${JSON.stringify(febPay)}`)
+  await asKeep(admin.id, () => q(`select public.credit_monthly_salary('2031-02-01'::date)`))
+  const [{ n: febRows }] = await q(`select count(*)::int n from public.member_ledger where member_id = $1 and source = 'salary' and reference = 'SALARY-2031-02'`, [lead.id])
+  check('running it again never pays twice', febRows <= 1, String(febRows))
+  const [sep] = await q(`select count(*)::int n from public.member_ledger where source = 'salary' and reference = 'SALARY-2026-09'`)
+  await asKeep(admin.id, () => q(`select public.credit_monthly_salary('2026-09-01'::date)`))
+  const [sepAfter] = await q(`select count(*)::int n from public.member_ledger where source = 'salary' and reference = 'SALARY-2026-09'`)
+  check('September 2026 (already paid) is not paid again', sepAfter.n === sep.n, `${sep.n} -> ${sepAfter.n}`)
+  let mine = ''
+  try { await as(stranger.id, () => q(`select * from public.member_month_sales($1)`, [lead.id])) } catch (e) { mine = e.message }
+  check("another member cannot see someone's monthly sales", /only see your own/.test(mine), mine || 'not refused')
 
   console.log('\nWho may look')
   check('the office can see any member\'s progress', !!(await progress(admin.id, lead.id)))

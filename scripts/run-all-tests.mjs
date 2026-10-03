@@ -82,7 +82,7 @@ run('10/12 Sponsor sign-up — website request to the office queue', 'node', ['s
 run('11/12 Employees — HR records, privacy, ID-card check, exit', 'node', ['scripts/test-employees.mjs'], {
   JUNIT: path.join(REPORTS, 'employees-junit.xml'),
 })
-run('12/12 Rewards — direct + group sq yd, 50% paid, reward period', 'node', ['scripts/test-rewards.mjs'], {
+run('12/12 Rewards & bonus — direct + group sq yd, reward period, monthly bonus', 'node', ['scripts/test-rewards.mjs'], {
   JUNIT: path.join(REPORTS, 'rewards-junit.xml'),
 })
 
