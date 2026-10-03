@@ -7,6 +7,8 @@ import { RANKS as PLAN_FALLBACK } from '@/lib/plan-data'
 import { money, num } from '@/lib/format'
 import { RewardArt } from '@/components/RewardArt'
 import type { Rank } from '@/lib/types'
+import { useWebsiteRewards } from '@/lib/website-rewards'
+import { assetUrl } from '@/lib/supabase'
 
 const HERO_DEFAULTS = {
   badge: '90 Days Training — Registrations Open',
@@ -91,7 +93,7 @@ function incomeStreams(ranks: Rank[]) {
         ? `${num(Math.min(...rates))}% to ${num(Math.max(...rates))}% of every plot you sell, rising with your rank.`
         : 'A share of every plot you sell, rising with your rank.',
     },
-    { icon: <Handshake className="h-6 w-6" />, title: 'Sponsor Income', desc: 'Earn on the plots sold by the partners you sponsor into your team.' },
+    { icon: <Handshake className="h-6 w-6" />, title: 'Sponsor Income', desc: 'The difference between your slab and your team’s slab on every plot your team sells — 2% up to AGM, 1% from DGM.' },
     { icon: <Users className="h-6 w-6" />, title: 'Referral Income', desc: 'Earn when the customers and partners you refer book their plots.' },
     {
       icon: <Gift className="h-6 w-6" />,
@@ -105,7 +107,7 @@ function incomeStreams(ranks: Rank[]) {
         ? `A fixed monthly salary from ${firstSalary.name} upward — ${money(Number(firstSalary.salary))} to ${money(topSalary)} a month.`
         : 'A fixed monthly salary at the senior ranks.',
     },
-    { icon: <Crown className="h-6 w-6" />, title: 'Board of Member Income', desc: "An extra share for the partners who reach the company's Board of Members." },
+    { icon: <Crown className="h-6 w-6" />, title: 'Board of Member Income', desc: 'Diamond and Crown join the Board of Members: 1% of your own team’s turnover plus an iPhone as a gift.' },
   ]
 }
 
@@ -271,7 +273,7 @@ export function Home() {
   const ranks = liveRanks.length ? liveRanks : PLAN_FALLBACK
   const freeCount = ranks.filter((r) => r.joining === 'Free').length
   const streams = incomeStreams(rankData)
-  const rewards = [...rankData].filter((r) => r.active && r.reward_title).sort((a, b) => a.seniority - b.seniority)
+  const rewards = useWebsiteRewards()
   const { data: heroCfg } = useSiteSetting('home.hero')
   const hero = { ...HERO_DEFAULTS, ...(heroCfg ?? {}) }
   // A saved button still pointing at the retired Plans page goes to Projects.
@@ -447,7 +449,7 @@ export function Home() {
                 <div key={l.id ?? l.name} className="group relative overflow-hidden rounded-2xl border border-brand-gold/25 bg-white/[0.06] backdrop-blur transition hover:-translate-y-1 hover:border-brand-gold/60">
                   <div className="relative h-72 overflow-hidden bg-brand-dark sm:h-64 lg:h-56">
                     {l.photo_url ? (
-                      <img src={l.photo_url} alt={l.name} loading="lazy" className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+                      <img src={assetUrl(l.photo_url) ?? ''} alt={l.name} loading="lazy" className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-5xl font-black text-white/25">{initialsOf(l.name)}</div>
                     )}
@@ -499,7 +501,7 @@ export function Home() {
               {[...boardLoop, ...boardLoop].map((m, i) => (
                 <div key={i} className="group relative h-[320px] w-[240px] flex-shrink-0 overflow-hidden rounded-2xl shadow-md ring-1 ring-brand-gold/30">
                   {m.photo_url ? (
-                    <img src={m.photo_url} alt={m.name} className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+                    <img src={assetUrl(m.photo_url) ?? ''} alt={m.name} className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
                   ) : (
                     <div className="bg-leaf-deep absolute inset-0 flex items-center justify-center text-6xl font-black text-white/25">{initialsOf(m.name)}</div>
                   )}
@@ -570,25 +572,32 @@ export function Home() {
             <div className="mt-5 flex justify-center"><CompanyHeading /></div>
             <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 mx-auto max-w-xl text-base text-white/50">
-              Beyond commissions — every rank brings a reward once your sales reach its target in square yards.
+              Every rank brings a reward once your direct and group sales reach its target. Rewards count after 50% payment, every 4 months — 1 Sep 2026 to 31 Dec 2026.
             </p>
           </div>
 
           {rewards.length > 0 && (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {rewards.map((r) => (
-                <div key={r.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition-all duration-300 hover:border-brand-primary-glow/40">
+                <div key={r.key} className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition-all duration-300 hover:border-brand-primary-glow/40">
                   <div className="relative">
-                    <RewardArt title={r.reward_title ?? ''} className="h-28" />
-                    <span className="absolute left-2 top-2 rounded-full bg-gold-metal px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-darker shadow">
-                      {r.name}
-                    </span>
+                    {r.img
+                      ? <img src={r.img} alt={r.title} loading="lazy" className="h-28 w-full object-cover" />
+                      : <RewardArt title={r.title} className="h-28" />}
+                    {r.rank && (
+                      <span className="absolute left-2 top-2 rounded-full bg-gold-metal px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-darker shadow">
+                        {r.rank}
+                      </span>
+                    )}
                   </div>
                   <div className="p-4">
-                    <h3 className="text-sm font-bold text-white sm:text-base">{r.reward_title}</h3>
-                    {Number(r.reward_sqyd ?? 0) > 0 && (
-                      <p className="mt-1 inline-flex items-center gap-1 text-xs text-white/60">
-                        <Ruler className="h-3 w-3 text-brand-primary-glow" /> Sell {num(Number(r.reward_sqyd))} sq yd
+                    <h3 className="text-sm font-bold text-white sm:text-base">
+                      {r.title}
+                      {r.slab && <span className="ml-1.5 rounded bg-brand-primary-glow/15 px-1.5 py-0.5 align-middle text-[10px] font-bold text-brand-primary-glow">{r.slab}</span>}
+                    </h3>
+                    {r.target && (
+                      <p className="mt-1 flex items-start gap-1 text-xs text-white/60">
+                        <Ruler className="mt-0.5 h-3 w-3 shrink-0 text-brand-primary-glow" /> {r.target}
                       </p>
                     )}
                   </div>

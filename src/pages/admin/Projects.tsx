@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { DocUpload, ImageUpload, MultiImageUpload } from '@/components/MediaUpload'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Eye, EyeOff, Pencil, Plus, Star, Trash2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { mustWrite, supabase } from '@/lib/supabase'
 import { useProjects } from '@/lib/queries'
 import {
   Badge, Button, Card, EmptyState, ErrorState, Field, Input, Modal, PageHeader, Select, Spinner, Table, Td, Textarea, Th, useToast, RecordCard, Responsive,
@@ -23,10 +23,9 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
   const save = useMutation({
     mutationFn: async (payload: Record<string, unknown> & { id?: string }) => {
       const { id, ...rest } = payload
-      const res = id
-        ? await supabase.from('projects').update(rest).eq('id', id)
-        : await supabase.from('projects').insert(rest)
-      if (res.error) throw new Error(res.error.message)
+      await mustWrite(() => id
+        ? supabase.from('projects').update(rest).eq('id', id).select('id')
+        : supabase.from('projects').insert(rest).select('id'))
     },
     onSuccess: () => {
       push('success', 'Project saved.')
@@ -39,8 +38,7 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
 
   const toggle = useMutation({
     mutationFn: async ({ id, field, value }: { id: string; field: 'published' | 'featured'; value: boolean }) => {
-      const { error } = await supabase.from('projects').update({ [field]: value }).eq('id', id)
-      if (error) throw new Error(error.message)
+      await mustWrite(() => supabase.from('projects').update({ [field]: value }).eq('id', id).select('id'))
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['projects'] }),
     onError: (e: Error) => push('error', e.message),
@@ -48,11 +46,11 @@ export function AdminProjects({ embedded = false }: { embedded?: boolean } = {})
 
   const softDelete = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      await mustWrite(() => supabase
         .from('projects')
         .update({ deleted_at: new Date().toISOString(), published: false })
         .eq('id', id)
-      if (error) throw new Error(error.message)
+        .select('id'))
     },
     onSuccess: () => {
       push('success', 'Project archived. It stays in the audit log and can be restored.')

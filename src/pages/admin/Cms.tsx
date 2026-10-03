@@ -5,7 +5,7 @@ import { ImageUpload } from '@/components/MediaUpload'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Image, Pencil, Plus, Star, Trash2, Upload, ImageUp } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { mustWrite, supabase } from '@/lib/supabase'
 import { useProjects, type Banner } from '@/lib/queries'
 import {
   Badge, Button, Card, CardBody, CardHeader, EmptyState, Field, Input, Modal,
@@ -108,16 +108,17 @@ export function AdminCms() {
         <CmsContentTab
           table="rewards"
           title="Rewards"
-          subtitle="Optional photos for the rewards. The rewards themselves (what, which rank, how many sq yd) come from Business Settings → Rank plan; a photo here replaces the drawing of the reward with the same title."
+          subtitle="The rewards on the home page and the Rewards page, in this order. Without a photo a reward shows a drawing of the prize."
           imageField="image_url"
           titleField="title"
           subtitleField="joining"
           defaults={DEFAULT_REWARDS}
           fields={[
-            { name: 'level', label: 'Level', required: true },
-            { name: 'title', label: 'Title', required: true },
-            { name: 'joining', label: 'Joining target' },
-            { name: 'sales', label: 'Sales target' },
+            { name: 'title', label: 'Reward', required: true },
+            { name: 'joining', label: 'Rank', hint: 'e.g. Team Coordinator' },
+            { name: 'sales', label: 'Sales target', hint: 'e.g. 50 sq yd direct + 100 sq yd group' },
+            { name: 'slab', label: 'Reward slab', hint: 'e.g. 2%' },
+            { name: 'level', label: 'Level', type: 'number', required: true, hint: 'A number, e.g. 1' },
             { name: 'image_url', label: 'Image', type: 'image' },
             { name: 'trending', label: 'Trending', type: 'select', options: [{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }] },
           ]}
@@ -128,8 +129,9 @@ export function AdminCms() {
           <Card>
             <CardBody className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-slate-600">
-                The <strong>Rank &amp; Income table</strong> on the Plans and Home pages is built from the rank plan the
-                income engine pays on — edit ranks, percentages, salaries, fees and rewards in Business Settings.
+                The <strong>Ranks table</strong> on the Home page is built from the rank plan the income engine pays on —
+                edit ranks, percentages, salaries and fees in Business Settings. The level payout rows below feed the
+                members' level income.
               </p>
               <Link to="/admin/settings" className="text-sm font-medium text-brand-700 hover:underline">Open Business Settings → Rank plan</Link>
             </CardBody>
@@ -142,8 +144,8 @@ export function AdminCms() {
             subtitleField="rate"
             defaults={DEFAULT_PLAN_LEVELS}
             fields={[
-              { name: 'level', label: 'Level', required: true },
-              { name: 'rate', label: 'Rate (₹/SQYDS)', required: true },
+              { name: 'level', label: 'Level', type: 'number', required: true },
+              { name: 'rate', label: 'Rate (₹/SQYDS)', type: 'number', required: true, hint: 'Numbers only, e.g. 25' },
               { name: 'tag', label: 'Tag (e.g. MOST REWARDING)' },
             ]}
           />
@@ -372,10 +374,9 @@ function PagesTab() {
   const save = useMutation({
     mutationFn: async (payload: Record<string, unknown> & { id?: string }) => {
       const { id, ...rest } = payload
-      const res = id
-        ? await supabase.from('cms_pages').update(rest).eq('id', id)
-        : await supabase.from('cms_pages').insert(rest)
-      if (res.error) throw new Error(res.error.message)
+      await mustWrite(() => id
+        ? supabase.from('cms_pages').update(rest).eq('id', id).select('id')
+        : supabase.from('cms_pages').insert(rest).select('id'))
     },
     onSuccess: () => {
       push('success', 'Page saved.')
@@ -514,10 +515,9 @@ function BannersTab() {
       // Editing keeps the row's id, which matters: a dismissal is remembered
       // per banner id, so recreating a banner would resurface it for every
       // member who had already dismissed it.
-      const { error } = editing
-        ? await supabase.from('cms_banners').update(payload).eq('id', editing.id)
-        : await supabase.from('cms_banners').insert(payload)
-      if (error) throw new Error(error.message)
+      await mustWrite(() => editing
+        ? supabase.from('cms_banners').update(payload).eq('id', editing.id).select('id')
+        : supabase.from('cms_banners').insert(payload).select('id'))
     },
     onSuccess: () => {
       push('success', editing ? 'Banner updated.' : 'Banner added.')
@@ -531,8 +531,7 @@ function BannersTab() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('cms_banners').delete().eq('id', id)
-      if (error) throw new Error(error.message)
+      await mustWrite(() => supabase.from('cms_banners').delete().eq('id', id).select('id'))
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['cms-banners'] }),
     onError: (e: Error) => push('error', e.message),
@@ -542,8 +541,7 @@ function BannersTab() {
   // comes down -- and it must not mean deleting the copy.
   const toggle = useMutation({
     mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      const { error } = await supabase.from('cms_banners').update({ active }).eq('id', id)
-      if (error) throw new Error(error.message)
+      await mustWrite(() => supabase.from('cms_banners').update({ active }).eq('id', id).select('id'))
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['cms-banners'] })
@@ -780,8 +778,7 @@ function GalleryTab() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('gallery_photos').delete().eq('id', id)
-      if (error) throw new Error(error.message)
+      await mustWrite(() => supabase.from('gallery_photos').delete().eq('id', id).select('id'))
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['gallery-photos-admin'] }),
     onError: (e: Error) => push('error', e.message),
@@ -789,8 +786,7 @@ function GalleryTab() {
 
   const toggleActive = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase.from('gallery_photos').update({ is_active }).eq('id', id)
-      if (error) throw new Error(error.message)
+      await mustWrite(() => supabase.from('gallery_photos').update({ is_active }).eq('id', id).select('id'))
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['gallery-photos-admin'] }),
     onError: (e: Error) => push('error', e.message),

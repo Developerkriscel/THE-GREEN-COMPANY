@@ -14,7 +14,9 @@ import { num } from '@/lib/format'
 export interface FieldCfg {
   name: string
   label: string
-  type?: 'text' | 'textarea' | 'select' | 'image'
+  type?: 'text' | 'textarea' | 'select' | 'image' | 'number'
+  /** Shown under the box. */
+  hint?: string
   options?: { value: string; label: string }[]
   required?: boolean
 }
@@ -112,7 +114,10 @@ export function CmsContentTab({
                     <div className="flex justify-end gap-1">
                       <button
                         title={r.is_active ? 'Hide' : 'Show'}
-                        onClick={() => upsert.mutate({ id: r.id, is_active: !r.is_active })}
+                        onClick={() => upsert.mutate({ id: r.id, is_active: !r.is_active }, {
+                          onSuccess: () => push('success', r.is_active ? 'Hidden from the website.' : 'Showing on the website.'),
+                          onError: (e) => push('error', (e as Error).message),
+                        })}
                         className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                       >
                         {r.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -126,7 +131,7 @@ export function CmsContentTab({
                       </button>
                       <button
                         title="Delete"
-                        onClick={() => { if (confirm('Delete this item?')) del.mutate(r.id, { onError: (e) => push('error', (e as Error).message) }) }}
+                        onClick={() => { if (confirm('Delete this item?')) del.mutate(r.id, { onSuccess: () => push('success', 'Deleted.'), onError: (e) => push('error', (e as Error).message) }) }}
                         className="rounded-lg p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -159,7 +164,11 @@ export function CmsContentTab({
             e.preventDefault()
             const f = new FormData(e.currentTarget)
             const payload: Record<string, unknown> = { id: editing?.id }
-            for (const fld of fields) payload[fld.name] = String(f.get(fld.name) ?? '')
+            for (const fld of fields) {
+              const raw = String(f.get(fld.name) ?? '').trim()
+              // A number box sends a number (or nothing), never text the database would refuse.
+              payload[fld.name] = fld.type === 'number' ? (raw === '' ? null : Number(raw)) : raw
+            }
             payload.sort_order = Number(f.get('sort_order') ?? nextSort)
             payload.is_active = f.get('is_active') === 'true'
             upsert.mutate(payload, {
@@ -184,8 +193,12 @@ export function CmsContentTab({
                   {fld.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </Select>
               </Field>
+            ) : fld.type === 'number' ? (
+              <Field key={fld.name} label={fld.label} required={fld.required} hint={fld.hint}>
+                <Input name={fld.name} type="number" inputMode="numeric" step="any" defaultValue={String(editing?.[fld.name] ?? '')} required={fld.required} />
+              </Field>
             ) : (
-              <Field key={fld.name} label={fld.label} required={fld.required}>
+              <Field key={fld.name} label={fld.label} required={fld.required} hint={fld.hint}>
                 <Input name={fld.name} defaultValue={String(editing?.[fld.name] ?? '')} required={fld.required} />
               </Field>
             ),

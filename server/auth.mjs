@@ -33,6 +33,10 @@ export async function ensureAuthTables() {
         created_at timestamptz not null default now()
       );
       create index if not exists refresh_tokens_user_idx on auth.refresh_tokens (user_id);
+      -- One sign-in on one device. Carried from refresh token to refresh token
+      -- and stamped on the access token, so signing out can end just this one.
+      alter table auth.refresh_tokens add column if not exists session_id uuid;
+      create index if not exists refresh_tokens_session_idx on auth.refresh_tokens (session_id);
 
       create table if not exists auth.recovery_tokens (
         token      text primary key,
@@ -75,20 +79,21 @@ const shapeUser = (row) => ({
   updated_at: row.updated_at,
 })
 
-async function issueSession(client, user) {
+async function issueSession(client, user, sessionId = randomUUID()) {
   const accessToken = signJwt({
     sub: user.id,
     email: user.email,
     role: 'authenticated',
+    session_id: sessionId,
     app_metadata: user.raw_app_meta_data ?? {},
     user_metadata: user.raw_user_meta_data ?? {},
   })
 
   const refreshToken = newToken()
   await client.query(
-    `insert into auth.refresh_tokens (token, user_id, expires_at)
-     values ($1, $2, now() + make_interval(secs => $3))`,
-    [refreshToken, user.id, config.refreshExpirySeconds],
+    `insert into auth.refresh_tokens (token, user_id, expires_at, session_id)
+     values ($1, $2, now() + make_interval(secs => $3), $4)`,
+    [refreshToken, user.id, config.refreshExpirySeconds, sessionId],
   )
   await client.query(`update auth.users set last_sign_in_at = now() where id = $1`, [user.id])
 
@@ -337,7 +342,7 @@ export async function refreshSession({ refresh_token }) {
     ])
 
     const { rows: users } = await client.query(`select * from auth.users where id = $1`, [row.user_id])
-    return issueSession(client, users[0])
+    return issueSession(client, users[0], row.session_id ?? undefined)
   })
 }
 
@@ -382,11 +387,27 @@ export async function updateUser(token, body) {
   })
 }
 
-export async function logout(token) {
+/**
+ * Sign out. `local` ends this device's sign-in only, `others` every other
+ * device's, `global` all of them. Before session ids existed every sign-out
+ * was global, so one person signing in or out on a shared office account cut
+ * off everyone else using it within the hour.
+ */
+export async function logout(token, scope = 'global') {
   const claims = verifyJwt(token)
   if (!claims?.sub) return
   await withOwner(async (client) => {
-    await client.query(`update auth.refresh_tokens set revoked = true where user_id = $1`, [claims.sub])
+    if (scope === 'local') {
+      if (!claims.session_id) return
+      await client.query(`update auth.refresh_tokens set revoked = true where session_id = $1`, [claims.session_id])
+    } else if (scope === 'others') {
+      await client.query(
+        `update auth.refresh_tokens set revoked = true where user_id = $1 and session_id is distinct from $2`,
+        [claims.sub, claims.session_id ?? null],
+      )
+    } else {
+      await client.query(`update auth.refresh_tokens set revoked = true where user_id = $1`, [claims.sub])
+    }
   })
 }
 

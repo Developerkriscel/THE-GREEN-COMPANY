@@ -25,6 +25,34 @@ export const API_BASE = url.replace(/\/$/, '')
  * the same row works on the live site and on a developer's machine -- both
  * read one database. Absolute URLs pass through unchanged.
  */
+/**
+ * The message for a write the database accepted but that changed nothing.
+ * With row security a write the signed-in account may not make is not an
+ * error: it simply touches no rows. That happens when the sign-in has
+ * quietly expired, so say so instead of "Saved.".
+ */
+export const NOTHING_SAVED = 'Nothing was saved — your sign-in has probably expired. Please sign out, sign in again and retry.'
+
+type WriteResult<T> = { data: T[] | null; error: { message: string; code?: string } | null }
+
+/**
+ * Run a write that ends in `.select('id')` and fail loudly when it errored or
+ * changed no row, so the office never sees "Saved." for a save that did not
+ * happen. A sign-in that expired while the page sat open is renewed and the
+ * write tried once more before giving up.
+ */
+export async function mustWrite<T = unknown>(run: () => PromiseLike<WriteResult<T>>) {
+  let { data, error } = await run()
+  if (error && /jwt|expired/i.test(error.message)) {
+    const { error: refreshErr } = await supabase.auth.refreshSession()
+    if (refreshErr) throw new Error('Your sign-in has expired. Please sign in again.')
+    ;({ data, error } = await run())
+  }
+  if (error) throw new Error(error.message)
+  if (!data || data.length === 0) throw new Error(NOTHING_SAVED)
+  return data
+}
+
 export function assetUrl(pathOrUrl: string | null | undefined): string | null {
   if (!pathOrUrl) return null
   return /^https?:\/\//.test(pathOrUrl) ? pathOrUrl : `${API_BASE}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`

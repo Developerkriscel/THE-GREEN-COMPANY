@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/lib/supabase'
+import { mustWrite, supabase } from '@/lib/supabase'
 import type {
   AuditEntry,
   Booking,
@@ -426,10 +426,9 @@ export function useCmsUpsert(table: CmsTable) {
     mutationFn: async (row: Record<string, unknown> & { id?: string }) => {
       const { id, created_at, ...rest } = row as Record<string, unknown> & { id?: string }
       void created_at
-      const res = id
-        ? await supabase.from(table).update(rest).eq('id', id)
-        : await supabase.from(table).insert(rest)
-      if (res.error) throw new Error(res.error.message)
+      await mustWrite(() => id
+        ? supabase.from(table).update(rest).eq('id', id).select('id')
+        : supabase.from(table).insert(rest).select('id'))
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['cms-content', table] }),
   })
@@ -439,8 +438,7 @@ export function useCmsDelete(table: CmsTable) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from(table).delete().eq('id', id)
-      if (error) throw new Error(error.message)
+      await mustWrite(() => supabase.from(table).delete().eq('id', id).select('id'))
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['cms-content', table] }),
   })
@@ -450,8 +448,7 @@ export function useCmsBulkInsert(table: CmsTable) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (rows: Record<string, unknown>[]) => {
-      const { error } = await supabase.from(table).insert(rows)
-      if (error) throw new Error(error.message)
+      await mustWrite(() => supabase.from(table).insert(rows).select('id'))
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['cms-content', table] }),
   })

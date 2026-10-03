@@ -186,7 +186,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut()
+    // This device only: the office shares accounts across computers.
+    await supabase.auth.signOut({ scope: 'local' })
     setProfile(null)
     setSession(null)
     forgetOtherUsersData(null)

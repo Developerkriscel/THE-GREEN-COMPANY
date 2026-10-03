@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/lib/supabase'
+import { mustWrite, supabase } from '@/lib/supabase'
 
 /**
  * The announcement bar: sale / offer lines across the top of the website and
@@ -84,10 +84,9 @@ export function useSaveAnnouncement() {
   return useMutation({
     mutationFn: async (a: Partial<Announcement> & { message: string }) => {
       const { id, ...rest } = a
-      const res = id
-        ? await supabase.from('cms_announcements').update(rest).eq('id', id)
-        : await supabase.from('cms_announcements').insert(rest)
-      if (res.error) throw new Error(res.error.message)
+      await mustWrite(() => id
+        ? supabase.from('cms_announcements').update(rest).eq('id', id).select('id')
+        : supabase.from('cms_announcements').insert(rest).select('id'))
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['announcements'] }),
   })
@@ -97,8 +96,7 @@ export function useDeleteAnnouncement() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('cms_announcements').delete().eq('id', id)
-      if (error) throw new Error(error.message)
+      await mustWrite(() => supabase.from('cms_announcements').delete().eq('id', id).select('id'))
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['announcements'] }),
   })

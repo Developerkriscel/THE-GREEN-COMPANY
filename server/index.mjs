@@ -155,7 +155,15 @@ function errorResponse(err) {
   }
 }
 
-/** Who is calling? Anything that isn't a valid authenticated JWT is anon. */
+/**
+ * Who is calling? A valid user token is that user; the anon key (or no token)
+ * is a visitor.
+ *
+ * A token that no longer verifies -- expired, or signed for another server --
+ * is refused with 401, as PostgREST does ("JWT expired"). It used to be
+ * treated as a visitor, so an office tab whose sign-in had lapsed kept
+ * "saving" CMS edits that row security quietly turned into no-ops.
+ */
 function identify(req) {
   const header = req.headers.authorization ?? ''
   const token = header.startsWith('Bearer ') ? header.slice(7).trim() : null
@@ -163,6 +171,9 @@ function identify(req) {
 
   if (claims?.sub && claims.role === 'authenticated') {
     return { role: 'authenticated', claims, token }
+  }
+  if (token && !claims) {
+    throw Object.assign(new Error('JWT expired'), { status: 401, code: 'PGRST301' })
   }
   return { role: 'anon', claims: null, token }
 }
@@ -270,7 +281,8 @@ async function route(req, res) {
       return send(res, 200, await auth.updateUser(token, (await readJson(req)) ?? {}))
     }
     if (action === 'logout' && req.method === 'POST') {
-      await auth.logout(token)
+      // supabase-js sends ?scope=local|others|global (global by default).
+      await auth.logout(token, url.searchParams.get('scope') ?? 'global')
       res.writeHead(204, res._cors ?? CORS)
       return res.end()
     }
