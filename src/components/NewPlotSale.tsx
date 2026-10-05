@@ -3,7 +3,7 @@ import { CalendarClock, Plus, Trash2 } from 'lucide-react'
 import { useAvailablePlots } from '@/lib/sponsor-crm'
 import { previewSchedule, useCreatePlotSale, type Milestone } from '@/lib/plot-sale'
 import { useCustomers } from '@/lib/customers'
-import { useMembers } from '@/lib/queries'
+import { useMembers, useProjects } from '@/lib/queries'
 import { useAuth } from '@/context/AuthContext'
 import { useSponsorRates } from '@/lib/sponsor'
 import { Badge, Button, Field, Input, Modal, Select, Table, Td, Textarea, Th, useToast } from '@/components/ui'
@@ -48,6 +48,7 @@ export function NewPlotSale({ office = false, onClose, onCreated }: {
   const { profile } = useAuth()
   const { data: rates } = useSponsorRates()
 
+  const { data: allProjects = [] } = useProjects({ publishedOnly: true })
   const projects = useMemo(() => [...new Map(plots.map((p) => [p.project_id, p.project_name])).entries()], [plots])
   // Lowest listed rate per sq yd in each project, for the picker.
   const fromRate = useMemo(() => {
@@ -137,10 +138,18 @@ export function NewPlotSale({ office = false, onClose, onCreated }: {
           <Field label="Project" required>
             <Select value={f.projectId} onChange={(e) => setF((x) => ({ ...x, projectId: e.target.value, plotId: '' }))}>
               <option value="">{isLoading ? 'Loading…' : 'Select a project'}</option>
-              {projects.map(([id, name]) => <option key={id} value={id}>{name}{fromRate.get(id) ? ` — from ${money(Math.round(fromRate.get(id)!))}/sq yd` : ''}</option>)}
+              {/* Every published project; one with no plot in the inventory yet cannot be sold until the office lists its plots. */}
+              {allProjects.map((pr) => {
+                const has = projects.some(([id]) => id === pr.id)
+                return (
+                  <option key={pr.id} value={pr.id} disabled={!has}>
+                    {pr.name}{has ? (fromRate.get(pr.id) ? ` — from ${money(Math.round(fromRate.get(pr.id)!))}/sq yd` : '') : pr.sold_out ? ' — sold out' : ' — plots not listed yet'}
+                  </option>
+                )
+              })}
             </Select>
           </Field>
-          <Field label="Plot no." required hint={f.projectId ? `${inProject.length} available` : undefined}>
+          <Field label="Plot no." required hint={f.projectId ? `${inProject.length} available` : allProjects.some((pr) => !projects.some(([id]) => id === pr.id)) ? (office ? 'A project shows “plots not listed yet” until its plots are added in Plot inventory.' : 'A project shows “plots not listed yet” until the office adds its plots — ask the office.') : undefined}>
             <Select value={f.plotId} onChange={(e) => set('plotId', e.target.value)} disabled={!f.projectId}>
               <option value="">Select a plot</option>
               {inProject.map((p) => <option key={p.id} value={p.id}>{p.number}{p.size ? ` — ${num(p.size)} ${p.size_unit}` : ''}</option>)}

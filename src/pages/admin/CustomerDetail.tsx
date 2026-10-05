@@ -9,6 +9,9 @@ import {
   type CustomerBooking, type CustomerDetails, type CustomerDocument, type CustomerProfile, type GuardianRelation, type StageStatus,
 } from '@/lib/customers'
 import { useAvailablePlots } from '@/lib/sponsor-crm'
+import { useProjects } from '@/lib/queries'
+import { supabase } from '@/lib/supabase'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   Badge, Button, Card, CardBody, CardHeader, EmptyState, Field, Input, Modal, Select, Spinner, Table, Td, Textarea, Th, useToast,
 } from '@/components/ui'
@@ -241,10 +244,18 @@ function LinkBookingModal({ customerId, name, phone, onClose }: { customerId: st
   )
 }
 
+/**
+ * Book a plot for this customer. Every project is listed, not only those with
+ * plots already in the inventory: when a project has none (or the plot sold
+ * is not on the list yet) the office enters the plot here — number, size and
+ * rate — and it is added to Plot inventory as it is booked.
+ */
 function BookPlotModal({ customerId, rmId, onClose }: { customerId: string; rmId: string | null; onClose: () => void }) {
   const { data: plots = [], isLoading } = useAvailablePlots()
+  const { data: allProjects = [], isLoading: loadingProjects } = useProjects()
   const rms = useRmOptions()
   const create = useCreateCustomerBooking(customerId)
+  const qc = useQueryClient()
   const { push } = useToast()
   const [projectId, setProjectId] = useState('')
   const [plotId, setPlotId] = useState('')
@@ -253,46 +264,120 @@ function BookPlotModal({ customerId, rmId, onClose }: { customerId: string; rmId
   const [emiCount, setEmiCount] = useState('0')
   const [emiStart, setEmiStart] = useState('')
   const [repId, setRepId] = useState(rmId ?? '')
+  // A plot that is not in the inventory yet.
+  const [np, setNp] = useState({ number: '', size: '', rate: '', facing: '' })
+  const [saving, setSaving] = useState(false)
 
-  const projects = useMemo(() => [...new Map(plots.map((p) => [p.project_id, p.project_name])).entries()], [plots])
+  const project = allProjects.find((p) => p.id === projectId)
   const inProject = plots.filter((p) => p.project_id === projectId)
+  const count = (id: string) => plots.filter((p) => p.project_id === id).length
+  const isNew = Boolean(projectId) && (plotId === NEW_PLOT || inProject.length === 0)
   const plot = plots.find((p) => p.id === plotId)
   useEffect(() => { if (plot?.price) setSale(String(plot.price)) }, [plot])
+  // A new plot's value is its size × rate until the office types another.
+  useEffect(() => {
+    if (!isNew) return
+    const v = (Number(np.size) || 0) * (Number(np.rate) || 0)
+    if (v > 0) setSale(String(Math.round(v)))
+  }, [isNew, np.size, np.rate])
 
+  function chooseProject(id: string) {
+    setProjectId(id)
+    setPlotId('')
+    setSale('')
+    const pr = allProjects.find((p) => p.id === id)
+    setNp({ number: '', size: '', facing: '', rate: pr?.price_from ? String(Number(pr.price_from)) : '' })
+  }
+
+  const digits = (v: string) => v.replace(/[^\d.]/g, '')
   const saleN = Number(sale) || 0
   const tokenN = Number(token) || 0
   const n = Math.max(0, Math.floor(Number(emiCount) || 0))
   const perEmi = n > 0 ? Math.round((saleN - tokenN) / n) : 0
+  const newPlotReady = np.number.trim() !== '' && Number(np.size) > 0
+  const canBook = Boolean(projectId) && (isNew ? newPlotReady : Boolean(plotId)) && saleN > 0 && tokenN <= saleN && (n === 0 || Boolean(emiStart))
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault()
-    create.mutate({ plotId, saleValue: saleN, tokenAmount: tokenN, emiCount: n, emiStart: n > 0 ? emiStart || null : null, repId: repId || null }, {
-      onSuccess: () => { push('success', 'Plot booked and confirmed — the schedule is on the customer panel.'); onClose() },
-      onError: (err) => push('error', (err as Error).message),
-    })
+    if (!canBook) return
+    setSaving(true)
+    try {
+      let id = plotId
+      if (isNew) {
+        const { data, error } = await supabase.from('plots').insert({
+          project_id: projectId, number: np.number.trim(), size: Number(np.size), size_unit: 'sqyd',
+          facing: np.facing.trim() || null, price: saleN, status: 'available',
+        }).select('id').single()
+        if (error) {
+          throw new Error(/duplicate|unique/i.test(error.message)
+            ? `Plot ${np.number.trim()} already exists in ${project?.name ?? 'this project'} — pick it from the list.`
+            : error.message)
+        }
+        id = (data as { id: string }).id
+        void qc.invalidateQueries({ queryKey: ['plots'] })
+      }
+      await create.mutateAsync({ plotId: id, saleValue: saleN, tokenAmount: tokenN, emiCount: n, emiStart: n > 0 ? emiStart || null : null, repId: repId || null })
+      void qc.invalidateQueries({ queryKey: ['available-plots'] })
+      push('success', 'Plot booked and confirmed — the schedule is on the customer panel.')
+      onClose()
+    } catch (err) {
+      push('error', (err as Error).message)
+    } finally {
+      setSaving(false)
+    }
   }
+
+  const rateHint = project && (project.price_from || project.price_to)
+    ? [project.price_from ? `Pre-launch ${money(Number(project.price_from))}` : '', project.price_to ? `launch ${money(Number(project.price_to))}` : ''].filter(Boolean).join(' · ')
+    : undefined
 
   return (
     <Modal open onClose={onClose} title="Book a plot for this customer" size="lg"
       footer={<div className="flex justify-end gap-2"><Button variant="ghost" onClick={onClose}>Cancel</Button>
-        <Button type="submit" form="book-plot" loading={create.isPending} disabled={!plotId || saleN <= 0 || tokenN > saleN || (n > 0 && !emiStart)}>Book &amp; confirm</Button></div>}>
-      {isLoading ? <Spinner /> : (
+        <Button type="submit" form="book-plot" loading={saving} disabled={!canBook}>Book &amp; confirm</Button></div>}>
+      {isLoading || loadingProjects ? <Spinner /> : (
         <form id="book-plot" onSubmit={submit} className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Project" required>
-              <Select value={projectId} onChange={(e) => { setProjectId(e.target.value); setPlotId('') }}>
+              <Select value={projectId} onChange={(e) => chooseProject(e.target.value)}>
                 <option value="">Choose…</option>
-                {projects.map(([pid, pname]) => <option key={pid} value={pid}>{pname}</option>)}
+                {allProjects.map((pr) => {
+                  const c = count(pr.id)
+                  const soldOut = Boolean(pr.sold_out) && c === 0
+                  return (
+                    <option key={pr.id} value={pr.id} disabled={soldOut}>
+                      {pr.name}{soldOut ? ' — sold out' : c ? ` — ${c} plot${c === 1 ? '' : 's'} available` : ' — enter plot details'}
+                    </option>
+                  )
+                })}
               </Select>
             </Field>
-            <Field label="Plot" required hint={projectId ? `${inProject.length} available` : undefined}>
-              <Select value={plotId} onChange={(e) => setPlotId(e.target.value)} disabled={!projectId}>
-                <option value="">Choose…</option>
+            <Field label="Plot" required hint={projectId ? (inProject.length ? `${inProject.length} available in Plot inventory` : 'None in Plot inventory yet — enter it below') : undefined}>
+              <Select value={inProject.length ? plotId : NEW_PLOT} onChange={(e) => setPlotId(e.target.value)} disabled={!projectId || inProject.length === 0}>
+                {inProject.length > 0 && <option value="">Choose…</option>}
                 {inProject.map((p) => <option key={p.id} value={p.id}>Plot {p.number}{p.size ? ` · ${num(p.size)} ${p.size_unit}` : ''}{p.price ? ` · ${money(p.price)}` : ''}</option>)}
+                <option value={NEW_PLOT}>+ A plot not in the list</option>
               </Select>
             </Field>
-            <Field label="Plot value (₹)" required><Input inputMode="numeric" value={sale} onChange={(e) => setSale(e.target.value.replace(/[^\d.]/g, ''))} /></Field>
-            <Field label="Booking amount paid (₹)" hint="Counted as paid on the customer panel."><Input inputMode="numeric" value={token} onChange={(e) => setToken(e.target.value.replace(/[^\d.]/g, ''))} /></Field>
+          </div>
+
+          {isNew && (
+            <div className="rounded-xl border border-brand-gold/30 bg-brand-gold/[0.05] p-4">
+              <p className="mb-3 text-sm font-semibold text-brand-darker">
+                New plot in {project?.name} <span className="font-normal text-gray-500">— added to Plot inventory when you book</span>
+              </p>
+              <div className="grid gap-3 sm:grid-cols-4">
+                <Field label="Plot no." required><Input value={np.number} onChange={(e) => setNp((x) => ({ ...x, number: e.target.value }))} placeholder="e.g. 101" /></Field>
+                <Field label="Size (sq yd)" required><Input inputMode="decimal" value={np.size} onChange={(e) => setNp((x) => ({ ...x, size: digits(e.target.value) }))} /></Field>
+                <Field label="Rate (₹ / sq yd)" hint={rateHint}><Input inputMode="numeric" value={np.rate} onChange={(e) => setNp((x) => ({ ...x, rate: digits(e.target.value) }))} /></Field>
+                <Field label="Facing"><Input value={np.facing} onChange={(e) => setNp((x) => ({ ...x, facing: e.target.value }))} placeholder="Optional" /></Field>
+              </div>
+            </div>
+          )}
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Plot value (₹)" required hint={isNew ? 'Size × rate; change it if the deal differs.' : undefined}><Input inputMode="numeric" value={sale} onChange={(e) => setSale(digits(e.target.value))} /></Field>
+            <Field label="Booking amount paid (₹)" hint="Counted as paid on the customer panel."><Input inputMode="numeric" value={token} onChange={(e) => setToken(digits(e.target.value))} /></Field>
             <Field label="Number of EMIs" hint="0 for full payment."><Input inputMode="numeric" value={emiCount} onChange={(e) => setEmiCount(e.target.value.replace(/\D/g, ''))} /></Field>
             <Field label="First EMI date" required={n > 0}><Input type="date" value={emiStart} onChange={(e) => setEmiStart(e.target.value)} disabled={n === 0} /></Field>
             <div className="sm:col-span-2">
@@ -316,6 +401,8 @@ function BookPlotModal({ customerId, rmId, onClose }: { customerId: string; rmId
     </Modal>
   )
 }
+
+const NEW_PLOT = '__new__'
 
 /* ---------------------------------------------------------------- details */
 
