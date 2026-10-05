@@ -21,7 +21,7 @@ export const licenseUrl = (l: PhotoCredit['license']) => LICENSE_URL[l]
 
 const C = 'https://commons.wikimedia.org/wiki/File:'
 export const REWARD_PHOTO_CREDITS: Record<string, PhotoCredit> = {
-  '/rewards/juicer.jpg': { author: 'Mcapdevila', license: 'CC BY-SA 3.0', source: `${C}Liquadora.JPG` },
+  '/rewards/juicer-breville.jpg': { author: 'FASTILY', license: 'CC BY-SA 4.0', source: `${C}Juicer_1_2022-03-25.jpeg` },
   '/rewards/mixer.jpg': { author: 'Vimkay', license: 'CC BY-SA 4.0', source: `${C}A_table-top_mixer-grinder_or_mixie.jpg` },
   '/rewards/phone-10k-a.jpg': { author: '洛微', license: 'CC BY-SA 4.0', source: `${C}Redmi_Note_9_4G.jpg` },
   '/rewards/phone-10k-b.jpg': { author: '洛微', license: 'CC BY-SA 4.0', source: `${C}Back_of_Redmi_9_sample_in_China_20210307.jpg` },
