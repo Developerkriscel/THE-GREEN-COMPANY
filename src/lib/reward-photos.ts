@@ -3,7 +3,8 @@
  * All are freely licensed on Wikimedia Commons and were cropped to 4:3; the
  * CC BY / BY-SA licences require the author, licence and source be shown,
  * which the Rewards page does. A photo the office uploads in Website CMS ->
- * Rewards has no entry here and is shown without a credit.
+ * Rewards has no entry here and is shown without a credit, as is the
+ * induction cooktop photo (induction-cooktop.jpg), which the office supplied.
  */
 export interface PhotoCredit {
   author: string
@@ -20,7 +21,6 @@ export const licenseUrl = (l: PhotoCredit['license']) => LICENSE_URL[l]
 
 const C = 'https://commons.wikimedia.org/wiki/File:'
 export const REWARD_PHOTO_CREDITS: Record<string, PhotoCredit> = {
-  '/rewards/induction.jpg': { author: 'OtivrGlobal', license: 'CC BY-SA 4.0', source: `${C}Otivr_pre-launch_event_and_seminar_co-hosted_by_the_Swedish_Chamber_of_Commerce_India_and_Business_Sweden.jpg` },
   '/rewards/juicer.jpg': { author: 'Mcapdevila', license: 'CC BY-SA 3.0', source: `${C}Liquadora.JPG` },
   '/rewards/mixer.jpg': { author: 'Vimkay', license: 'CC BY-SA 4.0', source: `${C}A_table-top_mixer-grinder_or_mixie.jpg` },
   '/rewards/phone-10k-a.jpg': { author: '洛微', license: 'CC BY-SA 4.0', source: `${C}Redmi_Note_9_4G.jpg` },
