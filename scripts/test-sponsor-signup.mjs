@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url'
 import pg from 'pg'
 import { createClient } from '@supabase/supabase-js'
 import { junit } from './lib/junit.mjs'
+import { ADMIN } from './lib/test-accounts.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const env = Object.fromEntries(
@@ -21,7 +22,6 @@ const env = Object.fromEntries(
     .map((l) => [l.slice(0, l.indexOf('=')).trim(), l.slice(l.indexOf('=') + 1).trim().replace(/^["']|["']$/g, '')]),
 )
 const BASE = process.env.GATEWAY_URL ?? 'http://localhost:54321'
-const ADMIN = { email: process.env.TEST_ADMIN_EMAIL ?? 'admin@rgc.local', password: process.env.TEST_ADMIN_PASSWORD ?? 'Admin@1234' }
 const mk = () => createClient(BASE, env.VITE_SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
 const db = new pg.Client({ connectionString: env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
 db.on('error', (e) => console.log(`  db connection error: ${e.message}`))
@@ -73,11 +73,11 @@ try {
   const referred = (queue ?? []).find((q) => q.mobile === P2)
   check('the office sees both, marked Website and waiting', queue?.length === 2 && queue.every((q) => q.source === 'website' && q.status === 'invited'), JSON.stringify(queue))
   check('the one without a sponsor has none (office chooses)', own && own.sponsor === null)
-  check('the referred one is under the right sponsor', referred?.sponsor?.member_code === 'RGC100004')
+  check('the referred one is under the right sponsor', referred?.sponsor?.member_code === 'RSGC100004')
   const { data: an } = await admin.from('notifications').select('title, link').eq('title', 'New sponsor sign-up').gte('created_at', started.toISOString())
   check('the office is notified', (an ?? []).length >= 2 && an[0].link === '/admin/members')
   const { rows: [sn] } = await db.query(`select count(*)::int n from public.notifications n join public.profiles p on p.id = n.user_id
-                                          where p.member_code = 'RGC100004' and n.title = 'Someone signed up with your Sponsor ID' and n.created_at >= $1`, [started])
+                                          where p.member_code = 'RSGC100004' and n.title = 'Someone signed up with your Sponsor ID' and n.created_at >= $1`, [started])
   check('the sponsor is told someone joined with their ID', sn.n === 1)
 } catch (err) {
   check('run completed', false, err.stack)

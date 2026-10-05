@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url'
 import pg from 'pg'
 import { createClient } from '@supabase/supabase-js'
 import { junit } from './lib/junit.mjs'
+import { ADMIN, REP, passwordFor } from './lib/test-accounts.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const env = Object.fromEntries(
@@ -31,9 +32,6 @@ const env = Object.fromEntries(
 )
 const BASE = process.env.GATEWAY_URL ?? 'http://localhost:54321'
 const ANON = env.VITE_SUPABASE_ANON_KEY
-const ADMIN = { email: process.env.TEST_ADMIN_EMAIL ?? 'admin@rgc.local', password: process.env.TEST_ADMIN_PASSWORD ?? 'Admin@1234' }
-const REP = { email: process.env.TEST_REP_EMAIL ?? 'rep@rgc.local', password: process.env.TEST_REP_PASSWORD ?? 'Rep@12345' }
-const OTHER_PASSWORD = process.env.TEST_MEMBER_PASSWORD ?? 'Member@123'
 
 const mk = () => createClient(BASE, ANON, { auth: { persistSession: false, autoRefreshToken: false } })
 const db = new pg.Client({ connectionString: env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
@@ -70,8 +68,8 @@ try {
   const other = mk()
   check('admin signs in', !(await admin.auth.signInWithPassword(ADMIN)).error)
   check('member signs in', !(await rep.auth.signInWithPassword(REP)).error)
-  const { rows: [o] } = await db.query(`select email from public.profiles where role = 'rep' and status = 'active' and email like '%@members.rgc.local' and email <> $1 order by member_code limit 1`, [REP.email])
-  check('a second member signs in', o && !(await other.auth.signInWithPassword({ email: o.email, password: OTHER_PASSWORD })).error)
+  const { rows: [o] } = await db.query(`select email from public.profiles where role = 'rep' and status = 'active' and email like '%@members.rsgc.local' and email <> $1 order by member_code limit 1`, [REP.email])
+  check('a second member signs in', o && !(await other.auth.signInWithPassword({ email: o.email, password: passwordFor(o.email) })).error)
 
   const { data: avail } = await rep.rpc('available_plots')
   const [p1, p2, p3] = (avail ?? []).slice(-3)

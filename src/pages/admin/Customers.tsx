@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react'
 import { ImageUpload } from '@/components/MediaUpload'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Gift, KeyRound, MessageSquareHeart, Pencil, Plus, Search, Trash2, UserRound, Users } from 'lucide-react'
+import { newTempPassword } from '@/lib/password'
 import { useMembers } from '@/lib/queries'
 import {
   useCreateCustomer, useCustomerOffers, useCustomers, useDeleteOffer, useFeedback, useReplyFeedback, useSaveOffer,
@@ -140,10 +141,7 @@ export function useRmOptions() {
     .sort((a, b) => a.label.localeCompare(b.label)), [members])
 }
 
-const genPassword = () => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
-  return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('') + '@' + (10 + Math.floor(Math.random() * 89))
-}
+const genPassword = newTempPassword
 
 function AddCustomer({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
   const create = useCreateCustomer()

@@ -25,7 +25,15 @@ export function StaffLogin() {
     setError(null)
     setLoading(true)
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      // An Admin ID (RSGC100001) or the e-mail itself.
+      let login = email.trim()
+      if (!login.includes('@')) {
+        await supabase.auth.signOut({ scope: 'local' })
+        const { data } = await supabase.rpc('resolve_staff_login', { p_id: login })
+        if (!data) throw new Error('Invalid Admin ID or password')
+        login = String(data)
+      }
+      const { error: authError } = await supabase.auth.signInWithPassword({ email: login, password })
       if (authError) throw authError
       navigate('/admin')
     } catch (err: any) {
@@ -50,15 +58,15 @@ export function StaffLogin() {
 
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-            Email Address
+            Admin ID or Email
           </label>
           <input
-            type="email"
-            autoComplete="email"
+            type="text"
+            autoComplete="username"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder={`admin@${BRAND.website}`}
+            placeholder="e.g. RSGC100001"
             className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all"
           />
         </div>

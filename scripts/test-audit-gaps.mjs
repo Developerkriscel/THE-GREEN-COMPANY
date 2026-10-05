@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url'
 import pg from 'pg'
 import { createClient } from '@supabase/supabase-js'
 import { junit } from './lib/junit.mjs'
+import { ADMIN, passwordFor } from './lib/test-accounts.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const env = Object.fromEntries(
@@ -25,8 +26,6 @@ const env = Object.fromEntries(
     .map((l) => [l.slice(0, l.indexOf('=')).trim(), l.slice(l.indexOf('=') + 1).trim().replace(/^["']|["']$/g, '')]),
 )
 const BASE = process.env.GATEWAY_URL ?? 'http://localhost:54321'
-const ADMIN = { email: process.env.TEST_ADMIN_EMAIL ?? 'admin@rgc.local', password: process.env.TEST_ADMIN_PASSWORD ?? 'Admin@1234' }
-const MEMBER_PASSWORD = process.env.TEST_MEMBER_PASSWORD ?? 'Member@123'
 const mk = () => createClient(BASE, env.VITE_SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
 const db = new pg.Client({ connectionString: env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
 db.on('error', (e) => console.log(`  db connection error: ${e.message}`))
@@ -48,7 +47,7 @@ const started = new Date()
 try {
   const { rows: [m] } = await db.query(
     `select p.id, p.email, p.full_name, p.father_name, p.spouse_name from public.profiles p
-      where p.role = 'rep' and p.status = 'active' and p.email like '%@members.rgc.local'
+      where p.role = 'rep' and p.status = 'active' and p.email like '%@members.rsgc.local'
         and not exists (select 1 from public.kyc k where k.user_id = p.id)
         and exists (select 1 from public.profiles c where c.referrer_id = p.id)
       order by p.member_code limit 1`)
@@ -59,7 +58,7 @@ try {
   const admin = mk()
   const me = mk()
   check('admin signs in', !(await admin.auth.signInWithPassword(ADMIN)).error)
-  check('member signs in', !(await me.auth.signInWithPassword({ email: m.email, password: MEMBER_PASSWORD })).error)
+  check('member signs in', !(await me.auth.signInWithPassword({ email: m.email, password: passwordFor(m.email) })).error)
 
   console.log('\nProfile')
   const rename = await me.from('profiles').update({ full_name: 'Someone Else' }).eq('id', m.id)

@@ -396,7 +396,7 @@ async function createMember(body, ctx) {
 /**
  * Admin-only: open a customer account (the customer panel login) with the
  * details from the office's customer sheet. The account is created active
- * with an RG-C-… customer ID (app.handle_new_user); the customer signs in
+ * with an RSGC-CUST-… customer ID (app.handle_new_user); the customer signs in
  * with that ID, their mobile or their e-mail and the password set here.
  * A customer without an e-mail gets an internal login address — they never
  * see or use it.

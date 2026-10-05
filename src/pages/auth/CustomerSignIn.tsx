@@ -7,7 +7,7 @@ import { BRAND } from '@/lib/brand'
 
 /**
  * Plot buyers sign in to the customer panel with the customer ID the office
- * gave them (RG-C-…), their mobile number or their e-mail, and their password.
+ * gave them (RSGC-CUST-…), their mobile number or their e-mail, and their password.
  */
 export function CustomerSignIn() {
   const navigate = useNavigate()
@@ -43,7 +43,7 @@ export function CustomerSignIn() {
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
             Customer ID <span className="font-normal normal-case tracking-normal text-gray-400">— or your mobile / e-mail</span>
           </label>
-          <input required value={id} onChange={(e) => setId(e.target.value)} placeholder="e.g. RG-C-2026-00123" autoComplete="username" className={field} />
+          <input required value={id} onChange={(e) => setId(e.target.value)} placeholder="e.g. RSGC-CUST-0001" autoComplete="username" className={field} />
         </div>
 
         <div>

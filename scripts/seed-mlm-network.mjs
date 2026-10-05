@@ -5,10 +5,11 @@
 //   node scripts/seed-mlm-network.mjs
 //
 // Idempotent-ish: it clears previously seeded members (email domain
-// @members.rgc.local) before re-seeding, so it can be run repeatedly.
+// @members.rsgc.local) before re-seeding, so it can be run repeatedly.
 
 import { createRequire } from 'module'
 import { readFileSync } from 'fs'
+import { randomBytes } from 'crypto'
 import { hashPassword } from '../server/jwt.mjs'
 
 const require = createRequire(import.meta.url)
@@ -21,8 +22,10 @@ if (!dbUrl) throw new Error('DATABASE_URL not found in .env')
 const client = new Client({ connectionString: dbUrl })
 await client.connect()
 
-const MEMBER_DOMAIN = '@members.rgc.local'
-const DEFAULT_PASSWORD = 'Member@123'
+const MEMBER_DOMAIN = '@members.rsgc.local'
+// No shared password in the repository: set SEED_MEMBER_PASSWORD, or each
+// member gets the one issued in .claude/rsgc-credentials.json.
+const DEFAULT_PASSWORD = process.env.SEED_MEMBER_PASSWORD ?? `Rsgc@${randomBytes(6).toString('base64url')}`
 const pwHash = hashPassword(DEFAULT_PASSWORD)
 
 // --- name pools -------------------------------------------------------------
@@ -95,7 +98,7 @@ try {
   if (!admin) throw new Error('No admin profile found')
 
   // admin → root
-  const adminCode = await nextCode() // RGC100001
+  const adminCode = await nextCode() // RSGC100001
   await client.query(
     `update public.profiles
         set member_code = $2, rank_id = $3, referrer_id = null, placement_parent_id = null,

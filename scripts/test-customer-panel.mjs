@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url'
 import pg from 'pg'
 import { createClient } from '@supabase/supabase-js'
 import { junit } from './lib/junit.mjs'
+import { ADMIN, REP } from './lib/test-accounts.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const env = Object.fromEntries(
@@ -31,8 +32,6 @@ const env = Object.fromEntries(
 )
 const BASE = process.env.GATEWAY_URL ?? 'http://localhost:54321'
 const ANON = env.VITE_SUPABASE_ANON_KEY
-const ADMIN = { email: process.env.TEST_ADMIN_EMAIL ?? 'admin@rgc.local', password: process.env.TEST_ADMIN_PASSWORD ?? 'Admin@1234' }
-const REP = { email: process.env.TEST_REP_EMAIL ?? 'rep@rgc.local', password: process.env.TEST_REP_PASSWORD ?? 'Rep@12345' }
 
 const mk = () => createClient(BASE, ANON, { auth: { persistSession: false, autoRefreshToken: false } })
 const db = new pg.Client({ connectionString: env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
@@ -73,7 +72,7 @@ try {
   const byRep = await fnStatus(rep, 'create-customer', body)
   check('a sponsor cannot open a customer account', byRep.status === 403, `got ${byRep.status}`)
   const made = await fnStatus(admin, 'create-customer', body)
-  check('the office opens a customer account', made.status === 200 && made.data?.id && /^RG-C-/.test(made.data?.user_code ?? ''), JSON.stringify(made.data))
+  check('the office opens a customer account', made.status === 200 && made.data?.id && /^RSGC-CUST-\d{4}$/.test(made.data?.user_code ?? ''), JSON.stringify(made.data))
   customerId = made.data?.id
   const code = made.data?.user_code
   const dup = await fnStatus(admin, 'create-customer', body)
@@ -85,7 +84,7 @@ try {
   console.log('\nSigning in')
   const byCode = await anon.rpc('resolve_customer_identifier', { p_identifier: code })
   const byPhone = await anon.rpc('resolve_customer_identifier', { p_identifier: '+91 ' + PHONE })
-  const byRepCode = await anon.rpc('resolve_customer_identifier', { p_identifier: 'RGC100004' })
+  const byRepCode = await anon.rpc('resolve_customer_identifier', { p_identifier: 'RSGC100004' })
   check('the customer ID resolves', typeof byCode.data === 'string' && byCode.data.includes('@'))
   check('the mobile (with +91) resolves', byPhone.data === byCode.data)
   check('a sponsor ID does not resolve at the customer door', byRepCode.data == null)

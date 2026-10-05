@@ -4,6 +4,7 @@ import {
   Badge, Button, Card, CardHeader, EmptyState, Field, Input, Modal, Select,
   Table, Td, Textarea, Th, useToast,
 } from '@/components/ui'
+import { newTempPassword } from '@/lib/password'
 import { useCreateMember, useDecideReferral, useMembers, useRanks, useReferralQueue, type ReferralRequest } from '@/lib/queries'
 import { date } from '@/lib/format'
 
@@ -132,11 +133,7 @@ function ApproveModal({ referral, onClose }: { referral: ReferralRequest; onClos
   const { data: members = [] } = useMembers()
   const sponsors = members.filter((m) => m.role === 'rep' && m.status === 'active').sort((a, b) => a.full_name.localeCompare(b.full_name))
   // A random first password, shown once, rather than the same one for everyone.
-  const [tempPassword] = useState(() => {
-    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
-    const pick = () => abc[Math.floor(Math.random() * abc.length)]
-    return Array.from({ length: 8 }, pick).join('') + '@' + (10 + Math.floor(Math.random() * 89))
-  })
+  const [tempPassword] = useState(newTempPassword)
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -205,7 +202,7 @@ function ApproveModal({ referral, onClose }: { referral: ReferralRequest; onClos
               name="email"
               type="email"
               required
-              defaultValue={referral.email ?? `${referral.mobile}@members.rgc.local`}
+              defaultValue={referral.email ?? `${referral.mobile}@members.rsgc.local`}
             />
           </Field>
           <Field label="Temporary password" required hint="Share it with the member">

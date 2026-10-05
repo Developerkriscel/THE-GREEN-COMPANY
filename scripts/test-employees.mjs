@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url'
 import pg from 'pg'
 import { createClient } from '@supabase/supabase-js'
 import { junit } from './lib/junit.mjs'
+import { ADMIN, REP } from './lib/test-accounts.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const env = Object.fromEntries(
@@ -23,8 +24,6 @@ const env = Object.fromEntries(
     .map((l) => [l.slice(0, l.indexOf('=')).trim(), l.slice(l.indexOf('=') + 1).trim().replace(/^["']|["']$/g, '')]),
 )
 const BASE = process.env.GATEWAY_URL ?? 'http://localhost:54321'
-const ADMIN = { email: process.env.TEST_ADMIN_EMAIL ?? 'admin@rgc.local', password: process.env.TEST_ADMIN_PASSWORD ?? 'Admin@1234' }
-const REP = { email: process.env.TEST_REP_EMAIL ?? 'rep@rgc.local', password: process.env.TEST_REP_PASSWORD ?? 'Rep@12345' }
 const mk = () => createClient(BASE, env.VITE_SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
 const db = new pg.Client({ connectionString: env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
 db.on('error', (e) => console.log(`  db connection error: ${e.message}`))

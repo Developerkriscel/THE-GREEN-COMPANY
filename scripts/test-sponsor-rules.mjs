@@ -665,19 +665,19 @@ await test('a customer cannot sign in through the sponsor door', member.id, asyn
 await test('an admin cannot sign in through the sponsor door', member.id, async () => {
   // Refusal is a null result, not an exception — raising produced a misleading
   // HTTP 401 for what is an ordinary negative answer.
-  const { rows } = await resolves('admin@rgc.local')
+  const { rows } = await resolves('admin@rsgc.local')
   assert(rows[0].e === null, 'an admin resolved through the sponsor login')
 })
 
 await test('a manager cannot sign in through the sponsor door', member.id, async () => {
-  const { rows } = await resolves('manager@rgc.local')
+  const { rows } = await resolves('manager@rsgc.local')
   assert(rows[0].e === null, 'a manager resolved through the sponsor login')
 })
 
 await test('an unknown ID fails the same way as a wrong password', member.id, async () => {
   // Both answer null, so the page shows one message and cannot be used to
   // discover which identifiers exist.
-  assert((await resolves('RGC999999')).rows[0].e === null, 'unknown ID resolved')
+  assert((await resolves('RSGC999999')).rows[0].e === null, 'unknown ID resolved')
   assert((await resolves('   ')).rows[0].e === null, 'blank ID resolved')
 })
 
@@ -783,7 +783,7 @@ await test('deleted members do not inflate team counts', member.id, async () => 
 // identifier must be an ordinary negative, not an exception that surfaces as a
 // misleading HTTP 401.
 await test('an unknown identifier returns null, it does not raise', member.id, async () => {
-  const { rows } = await client.query(`select public.resolve_login_identifier($1) e`, ['RGC999999'])
+  const { rows } = await client.query(`select public.resolve_login_identifier($1) e`, ['RSGC999999'])
   assert(rows[0].e === null, `expected null, got ${rows[0].e}`)
 })
 
@@ -838,7 +838,7 @@ await test('a referral link wires the sponsor server-side', member.id, async () 
     const uid = (await client.query(`select gen_random_uuid() id`)).rows[0].id
     await client.query(
       `insert into auth.users (id, email, raw_user_meta_data)
-       values ($1, 'ref-rule-test@members.rgc.local',
+       values ($1, 'ref-rule-test@members.rsgc.local',
                jsonb_build_object('full_name', 'Ref Rule Test', 'ref', $2::text))`,
       [uid, String(member.member_code)])
     const r = await client.query(
@@ -856,7 +856,7 @@ await test('an unknown ?ref= code still lets the person register', member.id, as
     const uid = (await client.query(`select gen_random_uuid() id`)).rows[0].id
     await client.query(
       `insert into auth.users (id, email, raw_user_meta_data)
-       values ($1, 'ref-bad-test@members.rgc.local', jsonb_build_object('full_name','Bad Ref','ref','RGC999999'))`,
+       values ($1, 'ref-bad-test@members.rsgc.local', jsonb_build_object('full_name','Bad Ref','ref','RSGC999999'))`,
       [uid])
     created = (await client.query(
       `select count(*)::int n from public.profiles where id = $1 and referrer_id is null`, [uid])).rows[0].n
