@@ -3,18 +3,8 @@ import { BRAND } from '@/lib/brand'
 
 const SB = 'https://dvocohgawbllsboocytf.supabase.co/storage/v1/object/sign/cms-gallery'
 
-export const DIRECTORS = [
-  {
-    name: 'Mr. Amitesh Pandey',
-    role: 'Director',
-    img: `${SB}/1783281809391-10ofwp.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xNjJjYWYwMi1jYWU0LTQyNmEtOWViNi02NzNjNzNjMzdjOWIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMtZ2FsbGVyeS8xNzgzMjgxODA5MzkxLTEwb2Z3cC5qcGciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzMjgxODExLCJleHAiOjIwOTg2NDE4MTF9.-9sDYA62vlZ0CaSf0Ey4S0l7WqzPNEUfVSUhRs6VNak`,
-  },
-  {
-    name: 'Mr. Vikash Singh',
-    role: 'Director',
-    img: `${SB}/1783281831087-5ifxsi.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xNjJjYWYwMi1jYWU0LTQyNmEtOWViNi02NzNjNzNjMzdjOWIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMtZ2FsbGVyeS8xNzgzMjgxODMxMDg3LTVpZnhzaS5qcGciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzMjgxODMyLCJleHAiOjIwOTg2NDE4MzJ9.SysCp5h28xKPO1KdFp3AJf1LZoPV1jhGwbJJnveblbs`,
-  },
-]
+// The two directors were taken off the site on 2026-10-05.
+export const DIRECTORS: { name: string; role: string; img: string }[] = []
 
 export const MANAGING_DIRECTORS = [
   {
