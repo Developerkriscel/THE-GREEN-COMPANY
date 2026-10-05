@@ -19,9 +19,14 @@ export function SalaryRun({ size = 'sm' }: { size?: 'sm' | 'md' }) {
   if (asked) {
     return (
       <span className="inline-flex flex-wrap items-center gap-2 rounded-lg bg-brand-gold/10 px-2 py-1 text-xs text-brand-darker">
-        Credit the {month} bonus to every member whose {month} sales met their target?
+        Credit the {month} bonus (members who met their target) and Board Member income (Diamond, Crown)?
         <Button size="sm" loading={run.isPending} onClick={() => run.mutate(undefined, {
-          onSuccess: (n) => { push('success', n ? `${month} bonus credited to ${n} member${n === 1 ? '' : 's'}.` : `Nothing to credit for ${month} — everyone who qualified has been paid, or no one met their target.`); setAsked(false) },
+          onSuccess: ({ bonus, board }) => {
+            push('success', bonus || board
+              ? `${month}: bonus credited to ${bonus} member${bonus === 1 ? '' : 's'}, Board Member income to ${board}.`
+              : `Nothing to credit for ${month} — everyone due has been paid, or no one qualified.`)
+            setAsked(false)
+          },
           onError: (e) => push('error', (e as Error).message),
         })}>Yes, credit</Button>
         <Button size="sm" variant="ghost" onClick={() => setAsked(false)}>Cancel</Button>

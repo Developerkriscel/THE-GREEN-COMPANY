@@ -16,7 +16,7 @@ import type { Profile, Rank } from '@/lib/types'
 /* ------------------------------------------------------------------ types */
 
 export type IncomeSource =
-  | 'direct_income' | 'level_income' | 'sponsor_income' | 'salary' | 'reward' | 'adjustment'
+  | 'direct_income' | 'level_income' | 'sponsor_income' | 'board_income' | 'salary' | 'reward' | 'adjustment'
 
 export interface LedgerRow {
   id: string
@@ -405,7 +405,7 @@ export function useSponsorProfile(memberId: string | undefined) {
       const { data, error } = await supabase
         .from('profiles')
         .select(`*, rank:ranks!profiles_rank_id_fkey ( id, name, seniority, own_sale_rate, active, description, salary, override_pct,
-                 joining_fee, req_direct, req_team, req_legs, req_rank_sen, req_rank_count, reward_title, reward_sqyd, reward_group_sqyd, bonus_direct_sqyd, bonus_group_sqyd ),
+                 joining_fee, req_direct, req_team, req_legs, req_rank_sen, req_rank_count, reward_title, reward_sqyd, reward_group_sqyd, bonus_direct_sqyd, bonus_group_sqyd, board_pct ),
                  plan_rank:ranks!profiles_plan_rank_id_fkey ( id, name, seniority, own_sale_rate, salary, joining_fee, training_fee ),
                  referrer:profiles!profiles_referrer_id_fkey ( id, full_name, member_code )`)
         .eq('id', memberId!)
@@ -422,7 +422,8 @@ export const INCOME_LABELS: Record<string, string> = {
   direct_income: 'Direct',
   level_income: 'Level',
   sponsor_income: 'Sponsor',
-  salary: 'Salary',
+  board_income: 'Board Member',
+  salary: 'Bonus',
   reward: 'Reward',
   adjustment: 'Adjustment',
 }

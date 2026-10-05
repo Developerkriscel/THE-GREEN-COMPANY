@@ -6,18 +6,6 @@ export function AboutPage() {
 
   const DIRECTORS = [
     {
-      name: 'Mr. Amitesh Pandey',
-      title: 'Director',
-      img: `${SB}/1783281809391-10ofwp.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xNjJjYWYwMi1jYWU0LTQyNmEtOWViNi02NzNjNzNjMzdjOWIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMtZ2FsbGVyeS8xNzgzMjgxODA5MzkxLTEwb2Z3cC5qcGciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzMjgxODExLCJleHAiOjIwOTg2NDE4MTF9.-9sDYA62vlZ0CaSf0Ey4S0l7WqzPNEUfVSUhRs6VNak`,
-      bio: `A visionary leader driving ${BRAND.name}'s growth with deep industry expertise and a passion for creating real value for every stakeholder.`,
-    },
-    {
-      name: 'Mr. Vikash Singh',
-      title: 'Director',
-      img: `${SB}/1783281831087-5ifxsi.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xNjJjYWYwMi1jYWU0LTQyNmEtOWViNi02NzNjNzNjMzdjOWIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMtZ2FsbGVyeS8xNzgzMjgxODMxMDg3LTVpZnhzaS5qcGciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzMjgxODMyLCJleHAiOjIwOTg2NDE4MzJ9.SysCp5h28xKPO1KdFp3AJf1LZoPV1jhGwbJJnveblbs`,
-      bio: 'Leading operations and strategy with a focus on transparency, ethical business, and empowering associates to achieve long-term success.',
-    },
-    {
       name: 'Mr. Om Prakash Kumar',
       title: 'Managing Director',
       img: `${SB}/1783281568648-97y54j.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xNjJjYWYwMi1jYWU0LTQyNmEtOWViNi02NzNjNzNjMzdjOWIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMtZ2FsbGVyeS8xNzgzMjgxNTY4NjQ4LTk3eTU0ai5qcGciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzMjgxNTcxLCJleHAiOjIwOTg2NDE1NzF9.N2pyp9iUOgQ3x_TRPix5mdH9EBwRPtVOXPRE7LxZDKI`,
@@ -130,11 +118,11 @@ export function AboutPage() {
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="text-center mb-14">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Leadership</span>
-            <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">Meet Our Directors</h2>
+            <h2 className="mt-3 text-3xl font-extrabold text-brand-darker">Meet Our Managing Director</h2>
             <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 text-gray-500">Guiding {BRAND.name} with vision, integrity, and a commitment to excellence.</p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-8">
+          <div className="mx-auto grid max-w-sm gap-8">
             {DIRECTORS.map(d => (
               <div key={d.name} className="rounded-2xl bg-white border border-gray-100 overflow-hidden shadow-sm hover:shadow-elegant transition-all group">
                 <div className="h-64 overflow-hidden bg-brand-dark">

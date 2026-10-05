@@ -43,6 +43,8 @@ export interface Rank {
   /** Monthly bonus needs this much own / team sales that month (deck slide 9). */
   bonus_direct_sqyd?: number
   bonus_group_sqyd?: number
+  /** Board Member income: % of the team's monthly turnover (deck slide 6). */
+  board_pct?: number
 }
 
 export interface Profile {

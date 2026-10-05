@@ -51,6 +51,8 @@ export function rankFeatures(r: Rank): string {
   const fee = Number(r.training_fee ?? 0)
   if (fee > 0) parts.push(`${money(fee)} training fee`)
   if (r.training_note) parts.push(r.training_note)
+  const board = Number(r.board_pct ?? 0)
+  if (board > 0) parts.push(`Board Member: ${board}% of team turnover`)
   const salary = Number(r.salary ?? 0)
   if (salary > 0) parts.push(`${money(salary)} monthly bonus${bonusCondition(r) ? ` at ${bonusCondition(r)}` : ''}`)
   if (r.reward_title) {

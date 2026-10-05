@@ -21,17 +21,18 @@ import { date, money, num, pct } from '@/lib/format'
  * sale reference, never the seller's money.
  */
 
-// 'Sponsor' is deliberately absent: the rank override is not paid alongside
-// level income (it would pay the upline twice on one sale), so a Sponsor tab
-// could only ever be empty. Re-add it if the override is implemented as a
-// rank differential.
-const TABS = ['Direct', 'Level', 'Salary', 'Rewards'] as const
+// Sponsor income is the slab difference on a team member's sale (deck slide
+// 7); Board is Diamond / Crown's 1% of team turnover (slide 6); Bonus is the
+// monthly bonus / incentive (slide 9).
+const TABS = ['Direct', 'Sponsor', 'Level', 'Board', 'Bonus', 'Rewards'] as const
 type TabName = (typeof TABS)[number]
 
 const SOURCE_FOR: Record<TabName, string> = {
   Direct: 'direct_income',
+  Sponsor: 'sponsor_income',
   Level: 'level_income',
-  Salary: 'salary',
+  Board: 'board_income',
+  Bonus: 'salary',
   Rewards: 'reward',
 }
 
@@ -146,11 +147,11 @@ export function SponsorIncome({ initialTab = 'Direct' }: { initialTab?: TabName 
               <tr>
                 <Th>Date</Th>
                 {tab === 'Level' && <Th>Level</Th>}
-                {tab === 'Level' && <Th>From member</Th>}
-                {(tab === 'Direct' || tab === 'Level') && <Th>Sale</Th>}
-                {(tab === 'Direct' || tab === 'Level') && <Th className="text-right">Area</Th>}
-                {(tab === 'Direct' || tab === 'Level') && <Th className="text-right">Rate</Th>}
-                {tab === 'Salary' && <Th>Month</Th>}
+                {(tab === 'Level' || tab === 'Sponsor') && <Th>From member</Th>}
+                {(tab === 'Direct' || tab === 'Level' || tab === 'Sponsor') && <Th>Sale</Th>}
+                {(tab === 'Direct' || tab === 'Level' || tab === 'Sponsor') && <Th className="text-right">Area</Th>}
+                {(tab === 'Direct' || tab === 'Level' || tab === 'Sponsor') && <Th className="text-right">Rate</Th>}
+                {(tab === 'Bonus' || tab === 'Board') && <Th>Month</Th>}
                 {tab === 'Rewards' && <Th>Reward</Th>}
                 <Th className="text-right">Gross → net</Th>
                 <Th>Status</Th>
@@ -206,26 +207,26 @@ function IncomeRow({
           <Badge tone="blue">Level {row.level}</Badge>
         </Td>
       )}
-      {tab === 'Level' && (
+      {(tab === 'Level' || tab === 'Sponsor') && (
         <Td className="text-xs">
           <span className="font-medium text-slate-800">{fromName}</span>
           {fromCode && <span className="ml-1 font-mono text-slate-400">{fromCode}</span>}
         </Td>
       )}
 
-      {(tab === 'Direct' || tab === 'Level') && (
+      {(tab === 'Direct' || tab === 'Level' || tab === 'Sponsor') && (
         <Td className="font-mono text-xs text-slate-600">{row.reference ?? '—'}</Td>
       )}
-      {(tab === 'Direct' || tab === 'Level') && (
+      {(tab === 'Direct' || tab === 'Level' || tab === 'Sponsor') && (
         <Td className="text-right text-xs">
           <Area value={row.area_sqyd} />
         </Td>
       )}
-      {(tab === 'Direct' || tab === 'Level') && (
+      {(tab === 'Direct' || tab === 'Level' || tab === 'Sponsor') && (
         <Td className="text-right text-xs text-slate-600">
           {row.rate_applied === null
             ? '—'
-            : tab === 'Direct'
+            : tab === 'Direct' || tab === 'Sponsor'
               ? pct(row.rate_applied)
               : // Before 29 Sep 2026 level income was paid per 100 sq yd; the
                 // stored gross says which basis a row was paid on.
@@ -235,7 +236,7 @@ function IncomeRow({
         </Td>
       )}
 
-      {tab === 'Salary' && <Td className="text-xs">{row.reference?.replace('SALARY-', '') ?? '—'}</Td>}
+      {(tab === 'Bonus' || tab === 'Board') && <Td className="text-xs">{row.reference?.replace(/^(SALARY|BOARD)-/, '') ?? '—'}</Td>}
       {tab === 'Rewards' && <Td className="text-xs">{row.note ?? row.reference ?? '—'}</Td>}
 
       <Td>
@@ -264,11 +265,11 @@ function EmptyTab({
   salaryRankName?: string
   qualifies: boolean
 }) {
-  if (tab === 'Salary' && !qualifies) {
+  if (tab === 'Bonus' && !qualifies) {
     return (
       <EmptyState
-        title="Your rank does not include a salary yet"
-        description={`A fixed monthly salary starts at ${salaryRankName ?? 'the senior ranks'}. Keep building your team to qualify.`}
+        title="Your rank does not include a monthly bonus yet"
+        description={`The monthly bonus starts at ${salaryRankName ?? 'the senior ranks'}. Keep building your team to qualify.`}
         action={
           <Link to="/sponsor/rank" className="text-sm font-medium text-brand-700 hover:underline">
             See what the next rank needs
@@ -279,8 +280,10 @@ function EmptyTab({
   }
   const copy: Record<TabName, string> = {
     Direct: 'Direct income appears here when a plot you sold personally is confirmed.',
+    Sponsor: 'When someone in your team on a lower slab sells, you earn the difference between your slab and theirs. It appears here.',
     Level: 'Level income appears here when a member in your team makes a sale.',
-    Salary: 'Your monthly salary will appear here each month you qualify.',
+    Board: 'Diamond and Crown are Board Members: 1% of your team’s turnover each month appears here.',
+    Bonus: 'Your monthly bonus appears here for each month your team and own sales meet your rank’s target.',
     Rewards: 'Reward income appears here when you unlock a reward tier.',
   }
   return <EmptyState title={`No ${tab.toLowerCase()} income yet`} description={copy[tab]} />

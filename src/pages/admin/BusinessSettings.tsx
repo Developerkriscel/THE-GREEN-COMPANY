@@ -247,6 +247,7 @@ type RankForm = {
   reward_group_sqyd: string
   bonus_direct_sqyd: string
   bonus_group_sqyd: string
+  board_pct: string
   req_direct: string
   req_team: string
   req_legs: string
@@ -274,6 +275,7 @@ function toForm(r: Rank | null, nextSeniority: number): RankForm {
     reward_group_sqyd: s(r?.reward_group_sqyd ?? 0),
     bonus_direct_sqyd: s(r?.bonus_direct_sqyd ?? 0),
     bonus_group_sqyd: s(r?.bonus_group_sqyd ?? 0),
+    board_pct: s(r?.board_pct ?? 0),
     req_direct: s(r?.req_direct ?? 0),
     req_team: s(r?.req_team ?? 0),
     req_legs: s(r?.req_legs ?? 0),
@@ -345,6 +347,7 @@ function RankPlanTab() {
         reward_group_sqyd: n(f.reward_group_sqyd),
         bonus_direct_sqyd: n(f.bonus_direct_sqyd),
         bonus_group_sqyd: n(f.bonus_group_sqyd),
+        board_pct: n(f.board_pct),
         req_direct: n(f.req_direct),
         req_team: n(f.req_team),
         req_legs: n(f.req_legs),
@@ -519,11 +522,14 @@ function RankPlanTab() {
               <Field label="Own sale %" hint="Paid on the member's own sales (direct slab)." required>
                 <Input type="number" min={0} max={100} step="0.01" value={editing.own_sale_rate} onChange={(e) => set('own_sale_rate', e.target.value)} />
               </Field>
-              <Field label="Sponsor %" hint="Shown on the plan only — not paid automatically. The upline is paid by level income on every sale.">
+              <Field label="Sponsor %" hint="Shown on the plan. Sponsor income is paid automatically as the difference between an upline's own-sale % and the % below them.">
                 <Input type="number" min={0} max={100} step="0.01" value={editing.override_pct} onChange={(e) => set('override_pct', e.target.value)} />
               </Field>
               <Field label="Monthly bonus / incentive (₹)" hint="Credited for a month when the office presses “Credit bonus”, to members whose sales that month met the targets below.">
                 <Input type="number" min={0} step="1" value={editing.salary} onChange={(e) => set('salary', e.target.value)} />
+              </Field>
+              <Field label="Board Member income (% of team turnover)" hint="Deck slide 6: Diamond and Crown 1%. Paid monthly with the bonus run.">
+                <Input type="number" min={0} max={100} step="0.01" value={editing.board_pct} onChange={(e) => set('board_pct', e.target.value)} />
               </Field>
               <Field label="Bonus needs: team sales a month (sq yd group)" hint="Deck slide 9, e.g. AGM 50">
                 <Input type="number" min={0} step="1" value={editing.bonus_group_sqyd} onChange={(e) => set('bonus_group_sqyd', e.target.value)} />

@@ -175,6 +175,7 @@ const sponsorNav: NavItem[] = [
   { to: '/sponsor/leads', label: 'Lead Follow-up', short: 'Leads', icon: <Phone className={ico} /> },
   { to: '/sponsor/wallet', label: 'My Wallet', short: 'Wallet', icon: <Wallet className={ico} /> },
   { to: '/sponsor/income/direct', label: 'Direct Income', icon: <TrendingUp className={ico} /> },
+  { to: '/sponsor/income/sponsor', label: 'Sponsor Income', icon: <Network className={ico} /> },
   { to: '/sponsor/income/level', label: 'Level Income', icon: <Layers className={ico} /> },
   { to: '/sponsor/withdrawals', label: 'Withdrawals', icon: <Banknote className={ico} /> },
   { to: '/sponsor/team', label: 'My Team', icon: <Users className={ico} /> },
@@ -307,6 +308,7 @@ export function App() {
           {/* Keyed so switching between the two remounts and picks up the tab. */}
           <Route path="income/direct" element={<SponsorIncome key="direct" initialTab="Direct" />} />
           <Route path="income/level" element={<SponsorIncome key="level" initialTab="Level" />} />
+          <Route path="income/sponsor" element={<SponsorIncome key="sponsor" initialTab="Sponsor" />} />
           <Route path="direct-income" element={<SponsorIncome key="direct-alias" initialTab="Direct" />} />
           <Route path="level-income" element={<SponsorIncome key="level-alias" initialTab="Level" />} />
           <Route path="leads" element={<SponsorLeads />} />

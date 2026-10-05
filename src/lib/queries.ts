@@ -705,14 +705,20 @@ export function useDistributeIncome() {
   })
 }
 
-/** Credit the monthly rank salary. Safe to re-run for the same month. */
+/**
+ * The month-end run for the month just ended: the monthly bonus (members who
+ * met their sales target) and Board Member income (1% of team turnover).
+ * Safe to re-run: each is paid once per member per month.
+ */
 export function useCreditSalary() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.rpc('credit_monthly_salary', {})
       if (error) throw new Error(error.message)
-      return Number(data ?? 0)
+      const { data: board, error: boardErr } = await supabase.rpc('credit_board_income', {})
+      if (boardErr) throw new Error(boardErr.message)
+      return { bonus: Number(data ?? 0), board: Number(board ?? 0) }
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['member-ledger'] })
