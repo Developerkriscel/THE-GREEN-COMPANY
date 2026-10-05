@@ -1,5 +1,8 @@
 import { RewardArt } from '@/components/RewardArt'
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useWebsiteRewards } from '@/lib/website-rewards'
+import { licenseUrl, rewardPhotoCredit } from '@/lib/reward-photos'
 
 const RGA = 'https://royalgreencompany.com/assets'
 
@@ -19,6 +22,15 @@ export const REWARDS = [
 export function RewardsPage() {
   // Website CMS -> Rewards (the rank plan's rewards only if that list is empty).
   const rewards = useWebsiteRewards()
+  const credited = rewards.flatMap((r) => {
+    const c = rewardPhotoCredit(r.img)
+    return c ? [{ key: r.key, title: r.title, rank: r.rank, ...c }] : []
+  })
+  // "Photo credits" on the home page links here with #photo-credits.
+  const { hash } = useLocation()
+  useEffect(() => {
+    if (hash && rewards.length) document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' })
+  }, [hash, rewards.length])
   return (
     <>
       {/* Hero */}
@@ -45,21 +57,18 @@ export function RewardsPage() {
           ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {rewards.map((r) => (
-              <div key={r.key} className="group rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant transition-all duration-300 overflow-hidden">
-                <div className="relative h-52 overflow-hidden">
+              <div key={r.key} className="group flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant transition-all duration-300 overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden bg-brand-dark">
                   {r.img ? (
-                    <img src={r.img} alt={r.title}
+                    <img src={r.img} alt={r.title} loading="lazy"
                       className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
                   ) : (
-                    <RewardArt title={r.title} className="h-52" />
+                    <RewardArt title={r.title} className="h-full" />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
-                  {r.rank && (
-                    <span className="absolute top-3 left-3 rounded-full bg-gold-metal px-3 py-1 text-xs font-bold text-brand-darker uppercase tracking-wider shadow">
-                      {r.rank}
-                    </span>
-                  )}
-                  <p className="absolute bottom-3 left-3 text-lg font-extrabold text-white drop-shadow">{r.title}</p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <div className="absolute inset-x-3 bottom-3 text-center">
+                    <p className="text-xl font-extrabold leading-tight text-white drop-shadow">{r.title}</p>
+                  </div>
                 </div>
                 <div className="p-5">
                   <div className="grid grid-cols-2 gap-3">
@@ -80,6 +89,22 @@ export function RewardsPage() {
               </div>
             ))}
           </div>
+          )}
+
+          {credited.length > 0 && (
+            <details id="photo-credits" className="mt-8 scroll-mt-28 rounded-2xl border border-gray-100 bg-gray-50 p-5 text-sm text-gray-600" open={hash === '#photo-credits'}>
+              <summary className="cursor-pointer font-semibold text-brand-darker">Photo credits</summary>
+              <p className="mt-2 text-xs text-gray-500">Photos are illustrative of each reward and are from Wikimedia Commons, cropped to fit.</p>
+              <ul className="mt-3 grid gap-x-6 gap-y-1.5 text-xs sm:grid-cols-2">
+                {credited.map((c) => (
+                  <li key={c.key}>
+                    <span className="font-medium text-brand-darker">{c.title}{c.rank ? ` (${c.rank})` : ''}</span>
+                    {' — '}<a href={c.source} target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-primary">photo</a>
+                    {' by '}{c.author}, <a href={licenseUrl(c.license)} target="_blank" rel="noopener noreferrer license" className="underline hover:text-brand-primary">{c.license}</a>
+                  </li>
+                ))}
+              </ul>
+            </details>
           )}
 
           {/* Disclaimer */}

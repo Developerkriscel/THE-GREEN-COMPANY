@@ -74,20 +74,20 @@ export function LeadersSection({ leaders }: { leaders: Leader[] }) {
           {leaders.map((l, i) => (
             <article key={l.id} id={`leader-${i + 1}`}
               className="grid scroll-mt-28 items-center gap-10 rounded-3xl border border-white/10 bg-black/15 p-6 backdrop-blur-sm sm:p-10 lg:grid-cols-[1.15fr_1fr]">
-              <div className={i % 2 ? 'lg:order-2' : ''}>
+              <div className={`text-center lg:text-left ${i % 2 ? 'lg:order-2' : ''}`}>
                 <span className="inline-flex items-center gap-2 rounded-full border border-brand-gold/50 bg-black/20 px-4 py-1.5 text-xs font-bold uppercase tracking-[.25em] text-brand-gold-light">
                   <Crown className="h-4 w-4" /> Rank #{i + 1} Champion
                 </span>
                 <h3 className="mt-5 text-3xl font-extrabold leading-tight text-white sm:text-4xl">{l.name}</h3>
-                {l.achievement && <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/75">{l.achievement}</p>}
-                <div className="mt-7 grid max-w-lg grid-cols-3 gap-3">
+                {l.achievement && <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg lg:mx-0">{l.achievement}</p>}
+                <div className="mx-auto mt-7 grid max-w-lg grid-cols-3 gap-2 sm:gap-3 lg:mx-0">
                   {[
                     [l.direct_team || '—', 'Direct team'],
                     [l.total_sales || '—', 'Total sales'],
                     [l.rank || '—', 'Rank'],
                   ].map(([v, k]) => (
-                    <div key={k} className="rounded-2xl border border-white/10 bg-white/[0.06] px-3 py-4 text-center">
-                      <p className="text-lg font-extrabold text-brand-gold-light sm:text-2xl">{v}</p>
+                    <div key={k} className="flex flex-col justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-1.5 py-4 text-center sm:px-3">
+                      <p className="text-[15px] font-extrabold leading-tight text-brand-gold-light sm:text-2xl">{v}</p>
                       <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-white/55 sm:text-xs">{k}</p>
                     </div>
                   ))}

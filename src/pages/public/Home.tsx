@@ -111,18 +111,20 @@ function incomeStreams(ranks: Rank[]) {
   ]
 }
 
-/** The company's name, motto and logo, set large: a section heading on its own. */
+/**
+ * The company's name, motto and logo, set large: a section heading on its own.
+ * Always one centred column (logo, name, PRIVATE LIMITED, motto) so every line
+ * sits on the same axis as the section title above it.
+ */
 function CompanyHeading({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   const short = BRAND.short || BRAND.name
   const rest = BRAND.name.toUpperCase().startsWith(short.toUpperCase()) ? BRAND.name.slice(short.length).trim() : ''
   return (
-    <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left">
-      <img src={BRAND.markSquare} alt="" className="h-20 w-20 shrink-0 object-contain drop-shadow-lg sm:h-24 sm:w-24" />
-      <div className="leading-tight">
-        <p className={`text-2xl font-extrabold uppercase tracking-wide sm:text-3xl lg:text-4xl ${tone === 'dark' ? 'text-gold-metal' : 'text-brand-darker'}`}>{short}</p>
-        {rest && <p className={`mt-1 text-xs font-bold uppercase tracking-[0.3em] sm:text-sm ${tone === 'dark' ? 'text-white/60' : 'text-brand-gold-deep'}`}>{rest}</p>}
-        {BRAND.tagline && <p className={`mt-1.5 text-base font-semibold italic sm:text-lg ${tone === 'dark' ? 'text-brand-gold-light' : 'text-brand-gold-deep'}`}>{BRAND.tagline}</p>}
-      </div>
+    <div className="mx-auto flex max-w-3xl flex-col items-center text-center leading-tight">
+      <img src={BRAND.markSquare} alt="" className="h-20 w-20 object-contain drop-shadow-lg sm:h-24 sm:w-24" />
+      <p className={`mt-3 text-2xl font-extrabold uppercase tracking-wide sm:text-3xl lg:text-4xl ${tone === 'dark' ? 'text-gold-metal' : 'text-brand-darker'}`}>{short}</p>
+      {rest && <p className={`mt-1.5 text-xs font-bold uppercase tracking-[0.3em] sm:text-sm ${tone === 'dark' ? 'text-white/60' : 'text-brand-gold-deep'}`}>{rest}</p>}
+      {BRAND.tagline && <p className={`mt-2 text-base font-semibold italic sm:text-lg ${tone === 'dark' ? 'text-brand-gold-light' : 'text-brand-gold-deep'}`}>{BRAND.tagline}</p>}
     </div>
   )
 }
@@ -442,7 +444,7 @@ export function Home() {
             <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary">Award Achievers Gallery</span>
             <h2 className="mt-2 text-3xl font-extrabold text-brand-darker sm:text-4xl">Board of Members</h2>
             <div className="gold-rule" aria-hidden><i /></div>
-            <div className="mt-6 flex justify-center"><CompanyHeading tone="light" /></div>
+            <div className="mt-6"><CompanyHeading tone="light" /></div>
           </div>
 
           <div className="relative flex overflow-hidden">
@@ -450,9 +452,9 @@ export function Home() {
               {[...boardLoop, ...boardLoop].map((m, i) => (
                 <div key={i} className="group relative h-[320px] w-[240px] flex-shrink-0 overflow-hidden rounded-2xl shadow-md ring-1 ring-brand-gold/30">
                   <PersonPhoto src={m.photo_url} name={m.name} className="absolute inset-0 h-full w-full transition-transform duration-500 group-hover:scale-105" initialsClass="text-6xl" />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4">
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent px-4 pb-4 pt-12 text-center">
                     <p className="text-xs font-bold uppercase tracking-widest text-brand-primary-glow">{m.designation}</p>
-                    <p className="text-base font-bold text-white">{m.name}</p>
+                    <p className="mt-0.5 text-base font-bold text-white">{m.name}</p>
                   </div>
                 </div>
               ))}
@@ -514,7 +516,7 @@ export function Home() {
         <div className="mx-auto max-w-screen-xl px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Rewards</span>
-            <div className="mt-5 flex justify-center"><CompanyHeading /></div>
+            <div className="mt-5"><CompanyHeading /></div>
             <div className="gold-rule" aria-hidden><i /></div>
             <p className="mt-3 mx-auto max-w-xl text-base text-white/50">
               Every rank brings a reward once your direct and group sales reach its target. Rewards count after 50% payment, every 4 months — 1 Sep 2026 to 31 Dec 2026.
@@ -522,33 +524,36 @@ export function Home() {
           </div>
 
           {rewards.length > 0 && (
+            <>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {rewards.map((r) => (
-                <div key={r.key} className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition-all duration-300 hover:border-brand-primary-glow/40">
-                  <div className="relative">
+                <div key={r.key} className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-center transition-all duration-300 hover:border-brand-primary-glow/40">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-brand-dark">
                     {r.img
-                      ? <img src={r.img} alt={r.title} loading="lazy" className="h-28 w-full object-cover" />
-                      : <RewardArt title={r.title} className="h-28" />}
+                      ? <img src={r.img} alt={r.title} loading="lazy" className="h-full w-full object-cover" />
+                      : <RewardArt title={r.title} className="h-full" />}
                     {r.rank && (
-                      <span className="absolute left-2 top-2 rounded-full bg-gold-metal px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-darker shadow">
+                      <span className="absolute inset-x-0 bottom-2 mx-auto w-fit max-w-[92%] rounded-full bg-gold-metal px-3 py-0.5 text-[10px] leading-tight font-bold uppercase tracking-wider text-brand-darker shadow sm:text-[11px]">
                         {r.rank}
                       </span>
                     )}
                   </div>
-                  <div className="p-4">
-                    <h3 className="text-sm font-bold text-white sm:text-base">
-                      {r.title}
-                      {r.slab && <span className="ml-1.5 rounded bg-brand-primary-glow/15 px-1.5 py-0.5 align-middle text-[10px] font-bold text-brand-primary-glow">{r.slab}</span>}
-                    </h3>
+                  <div className="flex flex-1 flex-col items-center px-3 py-4 sm:px-4">
+                    <h3 className="text-sm font-bold leading-snug text-white sm:text-base">{r.title}</h3>
+                    {r.slab && <span className="mt-1.5 rounded-full bg-brand-primary-glow/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-primary-glow">Slab {r.slab}</span>}
                     {r.target && (
-                      <p className="mt-1 flex items-start gap-1 text-xs text-white/60">
-                        <Ruler className="mt-0.5 h-3 w-3 shrink-0 text-brand-primary-glow" /> {r.target}
+                      <p className="mt-auto flex items-center justify-center gap-1.5 pt-3 text-xs leading-snug text-white/60">
+                        <Ruler className="h-3 w-3 shrink-0 text-brand-primary-glow" /> <span>{r.target}</span>
                       </p>
                     )}
                   </div>
                 </div>
               ))}
             </div>
+            <p className="mt-4 text-center text-[11px] text-white/35">
+              Photos are illustrative. <Link to="/rewards#photo-credits" className="underline hover:text-white/60">Photo credits</Link>
+            </p>
+            </>
           )}
 
           <div className="mt-8 text-center">
