@@ -90,7 +90,7 @@ export function AdminCms() {
         <CmsContentTab
           table="achievers"
           title="Achievers"
-          subtitle="The “Real leaders. Real rewards.” cards on the home page, in this order."
+          subtitle="The “Meet Our Top Achiever” spotlight and the “Real leaders. Real rewards.” cards on the home page, in this order (#1 first)."
           imageField="photo_url"
           titleField="name"
           subtitleField="rank"
@@ -100,6 +100,7 @@ export function AdminCms() {
             { name: 'rank', label: 'Rank' },
             { name: 'direct_team', label: 'Direct team' },
             { name: 'total_sales', label: 'Total sales' },
+            { name: 'achievement', label: 'Spotlight paragraph', type: 'textarea', hint: 'Shown under “Meet Our Top Achiever” when this leader is in the spotlight.' },
             { name: 'photo_url', label: 'Photo', type: 'image' },
           ]}
         />

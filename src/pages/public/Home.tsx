@@ -8,7 +8,7 @@ import { money, num } from '@/lib/format'
 import { RewardArt } from '@/components/RewardArt'
 import type { Rank } from '@/lib/types'
 import { useWebsiteRewards } from '@/lib/website-rewards'
-import { assetUrl } from '@/lib/supabase'
+import { LeadersSection, PersonPhoto, type Leader } from '@/components/LeadersSection'
 
 const HERO_DEFAULTS = {
   badge: '90 Days Training — Registrations Open',
@@ -284,9 +284,11 @@ export function Home() {
     hero.secondary_cta_link = HERO_DEFAULTS.secondary_cta_link
     hero.secondary_cta_label = HERO_DEFAULTS.secondary_cta_label
   }
-  const { data: leaders = [] } = useCmsContent<{ id: string; name: string; rank: string; photo_url: string; direct_team: string | null; total_sales: string | null }>('achievers', { activeOnly: true })
+  const { data: leaders = [] } = useCmsContent<Leader>('achievers', { activeOnly: true })
   const { data: team = [] } = useCmsContent<{ id: string; name: string; designation: string; category: string; photo_url: string }>('team_members', { activeOnly: true })
-  const board = team.filter((m) => m.category === 'director' || m.category === 'managing_director')
+  // Every member on the Team page: directors and managing directors first, then the rest.
+  const catOrder: Record<string, number> = { director: 0, managing_director: 1, branch_manager: 2, rank_achiever: 3 }
+  const board = [...team].sort((a, b) => (catOrder[a.category] ?? 9) - (catOrder[b.category] ?? 9))
   // Enough cards to fill a wide screen; the strip is then doubled for a seamless loop.
   const boardLoop = board.length ? Array.from({ length: Math.ceil(8 / board.length) }, () => board).flat() : []
   return (
@@ -430,64 +432,8 @@ export function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════ REAL LEADERS (Website CMS → Achievers) ══════════════════════ */}
-      {leaders.length > 0 && (
-        <section
-          className="py-20 relative overflow-hidden"
-          style={{ background: 'radial-gradient(circle at 85% 15%, rgb(var(--c-gold) / .2), transparent 45%), linear-gradient(135deg, rgb(var(--c-dark)) 0%, rgb(var(--c-darker)) 55%, rgb(var(--c-leaf-dark)) 100%)' }}
-        >
-          <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
-            style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-          <div className="relative mx-auto max-w-screen-xl px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <span className="text-xs font-bold uppercase tracking-[.2em] text-brand-primary-glow">Meet Our Top Achievers</span>
-              <h2 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl lg:text-5xl leading-tight">
-                Real leaders. <span className="text-brand-primary-glow">Real rewards.</span>
-              </h2>
-              <div className="gold-rule" aria-hidden><i /></div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
-              {leaders.map((l, i) => (
-                <div key={l.id ?? l.name} className="group relative overflow-hidden rounded-2xl border border-brand-gold/25 bg-white/[0.06] backdrop-blur transition hover:-translate-y-1 hover:border-brand-gold/60">
-                  <div className="relative h-72 overflow-hidden bg-brand-dark sm:h-64 lg:h-56">
-                    {l.photo_url ? (
-                      <img src={assetUrl(l.photo_url) ?? ''} alt={l.name} loading="lazy" className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-5xl font-black text-white/25">{initialsOf(l.name)}</div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-                    <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-gold-metal text-sm font-black text-brand-darker shadow">{i + 1}</span>
-                    <div className="absolute inset-x-3 bottom-3">
-                      <p className="text-lg font-extrabold leading-tight text-white">{l.name}</p>
-                      {l.rank && <span className="mt-1 inline-block rounded-full bg-gold-metal px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-brand-darker">{l.rank}</span>}
-                    </div>
-                  </div>
-                  <dl className="grid grid-cols-2 divide-x divide-white/10 text-center">
-                    <div className="px-2 py-3">
-                      <dt className="text-[10px] font-semibold uppercase tracking-wider text-white/50">Direct team</dt>
-                      <dd className="mt-0.5 text-lg font-extrabold text-brand-primary-glow">{l.direct_team || '—'}</dd>
-                    </div>
-                    <div className="px-2 py-3">
-                      <dt className="text-[10px] font-semibold uppercase tracking-wider text-white/50">Total sales</dt>
-                      <dd className="mt-0.5 text-lg font-extrabold text-brand-primary-glow">{l.total_sales || '—'}</dd>
-                    </div>
-                  </dl>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-10 text-center">
-              <Link to="/register" className="btn-gold rounded-xl px-7 py-3 text-sm">
-                Chase the Crown
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* ══════════════════════ TOP ACHIEVER SPOTLIGHT + REAL LEADERS (Website CMS → Achievers) ══════════════════════ */}
+      <LeadersSection leaders={leaders} />
 
       {/* ══════════════════════ BOARD OF MEMBERS (Website CMS → Team: directors) ══════════════════════ */}
       {board.length > 0 && (
@@ -503,11 +449,7 @@ export function Home() {
             <div className="flex min-w-max gap-5 animate-marquee hover:[animation-play-state:paused]">
               {[...boardLoop, ...boardLoop].map((m, i) => (
                 <div key={i} className="group relative h-[320px] w-[240px] flex-shrink-0 overflow-hidden rounded-2xl shadow-md ring-1 ring-brand-gold/30">
-                  {m.photo_url ? (
-                    <img src={assetUrl(m.photo_url) ?? ''} alt={m.name} className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
-                  ) : (
-                    <div className="bg-leaf-deep absolute inset-0 flex items-center justify-center text-6xl font-black text-white/25">{initialsOf(m.name)}</div>
-                  )}
+                  <PersonPhoto src={m.photo_url} name={m.name} className="absolute inset-0 h-full w-full transition-transform duration-500 group-hover:scale-105" initialsClass="text-6xl" />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4">
                     <p className="text-xs font-bold uppercase tracking-widest text-brand-primary-glow">{m.designation}</p>
                     <p className="text-base font-bold text-white">{m.name}</p>

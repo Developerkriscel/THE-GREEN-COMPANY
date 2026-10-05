@@ -184,7 +184,7 @@ export function CmsContentTab({
                   aspect={fld.name === 'photo_url' ? 'square' : 'wide'} />
               </Field>
             ) : fld.type === 'textarea' ? (
-              <Field key={fld.name} label={fld.label} required={fld.required}>
+              <Field key={fld.name} label={fld.label} required={fld.required} hint={fld.hint}>
                 <Textarea name={fld.name} rows={3} defaultValue={String(editing?.[fld.name] ?? '')} required={fld.required} />
               </Field>
             ) : fld.type === 'select' ? (
