@@ -15,6 +15,7 @@ import { resolveWelcomeLetter, WelcomeLetterView, type WelcomeLetter } from '@/l
 import { Badge, Button, Card, CardHeader, EmptyState, PageHeader, StatTile, Table, Td, Th } from '@/components/ui'
 import { KycBadge, RankBadge } from '@/components/status'
 import { MemberStatusBadge, NetAmount, Notice, ProgressBar, SkeletonRows, SkeletonTiles } from '@/components/sponsor'
+import { useMyCustomerDues } from './Customers'
 import { date, money, moneyShort, num } from '@/lib/format'
 
 /**
@@ -23,6 +24,7 @@ import { date, money, moneyShort, num } from '@/lib/format'
  */
 export function SponsorDashboard() {
   const { profile } = useAuth()
+  const dues = useMyCustomerDues(profile?.id)
   const me = profile?.id
 
   const [showWelcomeLetter, setShowWelcomeLetter] = useState(false)
@@ -131,6 +133,11 @@ export function SponsorDashboard() {
           onHold && (
             <Notice key="hold" tone="error" title="Your account is on hold.">
               Please contact the office. You can still view everything here.
+            </Notice>
+          ),
+          dues.lateCustomers > 0 && (
+            <Notice key="dues" tone="warn" title={`${dues.lateCustomers} of your customers ${dues.lateCustomers === 1 ? 'has' : 'have'} overdue payments (${money(dues.overdueAmount)}).`} to="/sponsor/customers" action="Remind them">
+              Send a WhatsApp or panel reminder from My Customers.
             </Notice>
           ),
           !kycLoading && (!kyc || kyc.status === 'rejected') ? (

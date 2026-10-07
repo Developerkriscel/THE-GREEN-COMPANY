@@ -13,6 +13,7 @@ import {
 } from '@/lib/queries'
 import { itemLabel, PAY_MODES } from '@/lib/plot-sale'
 import { NewPlotSale } from '@/components/NewPlotSale'
+import { useRunRemindersNow } from '@/lib/reminders'
 
 interface CrmEmi {
   id: string
@@ -136,14 +137,16 @@ export function AdminPaymentsCrm() {
     onError: (e: Error) => push('error', e.message),
   })
 
-  const runReminders = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase.functions.invoke('flag-overdue-emis', { body: {} })
-      if (error) throw new Error(error.message)
-    },
-    onSuccess: () => { push('success', 'Reminders processed for overdue installments.'); refresh() },
-    onError: (e: Error) => push('error', e.message),
-  })
+  // The same pass the gateway runs every hour (marks overdue, sends the due
+  // soon / due today / overdue reminders to customers and sponsors, once each).
+  const runRemindersNow = useRunRemindersNow()
+  const runReminders = {
+    isPending: runRemindersNow.isPending,
+    mutate: () => runRemindersNow.mutate(undefined, {
+      onSuccess: (n) => { push('success', n ? `${n} reminder message(s) sent to customers and sponsors.` : 'Everyone due has already been reminded today.'); refresh() },
+      onError: (e) => push('error', (e as Error).message),
+    }),
+  }
 
   const actions = (e: CrmEmi) => (
     <div className="flex justify-end gap-1.5">

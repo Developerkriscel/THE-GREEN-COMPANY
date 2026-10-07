@@ -66,7 +66,7 @@ export interface CustomerBooking {
   customer_phone: string | null
   created_at: string
   plot: { id: string; number: string; size: number | null; size_unit: string | null; dimensions: string | null; facing: string | null } | null
-  project: { id: string; name: string; location: string | null; city: string | null; hero_image: string | null } | null
+  project: { id: string; name: string; location: string | null; city: string | null; hero_image: string | null; price_from?: number | null; price_to?: number | null } | null
   rep: { id: string; full_name: string; member_code: string | null; phone: string | null } | null
 }
 
@@ -158,7 +158,7 @@ const BOOKING_SELECT = `
   registry_status, registry_at, mutation_status, mutation_at, possession_status,
   customer_id, customer_name, customer_phone, created_at,
   plot:plots ( id, number, size, size_unit, dimensions, facing ),
-  project:projects ( id, name, location, city, hero_image ),
+  project:projects ( id, name, location, city, hero_image, price_from, price_to ),
   rep:profiles!bookings_rep_id_fkey ( id, full_name, member_code, phone )
 `
 

@@ -107,6 +107,8 @@ export interface SaleRow {
   /** The buyer as the member named them; usually a walk-in with no account. */
   customer_name?: string | null
   customer_phone?: string | null
+  /** The buyer's customer account, when the office has linked one. */
+  customer_id?: string | null
   created_at: string
   step3_at: string | null
   reject_remark?: string | null
@@ -257,7 +259,7 @@ export function useMySales(memberId: string | undefined) {
       // gateway returns a single related row, as every other query here does.
       const { data, error } = await supabase
         .from('bookings')
-        .select('id, reference, status, sale_value, token_amount, customer_name, customer_phone, reject_remark, created_at, step3_at, plot:plots ( id, number, size, size_unit ), project:projects ( id, name )')
+        .select('id, reference, status, sale_value, token_amount, customer_id, customer_name, customer_phone, reject_remark, created_at, step3_at, plot:plots ( id, number, size, size_unit ), project:projects ( id, name )')
         .eq('rep_id', memberId!)
         .is('deleted_at', null)
         .order('created_at', { ascending: false })

@@ -1,7 +1,9 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ADMIN_LOGIN_PATH } from '@/lib/adminPath'
 import {
+  ArrowRightLeft,
   BadgeCheck,
+  ContactRound,
   Banknote,
   Bell,
   Building2,
@@ -48,6 +50,7 @@ import { ProjectDetail } from '@/pages/public/ProjectDetail'
 import { ContactPage } from '@/pages/public/Contact'
 import { AboutPage } from '@/pages/public/About'
 import { RewardsPage } from '@/pages/public/Rewards'
+import { ResalePage } from '@/pages/public/Resale'
 import { GalleryPage } from '@/pages/public/Gallery'
 import { EventsPage } from '@/pages/public/Events'
 import { NewsPage } from '@/pages/public/News'
@@ -87,6 +90,7 @@ import { AdminAudit } from '@/pages/admin/Audit'
 import { AdminCms } from '@/pages/admin/Cms'
 import { AdminReports } from '@/pages/admin/Reports'
 import { AdminCustomers } from '@/pages/admin/Customers'
+import { AdminResale } from '@/pages/admin/Resale'
 import { AdminEmployees } from '@/pages/admin/Employees'
 import { AdminEmployeeDetail } from '@/pages/admin/EmployeeDetail'
 import { AdminEmployeeEditor } from '@/pages/admin/EmployeeEditor'
@@ -96,6 +100,7 @@ import { AdminCustomerDetail } from '@/pages/admin/CustomerDetail'
 import { CustomerDashboard } from '@/pages/customer/Dashboard'
 import { CustomerPlots, CustomerDocuments } from '@/pages/customer/Plots'
 import { CustomerPayments } from '@/pages/customer/Payments'
+import { CustomerResale } from '@/pages/customer/Resale'
 import { CustomerContact, CustomerFeedbackPage, CustomerOffers, CustomerRefer } from '@/pages/customer/Engage'
 import { CustomerProfile } from '@/pages/customer/Profile'
 
@@ -115,6 +120,8 @@ import { SponsorNotifications } from '@/pages/sponsor/Notifications'
 import { SponsorIdCard } from '@/pages/sponsor/IdCard'
 import { SponsorLeads } from '@/pages/sponsor/Leads'
 import { SponsorPayments } from '@/pages/sponsor/Payments'
+import { SponsorCustomers } from '@/pages/sponsor/Customers'
+import { SponsorResaleMarket } from '@/pages/sponsor/ResaleMarket'
 
 /* The rep (/app) and manager (/mgr) panels were retired on 2026-09-24. The
    business runs three panels: /admin, /sponsor (members) and /customer (plot
@@ -138,6 +145,7 @@ const adminNav: NavItem[] = [
   { to: '/admin/settings', label: 'Business Settings', icon: <Settings className={ico} /> },
   { to: '/admin/members', label: 'Members', icon: <Users className={ico} /> },
   { to: '/admin/customers', label: 'Customers', icon: <UserCircle className={ico} /> },
+  { to: '/admin/resale', label: 'Resale Desk', icon: <ArrowRightLeft className={ico} /> },
   { to: '/admin/employees', label: 'Employees', icon: <IdCard className={ico} /> },
   { to: '/admin/tree', label: 'Member Tree', icon: <Network className={ico} /> },
   { to: '/admin/genealogy', label: 'Genealogy', icon: <GitBranch className={ico} /> },
@@ -171,7 +179,9 @@ const sponsorNav: NavItem[] = [
   { to: '/sponsor', label: 'Dashboard', short: 'Home', icon: <Gauge className={ico} />, end: true },
   { to: '/sponsor/sales', label: 'Plot Sales', icon: <BadgeCheck className={ico} /> },
   { to: '/sponsor/verified-sales', label: 'Verified Sales', icon: <ClipboardCheck className={ico} /> },
+  { to: '/sponsor/customers', label: 'My Customers', short: 'Customers', icon: <ContactRound className={ico} /> },
   { to: '/sponsor/crm', label: 'Payments CRM', short: 'CRM', icon: <Receipt className={ico} /> },
+  { to: '/sponsor/resale', label: 'Resale Plots', icon: <ArrowRightLeft className={ico} /> },
   { to: '/sponsor/leads', label: 'Lead Follow-up', short: 'Leads', icon: <Phone className={ico} /> },
   { to: '/sponsor/wallet', label: 'My Wallet', short: 'Wallet', icon: <Wallet className={ico} /> },
   { to: '/sponsor/income/direct', label: 'Direct Income', icon: <TrendingUp className={ico} /> },
@@ -201,6 +211,7 @@ const customerNav: NavItem[] = [
   { to: '/customer/plots', label: 'My Plots', short: 'Plots', icon: <LandPlot className={ico} /> },
   { to: '/customer/payments', label: 'EMI & Payments', short: 'EMI', icon: <Receipt className={ico} /> },
   { to: '/customer/documents', label: 'Registry & Papers', short: 'Papers', icon: <FileText className={ico} /> },
+  { to: '/customer/resale', label: 'Resell My Plot', short: 'Resale', icon: <ArrowRightLeft className={ico} /> },
   { to: '/customer/offers', label: 'New Offers', icon: <Gift className={ico} /> },
   { to: '/customer/refer', label: 'Refer a Friend', icon: <UserPlus className={ico} /> },
   { to: '/customer/feedback', label: 'Feedback', icon: <MessageSquareHeart className={ico} /> },
@@ -228,6 +239,7 @@ export function App() {
         {/* The Plans page was taken off the site on 2026-10-01; old links land on Home. */}
         <Route path="plans" element={<Navigate to="/" replace />} />
         <Route path="rewards" element={<RewardsPage />} />
+        <Route path="resale" element={<ResalePage />} />
         <Route path="gallery" element={<GalleryPage />} />
         <Route path="events" element={<EventsPage />} />
         <Route path="news" element={<NewsPage />} />
@@ -263,6 +275,7 @@ export function App() {
           <Route path="members/:code" element={<AdminMemberDetail />} />
           <Route path="customers" element={<AdminCustomers />} />
           <Route path="customers/:id" element={<AdminCustomerDetail />} />
+          <Route path="resale" element={<AdminResale />} />
           <Route path="employees" element={<AdminEmployees />} />
           <Route path="employees/new" element={<AdminEmployeeEditor />} />
           <Route path="employees/:id" element={<AdminEmployeeDetail />} />
@@ -314,6 +327,8 @@ export function App() {
           <Route path="leads" element={<SponsorLeads />} />
           <Route path="payments" element={<SponsorPayments />} />
           <Route path="crm" element={<SponsorPayments />} />
+          <Route path="customers" element={<SponsorCustomers />} />
+          <Route path="resale" element={<SponsorResaleMarket />} />
           <Route path="withdrawals" element={<SponsorWithdrawals />} />
           <Route path="team" element={<SponsorTeam />} />
           <Route path="tree" element={<SponsorTree />} />
@@ -345,6 +360,7 @@ export function App() {
           <Route path="plots" element={<CustomerPlots />} />
           <Route path="payments" element={<CustomerPayments />} />
           <Route path="documents" element={<CustomerDocuments />} />
+          <Route path="resale" element={<CustomerResale />} />
           <Route path="offers" element={<CustomerOffers />} />
           <Route path="refer" element={<CustomerRefer />} />
           <Route path="feedback" element={<CustomerFeedbackPage />} />

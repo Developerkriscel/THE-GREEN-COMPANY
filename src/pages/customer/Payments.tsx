@@ -3,7 +3,7 @@ import { AlertTriangle, CheckCircle2, Clock, Upload } from 'lucide-react'
 import { type CustomerEmi } from '@/lib/customers'
 import { itemLabel, PAY_MODES, useUploadReceipt } from '@/lib/plot-sale'
 import { Badge, Button, Card, CardBody, CardHeader, EmptyState, Field, Input, Modal, PageHeader, Select, Table, Td, Th, useToast } from '@/components/ui'
-import { ProgressBar, SkeletonRows } from '@/components/sponsor'
+import { Notice, ProgressBar, SkeletonRows } from '@/components/sponsor'
 import { date, money } from '@/lib/format'
 import { BRAND } from '@/lib/brand'
 import { useMyPortfolio } from './common'
@@ -25,11 +25,20 @@ function EmiStatus({ e }: { e: CustomerEmi }) {
 
 export function CustomerPayments() {
   const { money: rows, payments, loading } = useMyPortfolio()
+  const late = rows.flatMap((r) => r.overdue.filter((e) => ['pending', 'overdue', 'rejected'].includes(e.status)))
+  const lateAmount = late.reduce((t, e) => t + Number(e.amount), 0)
+  const oldest = late.map((e) => e.due_date.slice(0, 10)).sort()[0]
+  const daysLate = oldest ? Math.max(1, Math.round((Date.now() - new Date(`${oldest}T00:00:00`).getTime()) / 86_400_000)) : 0
   const [slipFor, setSlipFor] = useState<CustomerEmi | null>(null)
 
   return (
     <>
       <PageHeader title="EMI & payments" description="Your instalment schedule, what you have paid, and receipts. Paid an instalment? Upload the slip so the office can confirm it." />
+      {late.length > 0 && (
+        <div className="mb-5"><Notice tone="error" title={`${money(lateAmount)} is overdue${late.length > 1 ? ` (${late.length} instalments)` : ''} — ${daysLate} day${daysLate === 1 ? '' : 's'} late`}>
+          Please pay and upload the receipt below. Already paid? Upload the slip so the office can confirm it and stop the reminders.
+        </Notice></div>
+      )}
       {loading ? <Card><SkeletonRows rows={5} /></Card> : rows.length === 0 ? (
         <Card><EmptyState title="No payment schedule yet" description="It appears once the office links your booking." /></Card>
       ) : (

@@ -478,6 +478,34 @@ const server = http.createServer((req, res) => {
     })
 })
 
+/**
+ * Payment reminders: every hour, mark unpaid instalments past their date as
+ * overdue and send the due-soon / due-today / overdue reminders to customers
+ * and their sponsors (app.run_payment_reminders, idempotent per day). The day
+ * is India's, not the database's UTC one. REMINDERS=off disables it.
+ */
+function startPaymentReminders() {
+  if (String(process.env.REMINDERS ?? '').toLowerCase() === 'off') return
+  let running = false
+  const run = async () => {
+    if (running) return
+    running = true
+    try {
+      const n = await db.withOwner(async (client) => {
+        const { rows } = await client.query(`select app.run_payment_reminders((now() at time zone 'Asia/Kolkata')::date) as n`)
+        return rows[0].n
+      })
+      if (n) console.log(`[reminders] ${n} reminder message(s) sent`)
+    } catch (err) {
+      console.error(`[reminders] run failed: ${err.message}`)
+    } finally {
+      running = false
+    }
+  }
+  setTimeout(run, 2 * 60_000).unref()
+  setInterval(run, 60 * 60_000).unref()
+}
+
 async function start() {
   const reach = await ensureReachable()
   if (!reach.ok) {
@@ -487,6 +515,7 @@ async function start() {
   await loadSchema()
   await auth.ensureAuthTables()
 
+  startPaymentReminders()
   server.listen(config.port, () => {
     console.log(`
   Symocity API gateway

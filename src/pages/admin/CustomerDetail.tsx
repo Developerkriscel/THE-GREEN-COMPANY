@@ -19,6 +19,7 @@ import { ProgressBar } from '@/components/sponsor'
 import { date, money, num } from '@/lib/format'
 import { openDocument } from '@/pages/customer/common'
 import { useRmOptions } from './Customers'
+import { CHANNEL_LABEL, KIND_LABEL, useReminders, useSendReminder } from '@/lib/reminders'
 
 /**
  * One customer, as the office runs them: their record and RM, the plots they
@@ -66,6 +67,7 @@ export function AdminCustomerDetail() {
           ) : bookings.map((b) => (
             <BookingCard key={b.id} customerId={p.id} booking={b} money={bookingMoney(b, emis, payments)} docs={docs.filter((d) => d.booking_id === b.id)} />
           ))}
+          {bookings.length > 0 && <RemindersCard bookings={bookings} />}
           <ReferralsCard customerId={p.id} />
           <FeedbackCard customerId={p.id} />
         </div>
@@ -403,6 +405,57 @@ function BookPlotModal({ customerId, rmId, onClose }: { customerId: string; rmId
 }
 
 const NEW_PLOT = '__new__'
+
+/* -------------------------------------------------------------- reminders */
+
+/**
+ * Every payment reminder for this customer's plots: the automatic ones (due
+ * in 3 days, due today, overdue) and those the sponsor or office sent, with
+ * a button to remind them in their panel now.
+ */
+function RemindersCard({ bookings }: { bookings: CustomerBooking[] }) {
+  const ids = useMemo(() => bookings.map((b) => b.id), [bookings])
+  const { data: reminders = [] } = useReminders(ids)
+  const send = useSendReminder()
+  const { push } = useToast()
+  const label = (id: string) => {
+    const b = bookings.find((x) => x.id === id)
+    return `${b?.project?.name ?? 'Plot'} · ${b?.plot?.number ?? '—'}`
+  }
+  return (
+    <Card>
+      <CardHeader title="Payment reminders" subtitle="Automatic reminders go out 3 days before, on the day, and while an instalment is late."
+        action={
+          <div className="flex flex-wrap gap-2">
+            {bookings.filter((b) => b.status === 'confirmed').map((b) => (
+              <Button key={b.id} size="sm" variant="outline" loading={send.isPending && send.variables?.bookingId === b.id}
+                onClick={() => send.mutate({ bookingId: b.id, channel: 'panel' }, {
+                  onSuccess: () => push('success', 'Reminder sent to the customer\'s panel.'),
+                  onError: (e) => push('error', (e as Error).message),
+                })}>
+                Remind in panel{bookings.length > 1 ? ` · ${b.plot?.number ?? ''}` : ''}
+              </Button>
+            ))}
+          </div>
+        } />
+      <CardBody className="py-2">
+        {reminders.length === 0 ? <p className="py-3 text-sm text-slate-500">No reminders yet.</p> : (
+          <ul className="divide-y divide-slate-100 text-sm">
+            {reminders.slice(0, 15).map((r) => (
+              <li key={r.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2">
+                <span className="text-slate-700">
+                  <b className="text-brand-darker">{r.kind === 'manual' ? CHANNEL_LABEL[r.channel] : KIND_LABEL[r.kind]}</b>
+                  {bookings.length > 1 ? ` · ${label(r.booking_id)}` : ''}{r.note ? ` — ${r.note}` : ''}
+                </span>
+                <span className="text-xs text-slate-400">{date(r.created_at)}{r.kind === 'manual' && r.sender?.full_name ? ` · ${r.sender.full_name}` : ''}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardBody>
+    </Card>
+  )
+}
 
 /* ---------------------------------------------------------------- details */
 
