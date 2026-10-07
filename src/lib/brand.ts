@@ -64,6 +64,8 @@ export const BRAND = {
   mark: '/logo-symo-green.png',
   markSquare: '/logo-symo-green.png',
   symbol: '/logo-symo-green-symbol.png',
+  /** The full logo cropped tight (no padding), for headers where height is limited. */
+  logo: '/logo-symo-green-trim.png',
   guidelines: '/brand-guidelines.jpg',
   phoneHref: 'tel:+919211809636',
   landlineHref: 'tel:+911243168769',
@@ -95,6 +97,7 @@ export function applyBrand(stored: Partial<BrandSettings> | null | undefined) {
   BRAND.mark = logo || '/logo-symo-green.png'
   BRAND.markSquare = logo || '/logo-symo-green.png'
   BRAND.symbol = logo || '/logo-symo-green-symbol.png'
+  BRAND.logo = logo || '/logo-symo-green-trim.png'
   const digits = b.phone.replace(/\D/g, '')
   BRAND.phoneHref = `tel:+${digits.length === 10 ? `91${digits}` : digits}`
   BRAND.landlineHref = landlineHref(b.landline)

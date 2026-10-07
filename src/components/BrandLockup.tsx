@@ -29,18 +29,18 @@ export function BrandLockup({
     ? BRAND.name.slice(short.length).trim()
     : ''
   const s = {
-    sm: { img: 'h-10 w-10', name: 'text-[12px] tracking-[0.04em]', rest: 'text-[8px]', motto: 'text-[10px]' },
-    md: { img: 'h-12 w-12', name: 'text-[13px] tracking-[0.1em]', rest: 'text-[8.5px]', motto: 'text-[10.5px]' },
-    lg: { img: 'h-24 w-24', name: 'text-lg tracking-[0.1em] sm:text-xl', rest: 'text-[10px]', motto: 'text-sm' },
+    sm: { img: 'h-12', name: 'text-[11px] tracking-[0.03em]', rest: 'text-[8px]', motto: 'text-[10px]' },
+    md: { img: 'h-14', name: 'text-[13px] tracking-[0.1em]', rest: 'text-[8.5px]', motto: 'text-[10.5px]' },
+    lg: { img: 'h-24', name: 'text-lg tracking-[0.1em] sm:text-xl', rest: 'text-[10px]', motto: 'text-sm' },
   }[size]
 
   return (
-    <div className={clsx('flex items-center gap-3', align === 'center' && 'flex-col text-center', className)}>
+    <div className={clsx('flex items-center', size === 'sm' ? 'gap-2' : 'gap-3', align === 'center' && 'flex-col text-center', className)}>
       {mark && (
         <img
-          src={size === 'lg' ? BRAND.markSquare : BRAND.symbol}
+          src={BRAND.logo}
           alt=""
-          className={clsx(s.img, 'shrink-0 object-contain drop-shadow')}
+          className={clsx(s.img, 'w-auto shrink-0 object-contain drop-shadow')}
           onError={(e) => { (e.target as HTMLElement).style.display = 'none' }}
         />
       )}
