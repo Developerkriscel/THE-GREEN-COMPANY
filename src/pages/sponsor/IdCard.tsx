@@ -139,7 +139,7 @@ export function IdCardFaces({
 
         <div className="relative z-10 px-3 pb-3 pt-5 text-center text-white" style={{ background: `linear-gradient(160deg, ${DEEP} 0%, ${LEAF} 100%)` }}>
           <div className="flex items-center justify-center gap-2">
-            <img src={BRAND.markSquare} alt="" className="h-11 w-11 object-contain" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.35))' }} />
+            <img src={BRAND.symbol} alt="" className="h-11 w-11 object-contain" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.35))' }} />
             <div className="text-left leading-none">
               <p className="text-[12px] font-extrabold tracking-[0.05em]">{BRAND.short.toUpperCase()}</p>
               {BRAND.legalName.toUpperCase().startsWith(BRAND.short.toUpperCase()) && BRAND.legalName.length > BRAND.short.length ? (

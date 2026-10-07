@@ -121,7 +121,7 @@ function CompanyHeading({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   const rest = BRAND.name.toUpperCase().startsWith(short.toUpperCase()) ? BRAND.name.slice(short.length).trim() : ''
   return (
     <div className="mx-auto flex max-w-3xl flex-col items-center text-center leading-tight">
-      <img src={BRAND.markSquare} alt="" className="h-20 w-20 object-contain drop-shadow-lg sm:h-24 sm:w-24" />
+      <img src={BRAND.markSquare} alt="" className="h-28 w-28 object-contain drop-shadow-lg sm:h-32 sm:w-32" />
       <p className={`mt-3 text-2xl font-extrabold uppercase tracking-wide sm:text-3xl lg:text-4xl ${tone === 'dark' ? 'text-gold-metal' : 'text-brand-darker'}`}>{short}</p>
       {rest && <p className={`mt-1.5 text-xs font-bold uppercase tracking-[0.3em] sm:text-sm ${tone === 'dark' ? 'text-white/60' : 'text-brand-gold-deep'}`}>{rest}</p>}
       {BRAND.tagline && <p className={`mt-2 text-base font-semibold italic sm:text-lg ${tone === 'dark' ? 'text-brand-gold-light' : 'text-brand-gold-deep'}`}>{BRAND.tagline}</p>}
@@ -368,7 +368,7 @@ export function Home() {
           </div>
         </div>
 
-        {/* The coin, floating, on wide screens */}
+        {/* The logo, floating, on wide screens */}
         <div className="pointer-events-none absolute right-[5%] top-1/2 hidden -translate-y-1/2 lg:block" aria-hidden>
           <div className="relative">
             <div className="absolute inset-6 rounded-full bg-brand-gold/30 blur-3xl" />

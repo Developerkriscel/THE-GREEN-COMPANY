@@ -44,7 +44,7 @@ export function EmployeeCardFaces({ employee: e, photoUrl }: { employee: Employe
 
         <div className="relative z-10 px-3 pb-2.5 pt-5 text-center text-white" style={{ background: `linear-gradient(160deg, ${DEEP} 0%, ${LEAF} 100%)` }}>
           <div className="flex items-center justify-center gap-2">
-            <img src={BRAND.markSquare} alt="" className="h-10 w-10 object-contain" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.35))' }} />
+            <img src={BRAND.symbol} alt="" className="h-10 w-10 object-contain" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.35))' }} />
             <div className="text-left leading-none">
               <p className="text-[12px] font-extrabold tracking-[0.05em]">{BRAND.short.toUpperCase()}</p>
               <p className="mt-[3px] text-[6.5px] font-semibold tracking-[0.2em] opacity-90">{legalTail}</p>

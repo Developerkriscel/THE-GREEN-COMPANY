@@ -126,7 +126,7 @@ export function AppShell({
           <div className="gold-hairline absolute inset-x-0 bottom-0" aria-hidden />
           <div className="flex items-center gap-3">
             {/* On phones and tablets the menu opens from "More" in the bottom bar. */}
-            <img src={BRAND.markSquare} alt="" className="h-9 w-9 object-contain drop-shadow lg:hidden" />
+            <img src={BRAND.symbol} alt="" className="h-9 w-9 object-contain drop-shadow lg:hidden" />
             <div className="leading-tight">
               <p className="whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.22em] text-brand-gold-deep">
                 {area === 'Administration' ? 'Admin Console' : area === 'Customer' ? 'Customer Portal' : 'Sponsor Panel'}

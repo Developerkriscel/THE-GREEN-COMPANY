@@ -175,7 +175,7 @@ function CompanyTab() {
   }
 
   if (isLoading) return <Spinner label="Loading company details…" />
-  const logo = assetUrl(form.logoUrl) ?? '/brand-mark-512.png'
+  const logo = assetUrl(form.logoUrl) ?? '/logo-symo-green.png'
 
   return (
     <form onSubmit={submit} className="space-y-5">

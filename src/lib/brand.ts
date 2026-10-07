@@ -8,8 +8,10 @@
  * what was saved. The values below are only the fallback for a missing row
  * or an unreachable server.
  *
- * The default mark (the gold coin) is cut from the brand sheet in
- * IMAGES/LOGO.jpeg, also published at `/brand-guidelines.jpg`.
+ * The default logo is the SYMO GREEN logo (2026-10-07): `markSquare` is the
+ * full logo (the S and the "SYMO GREEN" wordmark) for large placements, and
+ * `symbol` is the S alone for small ones beside the company name (header,
+ * sidebar, ID cards, favicon), where the wordmark would be unreadable.
  */
 
 import { assetUrl } from '@/lib/supabase'
@@ -59,8 +61,9 @@ export const BRAND_DEFAULTS: BrandSettings = {
 export const BRAND = {
   ...BRAND_DEFAULTS,
   /** Served from public/ unless the office uploaded a logo. */
-  mark: '/brand-mark.png',
-  markSquare: '/brand-mark-512.png',
+  mark: '/logo-symo-green.png',
+  markSquare: '/logo-symo-green.png',
+  symbol: '/logo-symo-green-symbol.png',
   guidelines: '/brand-guidelines.jpg',
   phoneHref: 'tel:+919211809636',
   landlineHref: 'tel:+911243168769',
@@ -89,8 +92,9 @@ export function applyBrand(stored: Partial<BrandSettings> | null | undefined) {
   const b = resolveBrand(stored)
   Object.assign(BRAND, b)
   const logo = assetUrl(b.logoUrl)
-  BRAND.mark = logo || '/brand-mark.png'
-  BRAND.markSquare = logo || '/brand-mark-512.png'
+  BRAND.mark = logo || '/logo-symo-green.png'
+  BRAND.markSquare = logo || '/logo-symo-green.png'
+  BRAND.symbol = logo || '/logo-symo-green-symbol.png'
   const digits = b.phone.replace(/\D/g, '')
   BRAND.phoneHref = `tel:+${digits.length === 10 ? `91${digits}` : digits}`
   BRAND.landlineHref = landlineHref(b.landline)
